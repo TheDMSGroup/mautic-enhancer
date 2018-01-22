@@ -6,25 +6,23 @@ return [
     'author'      => 'Nicholai Bush',
     'services' => [
         'events' => [
-            'mautic.alcazar.event.lead' => [
+            'mautic.enhancer.event.lead' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
-                'arguments' => [
-                    'mautic.helper.integration',
-                ], 
+                'arguments' => [], 
             ],
-            'mautic.alcazar.event.plugin' => [
+            'mautic.enhancer.event.plugin' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
-                'arguments' => [
-                    'mautic.helper.integration',
-                ],
+                'arguments' => [],
             ],
         ],
         'integrations' => [
             'mautic.alcazar.integration.alcazar' => [
-                'class' => \MauticPlugin\MauticAlcazarBundle\Integration\AlcazarIntegration::class,
-                'arguments' => [
-			''
-		],
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
+                'arguments' => [],
+            ],
+            'mautic.alcazar.integration.random' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
+                'arguments' => [],
             ],
         ],
     ],

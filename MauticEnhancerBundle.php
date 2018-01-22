@@ -12,6 +12,6 @@ namespace MauticPlugin\MauticEnhancerBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
 
-class MauticRandomBundle extends PluginBundleBase
+class MauticEnhancerBundle extends PluginBundleBase
 {
 }

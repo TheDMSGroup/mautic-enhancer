@@ -9,7 +9,7 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticEnhancerundle\EventListener;
+namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
@@ -35,11 +35,6 @@ class PluginSubscriber extends CommonSubscriber
      */
     public function buildCustomFields(PluginIntegrationEvent $event)
     {
-        if (
-            $event->getIntegration() instanceof AlcazarIntegration &&
-            $event->getEntity()->getIsPublished()
-        ) {
-            $event->getIntegration()->buildEnhancementFields();
-        }        
+        $event->getIntegration()->buildEnhancerFields();
     }
 }

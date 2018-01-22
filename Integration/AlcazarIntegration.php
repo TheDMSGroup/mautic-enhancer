@@ -11,7 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use MauticPlugin\MauticEnhancemerBundle\Inegration\AbsractEnhancementIntegration;
+use Mautic\LeadBundle\Entity\Lead;
 
 class AlcazarIntegration extends AbstractEnhancerIntegration
 {
@@ -102,7 +102,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
         }
     }
              
-    private function getEnhancerFieldArray()
+    protected function getEnhancerFieldArray()
     {
         $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
         
@@ -130,6 +130,31 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                                         'default_value' => 'INDETERMINATE',
                                       ],
         ];
+    }
+
+    public function doEnhancement(Lead $lead)
+    {
+        if ($this->getIsPublished()) {
+
+            $keys = $this->getDecryptedApiKeys();
+            $params = [
+               'key' => $keys[apikey],
+            ];
+              
+            $params = array_merge(
+                $params,
+                $this->getFeatureSettings()
+            );
+            
+            $params['tn'] = $lead->getPhone();
+                    
+            $response = $this->makeRequest(
+                $keys['server'],
+                ['append_to_query' => $params]
+            );
+                    
+            error_log(print_r($response, true));
+        }        
     }
 }
 

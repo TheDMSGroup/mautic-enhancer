@@ -9,11 +9,11 @@
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
-namespace MauticPlugin\MauticEnhancementBundle\Integration;
+namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use MauticPlugin\MauticEnhancementBundle\Inegration\AbsractEnhancementIntegration;
+use Mautic\LeadBundle\Entity\Lead;
 
-class RandomIntegration extends AbstractEnancementIntegration
+class RandomIntegration extends AbstractEnhancerIntegration
 {
     const INTEGRATION_NAME = 'Random';
     
@@ -44,12 +44,19 @@ class RandomIntegration extends AbstractEnancementIntegration
         }
     }
     
-    public function getEnhancementFieldArray()
+    protected function getEnhancerFieldArray()
     {
         return [
             $this->settings['random_field_name'] => [
-                'label' => ''
+                'label' => 'Random Value'
             ]
         ];
+    }
+    
+    public function doEnhancement(Lead $lead)
+    {
+        if (!$lead->getField($this->settings['random_field_name'])) {
+            $lead->addUpdatedField($this->settings['random_field_name']);
+        }
     }
 }

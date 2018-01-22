@@ -13,8 +13,9 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use Mautic\LeadBundle\Model\FieldModel;
+use Mautic\LeadBundle\Entity\Lead;
 
-abstract class AbstractEnhancmentIntegration extends AbstractIntegration
+abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
     // Integrations of this type should use this constant to define the name
     const INTEGRATION_NAME = null;
@@ -22,8 +23,8 @@ abstract class AbstractEnhancmentIntegration extends AbstractIntegration
      * This class does not implement the core abstract methods
      */
      
-    abstract public function getEnhancerFieldArray();
-    abstract public function doEnhancement();
+    abstract protected function getEnhancerFieldArray();
+    abstract public function doEnhancement(Lead $lead);
     
     public function getName()
     {
