@@ -98,6 +98,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                             'tooltip' => 'mautic.integration.alcazar.dnc.tooltip',
                         ],
                     ]
+                )
+                ->add(
+                    'enhancer',
+                    'hidden',
+                    [
+                        'data' => self::INTEGRATION_NAME
+                    ]
                 );       
         }
     }

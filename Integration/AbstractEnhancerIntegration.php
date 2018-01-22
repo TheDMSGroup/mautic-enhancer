@@ -74,4 +74,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         error_log(print_r($created));
         return empty(array_diff(array_keys($creating), $created));
     }
+    
+    public function 
 }

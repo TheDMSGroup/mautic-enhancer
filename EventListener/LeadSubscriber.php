@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\LeadEvents;
 use Mautic\LeadBundle\Event\LeadEvent;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class LeadSubscriber extends CommonSubscriber
 {
@@ -31,19 +32,22 @@ class LeadSubscriber extends CommonSubscriber
         ];
     }
     
-    public function __construct()
+    /**
+     * @var IntergrationHelper
+     */
+    protected $integration_helper;
+    
+    /**
+     * @param IntegrationHelper $helper
+     */
+    public function __construct(PluginHelper $helper)
     {
-        
+        $this->integration_helper = $helper;
     }
     
     public function doEnhancements(LeadEvent $e) {
+        $this->integration_helper->getIntegrationSettings();
         //->getIntegration()
         $e->getEntity()->doEnhancement($e->getEntity());
-    }
-
-    
-    public function __construct()
-    {
-        
-    }
+    }    
 }
