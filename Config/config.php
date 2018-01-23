@@ -24,6 +24,7 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
                 'arguments' => [],
             ],
+            
         ],
     ],
 ];
