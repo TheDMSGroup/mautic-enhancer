@@ -24,7 +24,10 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
                 'arguments' => [],
             ],
-            
+            'mautic.alcazar.integration.xverify' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
+                'arguments' => [],
+            ],
         ],
     ],
 ];
