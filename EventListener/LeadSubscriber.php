@@ -46,8 +46,11 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     public function doEnhancements(LeadEvent $e) {
-        $this->integration_helper->getIntegrationSettings();
-        //->getIntegration()
-        $e->getEntity()->doEnhancement($e->getEntity());
+        $integration_settings = $this->integration_helper->getIntegrationSettings();
+        foreach ($integration_settings as $integration) {
+            
+
+            $e->getEntity()->doEnhancement($e->getEntity());
+        }
     }    
 }

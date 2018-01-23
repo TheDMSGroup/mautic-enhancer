@@ -26,17 +26,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     abstract protected function getEnhancerFieldArray();
     abstract public function doEnhancement(Lead $lead);
     
-    public function getName()
-    {
-        return self::INTEGRATION_NAME;
-    }
-    
-        public function getDisplayName()
-    {
-        
-        return is_null(self::INTEGRATION_NAME ) ? null : self::INTEGRATION_NAME . ' Data Enhancer';    
-    }
-        
     public function buildEnhancerFields()
     {
         $creating = $this->getEnhancerFieldArray();

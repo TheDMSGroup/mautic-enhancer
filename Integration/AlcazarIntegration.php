@@ -17,6 +17,16 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
 {
     const INTEGRATION_NAME = 'Alcazar';
  
+    public function getName()
+    {
+        return self::INTEGRATION_NAME;
+    }
+    
+    public function getDisplayName()
+    {
+        return self::INTEGRATION_NAME . ' Data Enhancer';    
+    }
+        
     public function getAuthenticationType()
     {
         return 'keys';

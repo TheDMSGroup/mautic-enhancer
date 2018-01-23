@@ -22,6 +22,16 @@ class RandomIntegration extends AbstractEnhancerIntegration
         return 'none';
     }
     
+    public function getName()
+    {
+        return self::INTEGRATION_NAME;
+    }
+    
+    public function getDisplayName()
+    {
+        return is_null(self::INTEGRATION_NAME ) ? null : self::INTEGRATION_NAME . ' Data Enhancer';    
+    }
+
     /**
      * @param FormBuilder|Form $builder
      * @param array            $data
