@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class AlcazarIntegration extends AbstractEnhancerIntegration
 {

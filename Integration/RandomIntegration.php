@@ -29,7 +29,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
     
     public function getDisplayName()
     {
-        return is_null(self::INTEGRATION_NAME ) ? null : self::INTEGRATION_NAME . ' Data Enhancer';    
+        return self::INTEGRATION_NAME . ' Data Enhancer';    
     }
 
     /**
@@ -39,7 +39,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        if ($formArea === 'features' && !$this->helper->getRandomField()) {
+        if ($formArea === 'features' && !$data['random_field_name']) {
             $builder->add(
                 'random_field_name',
                 'text',
@@ -48,7 +48,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
                     'attr'  => [
                         'tooltip' => 'mautic.plugin.random.field_name.tooltip',
                     ],
-                    'data' => $data['random_field_name'],
+                    'data' => '',
                 ]
             );
         }

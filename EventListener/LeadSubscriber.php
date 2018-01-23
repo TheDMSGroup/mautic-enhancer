@@ -36,15 +36,7 @@ class LeadSubscriber extends CommonSubscriber
      * @var IntergrationHelper
      */
     protected $integration_helper;
-    
-    /**
-     * @param IntegrationHelper $helper
-     */
-    public function __construct(PluginHelper $helper)
-    {
-        $this->integration_helper = $helper;
-    }
-    
+       
     public function doEnhancements(LeadEvent $e) {
         $integration_settings = $this->integration_helper->getIntegrationSettings();
         foreach ($integration_settings as $integration) {
