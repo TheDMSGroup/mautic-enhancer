@@ -11,6 +11,7 @@
 namespace MauticPlugin\MauticEnhancerBundle;
 
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
+use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 class MauticEnhancerBundle extends PluginBundleBase
 {
