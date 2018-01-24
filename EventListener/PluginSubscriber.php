@@ -36,6 +36,5 @@ class PluginSubscriber extends CommonSubscriber
     public function buildCustomFields(PluginIntegrationEvent $event)
     {
         $event->getIntegration()->buildEnhancerFields();
-        return true;
     }
 }
