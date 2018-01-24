@@ -69,47 +69,14 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         return 'mautic.integration.xverify.apikey.label';
     }
 
-    public function appendToForm(&$builder, $data, $formArea)
-    {
-        if ('features' === $formArea) {
-            $builder
-                ->add('validatePhone',
-                    'yesno_button_group',
-                    [
-                        'label' => 'mautic.integration.xverify.validate_phone.label',
-                        'data'  => !isset($data['validatePhone']) ? false : $data['validatePhone'],
-                        'required'    => false,
-                        'empty_value' => false,
-                        'label_attr'  => ['class' => 'control-label'],
-                        'attr'        => [
-                            'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.xverify.validate_phone.tooltip',
-                        ],
-                    ])
-                ->add('validateEmail',
-                    'yesno_button_group',
-                    [
-                        'label' => 'mautic.integration.xverify.validate_email.label',
-                        'data'  => !isset($data['validatePhone']) ? false : $data['validateEmail'],
-                        'required'    => false,
-                        'empty_value' => false,
-                        'label_attr'  => ['class' => 'control-label'],
-                        'attr'        => [
-                            'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.xverify.validate_email.tooltip',
-                        ],
-                    ]
-                );
-        }
-    }
 
     public function getAvailableLeadFields($settings = [])
     {
         return [
-            'email' => ['type' => 'string'],
-            'home_phone'          => ['type' => 'string'],
-            'cell_phone'      => ['type' => 'string'],
-            'work_phone'   => ['type' => 'string'],
+            'email'      => ['type' => 'string'],
+            'home_phone' => ['type' => 'string'],
+            'cell_phone' => ['type' => 'string'],
+            'work_phone' => ['type' => 'string'],
         ];
     }
 
@@ -121,11 +88,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead $lead)
     {
         if ($this->getIsPublished()) {
-
-            $emailToVerify = $lead->getEmail();
-            $phoneToVerify = $lead->getPhone();
-            $mobileToVerify = $lead->getMobile();
-
 
             $keys = $this->getDecryptedApiKeys();
             $params = [

@@ -71,4 +71,77 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         error_log(print_r($created));
         return empty(array_diff(array_keys($creating), $created));
     }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param array $settings
+     *
+     * @return array
+     */
+    public function getFormLeadFields($settings = [])
+    {
+        static $fields = [];
+
+        if (empty($fields)) {
+            $s         = $this->getName();
+            $available = $this->getAvailableLeadFields($settings);
+            if (empty($available) || !is_array($available)) {
+                return [];
+            }
+
+            foreach ($available as $field => $details) {
+                $label = (!empty($details['label'])) ? $details['label'] : false;
+                $fn    = $this->matchFieldName($field);
+                switch ($details['type']) {
+                    case 'string':
+                    case 'boolean':
+                        $fields[$fn] = (!$label)
+                            ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$s}.{$fn}.label")
+                            : $label;
+                        break;
+                    case 'object':
+                        if (isset($details['fields'])) {
+                            foreach ($details['fields'] as $f) {
+                                $fn          = $this->matchFieldName($field, $f);
+                                $fields[$fn] = (!$label)
+                                    ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$s}.{$fn}.label")
+                                    : $label;
+                            }
+                        } else {
+                            $fields[$field] = (!$label)
+                                ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$s}.{$fn}.label")
+                                : $label;
+                        }
+                        break;
+                    case 'array_object':
+                        if ($field == 'urls' || $field == 'url') {
+                            foreach ($details['fields'] as $f) {
+                                $fields["{$p}Urls"] = (!$label)
+                                    ? $this->translator->transConditional("mautic.integration.common.{$f}Urls", "mautic.integration.{$s}.{$f}Urls")
+                                    : $label;
+                            }
+                        } elseif (isset($details['fields'])) {
+                            foreach ($details['fields'] as $f) {
+                                $fn          = $this->matchFieldName($field, $f);
+                                $fields[$fn] = (!$label)
+                                    ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$s}.{$fn}.label")
+                                    : $label;
+                            }
+                        } else {
+                            $fields[$fn] = (!$label)
+                                ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$s}.{$fn}.label")
+                                : $label;
+                        }
+                        break;
+                }
+            }
+            if ($this->sortFieldsAlphabetically()) {
+                uasort($fields, 'strnatcmp');
+            }
+        }
+
+        return $fields;
+    }
+
 }
