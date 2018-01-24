@@ -1,17 +1,29 @@
 <?php
 
-namespace MauticPlugin\MauticEnhancerIntegration\Helper;
+namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
-class EnhancementHelper
+class EnhancerHelper
 {
-    public static $integration_helper;
+    /**
+     * @var IntegrationHelper
+     */
+    protected static $integration_helper;
     
+    /**
+     * @param IntegrationHelper $helper
+     */
     public static function init(IntegrationHelper $helper)
     {
         self::$integration_helper = $helper;
     }
 
-    
+    /**
+     * @return IntegrationHelper
+     */
+    public static function getHelper()
+    {
+        return self::$integration_helper;
+    }
 }
