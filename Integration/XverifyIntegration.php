@@ -103,6 +103,16 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         }
     }
 
+    public function getAvailableLeadFields($settings = [])
+    {
+        return [
+            'email' => ['type' => 'string'],
+            'home_phone'          => ['type' => 'string'],
+            'cell_phone'      => ['type' => 'string'],
+            'work_phone'   => ['type' => 'string'],
+        ];
+    }
+
     protected function getEnhancerFieldArray()
     {
         return [];
@@ -111,6 +121,11 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead $lead)
     {
         if ($this->getIsPublished()) {
+
+            $emailToVerify = $lead->getEmail();
+            $phoneToVerify = $lead->getPhone();
+            $mobileToVerify = $lead->getMobile();
+
 
             $keys = $this->getDecryptedApiKeys();
             $params = [
