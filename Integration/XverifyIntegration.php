@@ -15,11 +15,11 @@ use Mautic\CampaignBundle\Entity\Campaign;
 
 class XverifyIntegration extends AbstractEnhancerIntegration
 {
-    const INTEGRATION_NAME = 'X-Verify';
+    const INTEGRATION_NAME = 'Xverify';
 
     public function getAuthenticationType()
     {
-        return 'api';
+        return 'keys';
     }
 
     public function getName()
@@ -27,11 +27,28 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         return self::INTEGRATION_NAME;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getDisplayName()
     {
         return self::INTEGRATION_NAME . ' Data Enhancer';
     }
 
+    public function getSupportedFeatures()
+    {
+        return [
+            'push_lead',
+        ];
+    }
+
+    public function getRequiredKeyFields()
+    {
+        return [
+            'server' => 'mautic.integration.xverify.server.label',
+            'apikey' => 'mautic.integration.xverify.apikey.label'
+        ];
+    }
     /**
      * Get the array key for clientId.
      *
@@ -39,8 +56,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
      */
     public function getClientIdKey()
     {
-        // fortemailverify.com
-        return 'XVERIFY_DOMAIN';
+        return 'mautic.integration.xverify.server.label';
     }
 
     /**
@@ -50,19 +66,70 @@ class XverifyIntegration extends AbstractEnhancerIntegration
      */
     public function getClientSecretKey()
     {
-        // 1003879-2410447D
-        return 'XVERIFY_API_KEY';
+        return 'mautic.integration.xverify.apikey.label';
     }
 
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
             $builder
-                ->add();
+                ->add('validatePhone',
+                    'yesno_button_group',
+                    [
+                        'label' => 'mautic.integration.xverify.validate_phone.label',
+                        'data'  => !isset($data['validatePhone']) ? false : $data['validatePhone'],
+                        'required'    => false,
+                        'empty_value' => false,
+                        'label_attr'  => ['class' => 'control-label'],
+                        'attr'        => [
+                            'class' => 'form-control',
+                            'tooltip' => 'mautic.integration.xverify.validate_phone.tooltip',
+                        ],
+                    ])
+                ->add('validateEmail',
+                    'yesno_button_group',
+                    [
+                        'label' => 'mautic.integration.xverify.validate_email.label',
+                        'data'  => !isset($data['validatePhone']) ? false : $data['validateEmail'],
+                        'required'    => false,
+                        'empty_value' => false,
+                        'label_attr'  => ['class' => 'control-label'],
+                        'attr'        => [
+                            'class' => 'form-control',
+                            'tooltip' => 'mautic.integration.xverify.validate_email.tooltip',
+                        ],
+                    ]
+                );
         }
-        if ('features' === $formArea) {
-            $builder
-                ->add();
+    }
+
+    protected function getEnhancerFieldArray()
+    {
+        return [];
+    }
+
+    public function doEnhancement(Lead $lead)
+    {
+        if ($this->getIsPublished()) {
+
+            $keys = $this->getDecryptedApiKeys();
+            $params = [
+                'key' => $keys[apikey],
+            ];
+
+            $params = array_merge(
+                $params,
+                $this->getFeatureSettings()
+            );
+
+            $params['tn'] = $lead->getPhone();
+
+            $response = $this->makeRequest(
+                $keys['server'],
+                ['append_to_query' => $params]
+            );
+
+            error_log(print_r($response, true));
         }
     }
 
