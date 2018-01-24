@@ -39,7 +39,8 @@ class RandomIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        if ($formArea === 'features' && !$data['random_field_name']) {
+        
+        if ($formArea === 'features' && !isset($data['random_field_name'])) {
             $builder->add(
                 'random_field_name',
                 'text',
@@ -56,8 +57,9 @@ class RandomIntegration extends AbstractEnhancerIntegration
     
     protected function getEnhancerFieldArray()
     {
+        $settings = $this->settings->getFeatureSettings();
         return [
-            $this->settings['random_field_name'] => [
+             $settings['random_field_name'] => [
                 'label' => 'Random Value'
             ]
         ];

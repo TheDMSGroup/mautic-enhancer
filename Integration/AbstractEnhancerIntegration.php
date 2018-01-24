@@ -32,44 +32,46 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     abstract protected function getEnhancerFieldArray();
     abstract public function doEnhancement(Lead $lead);
     
-    protected $integration_helper;
-    
     public function buildEnhancerFields()
     {
-        $creating = $this->getEnhancerFieldArray();
-        $created = [];
+        $feature_settings = $this->getIntegrationSettings()->getFeatureSettings();
         
-        //TODO: error trapping/ column consideration
-        foreach ($creating as $alias => $properties) {
+        if (!isset($feature_settings['installed'])) {
+            $creating = $this->getEnhancerFieldArray();
             
-            error_log("Building $alias");
-                     
-            $new_field = $this->fieldModel->getEntity();
-            $new_field->setAlias($alias);
             
-            foreach ($properties as $property => $value) {
+            
+            //TODO: error trapping/ column consideration
+            foreach ($creating as $alias => $properties) {
                 
-                error_log("Setting $property to $value");  
+                error_log("Building $alias");
+                         
+                $new_field = $this->fieldModel->getEntity();
+                $new_field->setAlias($alias);
                 
-                $method = "set" . implode('', array_map('ucfirst', explode('_',$property)));                
-                error_log("Attempting to call $alias->$method($value)");
-                
-                try {
-                    $new_field->$method($value);
-                } catch(Exception $e) {
-                    error_log('Failed with "' . $e->getMessage() . '"');
-                    continue;
+                foreach ($properties as $property => $value) {
+                    
+                    error_log("Setting $property to $value");  
+                    
+                    $method = "set" . implode('', array_map('ucfirst', explode('_',$property)));                
+                    error_log("Attempting to call $alias->$method($value)");
+                    
+                    try {
+                        $new_field->$method($value);
+                    } catch(Exception $e) {
+                        error_log('Failed with "' . $e->getMessage() . '"');
+                        continue;
+                    }
                 }
+                
+                error_log("Saving LeadField");
+                $this->fieldModel->saveEntity($new_field);
+                
             }
-            
-            error_log("Saving LeadField");
-            $this->fieldModel->saveEntity($new_field);
-            $this->em->flush();
-            
-            $created[] = $alias;
         }
-        error_log(print_r($created));
-        return empty(array_diff(array_keys($creating), $created));
+        $feature_settings['installed'] = true;
+        $this->getIntegrationSettings()->setFeatureSettings($feature_settings)
+        $this->em->flush();
     }
 
     /**
