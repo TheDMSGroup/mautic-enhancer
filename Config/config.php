@@ -1,7 +1,7 @@
 <?php
 return [
-    'name' => 'Alcazar Enhancers',
-    'description' => 'Adds Alcazar Network Integration for Phone Number Data Enhancement',
+    'name' => 'Mautic Data Enhancers',
+    'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, and xVerify.',
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
     'services' => [
@@ -16,15 +16,15 @@ return [
             ],
         ],
         'integrations' => [
-            'mautic.alcazar.integration.alcazar' => [
+            'mautic.enhancer.integration.alcazar' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
                 'arguments' => [],
             ],
-            'mautic.alcazar.integration.random' => [
+            'mautic.enhancer.integration.random' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
                 'arguments' => [],
             ],
-            'mautic.alcazar.integration.xverify' => [
+            'mautic.enhancer.integration.xverify' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
                 'arguments' => [],
             ],
