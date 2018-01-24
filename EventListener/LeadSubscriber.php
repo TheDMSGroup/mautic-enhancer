@@ -38,13 +38,12 @@ class LeadSubscriber extends CommonSubscriber
        
     public function doEnhancements(LeadEvent $e) {
         $integration_helper = EnhancerHelper::getHelper();
-        
-        
-        
-        foreach ($integration_settings as $integration) {
+        $integration_settings = $integration_helper->getInegrationSettings();
             
-
-            $e->getEntity()->doEnhancement($e->getEntity());
+        foreach ($integration_settings as $integration) {
+            if ($integration->getIsPublished() && $integration->getPlugin() == '') {
+                $e->getEntity()->doEnhancement($e->getEntity());
+            }
         }
     }    
 }
