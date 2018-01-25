@@ -106,9 +106,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
 
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
+              $response = $status = $service = $fieldKey = NULL;
               try {
                 $fieldValue = $lead->$mauticFieldName;
-                if(!empty($lead->$fieldValue)){
+                if(!empty($fieldValue)){
                   switch ($integrationFieldName) {
                     case "cell_phone":
                     case "home_phone":
@@ -120,7 +121,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       $status = $this->getResponseStatus($response, $fieldKey);
                       if(!empty($status)){
                         // only a stub till pivot tables
-                        //$lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                        $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
                       }
                       break;
 
@@ -132,7 +133,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       $status = $this->getResponseStatus($response, $fieldKey);
                       if(!empty($status)){
                         // only a stub till pivot tables
-                        //$lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                        $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
                       }                      break;
 
                     default:      // no matching case
@@ -153,7 +154,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
       // the response object has a lot of value-add data, that may help to enhance lead data, for a future feature request
 
       // set a timeout default to 20 seconds
-      $settings = ['curl_options' => ['CURLOPT_CONNECTTIMEOUT' => 20, 'CURLOPT_TIMEOUT' => 20]];
+      $settings = ['curl_options' => [CURLOPT_CONNECTTIMEOUT => 20, CURLOPT_TIMEOUT => 20]];
 
       $url = "http://www.xverify.com/services/$service/verify/?$fieldKey=$fieldValue"; // valid entries for service: "emails", "phone", "address"
       $response = $this->makeRequest(
