@@ -8,6 +8,8 @@
  * list of campaigns
  */
 
+// TODO Hook up t the plugin stats
+
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
@@ -106,30 +108,33 @@ class XverifyIntegration extends AbstractEnhancerIntegration
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
               try {
                 $fieldValue = $lead->$mauticFieldName;
-                switch ($integrationFieldName) {
-                  case "cell_phone":
-                  case "home_phone":
-                  case "work_phone":
-                    // phone API call
-                    $service = "phone";
-                    $fieldKey = "phone";
-                    $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                    $status = $this->getResponseStatus($response, $fieldKey);
-                    $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
-                    break;
+                if(!empty($lead->$fieldValue)){ // TODO is this the right way to get this value?
+                  switch ($integrationFieldName) {
+                    case "cell_phone":
+                    case "home_phone":
+                    case "work_phone":
+                      // phone API call
+                      $service = "phone";
+                      $fieldKey = "phone";
+                      $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
+                      $status = $this->getResponseStatus($response, $fieldKey);
+                      $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      break;
 
-                  case "email":
-                    // email API call
-                    $service = "emails";
-                    $fieldKey = "email";
-                    $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                    $status = $this->getResponseStatus($response, $fieldKey);
-                    $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
-                    break;
+                    case "email":
+                      // email API call
+                      $service = "emails";
+                      $fieldKey = "email";
+                      $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
+                      $status = $this->getResponseStatus($response, $fieldKey);
+                      $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      break;
 
-                  default:      // no matching case
-                    continue; // dont do anything - go to next loop iteration
+                    default:      // no matching case
+                      continue; // dont do anything - go to next loop iteration
+                  }
                 }
+
               } catch (\Exception $e) {
                   $this->logIntegrationError($e);
                   throw $e;
@@ -144,7 +149,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
       // the response object has a lot of value-add data, that may help to enhance lead data, for a future feature request
 
       // set a timeout default to 20 seconds
-      $settings = ['curl_options' => ['CURLOPT_CONNECTTIMEOUT' => 20]];
+      $settings = ['curl_options' => ['CURLOPT_CONNECTTIMEOUT' => 20, 'CURLOPT_TIMEOUT' => 20]];
 
       $url = "http://www.xverify.com/services/$service/verify/?$fieldKey=$fieldValue"; // valid entries for service: "emails", "phone", "address"
       $response = $this->makeRequest(
@@ -158,7 +163,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     }
 
     protected function getResponseStatus($response, $fieldKey){
-      $status = 'invalid'; // default because if we cant get it, its because its invalid
+      $status = ''; // default because if we cant get it, its because its invalid
       if(!empty($response) && !empty($fieldKey)){
         $status = $response[$fieldKey]['status'];
       }
