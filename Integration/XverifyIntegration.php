@@ -84,10 +84,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
     protected function getEnhancerFieldArray()
     {
-        return ['emailIsValid' => ['label' => 'emailIsValid', 'type'  => 'string'],
-                'work_phoneIsValid' => ['label' => 'work_phoneIsValid', 'type'  => 'string'],
-                'cell_phoneIsValid' => ['label' => 'cell_phoneIsValid', 'type'  => 'string'],
-                'home_phoneIsValid' => ['label' => 'home_phoneIsValid', 'type'  => 'string'],
+        return ['emailIsValid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
+                'work_phoneIsValid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
+                'cell_phoneIsValid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
+                'home_phoneIsValid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
           ];
     }
 
