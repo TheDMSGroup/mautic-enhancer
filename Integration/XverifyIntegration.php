@@ -108,7 +108,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
               try {
                 $fieldValue = $lead->$mauticFieldName;
-                if(!empty($lead->$fieldValue)){ // TODO is this the right way to get this value?
+                if(!empty($lead->$fieldValue)){
                   switch ($integrationFieldName) {
                     case "cell_phone":
                     case "home_phone":
@@ -118,7 +118,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       $fieldKey = "phone";
                       $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                       $status = $this->getResponseStatus($response, $fieldKey);
-                      $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      if(!empty($status)){
+                        // only a stub till pivot tables
+                        //$lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      }
                       break;
 
                     case "email":
@@ -127,14 +130,15 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       $fieldKey = "email";
                       $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                       $status = $this->getResponseStatus($response, $fieldKey);
-                      $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
-                      break;
+                      if(!empty($status)){
+                        // only a stub till pivot tables
+                        //$lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      }                      break;
 
                     default:      // no matching case
                       continue; // dont do anything - go to next loop iteration
                   }
                 }
-
               } catch (\Exception $e) {
                   $this->logIntegrationError($e);
                   throw $e;
@@ -163,11 +167,13 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     }
 
     protected function getResponseStatus($response, $fieldKey){
-      $status = ''; // default because if we cant get it, its because its invalid
+      $status = NULL; // default because if we cant get it, its because its invalid
       if(!empty($response) && !empty($fieldKey)){
-        $status = $response[$fieldKey]['status'];
+        $responseStatus = $response[$fieldKey]['status'];
+        if( isset($response[$fieldKey]['status']) && !empty($response[$fieldKey]['status'])){
+          $status = $response[$fieldKey]['status'] == "valid" ? 1 : 0;
+        }
       }
-
       return $status;
 
     }
