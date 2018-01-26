@@ -70,7 +70,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             }
         }
         $feature_settings['installed'] = true;
-        $this->getIntegrationSettings()->setFeatureSettings($feature_settings)
+        $this->getIntegrationSettings()->setFeatureSettings($feature_settings);
         $this->em->flush();
     }
 }

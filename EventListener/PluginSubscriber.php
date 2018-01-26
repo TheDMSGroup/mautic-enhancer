@@ -15,8 +15,6 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
 
-use MauticPlugin\MauticAlcazarBundle\Integration\AlcazarIntegration;
-
 class PluginSubscriber extends CommonSubscriber
 {
     /**

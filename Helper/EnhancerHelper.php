@@ -9,21 +9,43 @@ class EnhancerHelper
     /**
      * @var IntegrationHelper
      */
-    protected static $integration_helper;
+    protected static $integrationHelper;
     
     /**
      * @param IntegrationHelper $helper
      */
     public static function init(IntegrationHelper $helper)
     {
-        self::$integration_helper = $helper;
+        self::$integrationHelper = $helper;
     }
 
     /**
      * @return IntegrationHelper
      */
-    public static function getHelper()
+    public static function getInegrations()
     {
-        return self::$integration_helper;
+        return self::$integrationHelper;
     }
+    
+      /**
+     * @param $integration
+     *
+     * @return AbstractIntegration
+     */
+    public static function getIntegration($integration)
+    {
+        try {
+            return self::$integratonHelper->getIntegrationObject($integration);
+        } catch (\Exception $e) {
+            // do nothing
+        }
+
+        return null;
+    }
+
+    public function getIntegrations()
+    {
+        return self::$integrationHelper->getIntegrationObjects(['Alcazar', 'Random']);
+    }
+   
 }
