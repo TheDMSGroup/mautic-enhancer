@@ -124,6 +124,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                         if(!is_null($status)){
                           $lead->addUpdatedField($fieldToUpdate, $status);
                           $persist = true;
+                          $this->logger->addDebug('XVERIFY: verification values to update: ' . $fieldToUpdate . ' => ' . $status);
                         }
                       }
                       break;
@@ -138,6 +139,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                         if(!is_null($status)){
                           $lead->addUpdatedField($fieldToUpdate, $status, null);
                           $persist = true;
+                          $this->logger->addDebug('XVERIFY: verification values to update: ' . $fieldToUpdate . ' => ' . $status);
                         }
                       }
                       break;
@@ -155,6 +157,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
               $this->em->persist($lead);
               $this->em->flush();
             } // TODO why wont custom fields persist to DB?
+
         }
     }
 
