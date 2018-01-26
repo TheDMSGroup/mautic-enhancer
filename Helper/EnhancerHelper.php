@@ -4,7 +4,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
-class EnhancerHelper
+class EnhancerHelper extends IntegrationHelper
 {
     /**
      * @var IntegrationHelper

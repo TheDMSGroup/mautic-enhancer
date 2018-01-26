@@ -84,10 +84,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
     protected function getEnhancerFieldArray()
     {
-        return ['emailIsValid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
-                'work_phoneIsValid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
-                'cell_phoneIsValid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
-                'home_phoneIsValid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
+        return ['email_is_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
+                'work_phone_is_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
+                'cell_phone_is_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
+                'home_phone_is_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
           ];
     }
 
@@ -103,10 +103,11 @@ class XverifyIntegration extends AbstractEnhancerIntegration
               'domain' => $keys['server'],
               'type' => 'json',
             ];
-
+            $persist = false;
 
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
               $response = $status = $service = $fieldKey = NULL;
+              $fieldToUpdate = $integrationFieldName . '_is_valid'; //which validation field will we update?
               try {
                 $fieldValue = $lead->$mauticFieldName;
                 if(!empty($fieldValue)){
@@ -117,11 +118,13 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       // phone API call
                       $service = "phone";
                       $fieldKey = "phone";
-                      $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                      $status = $this->getResponseStatus($response, $fieldKey);
-                      if(!empty($status)){
-                        // only a stub till pivot tables
-                        $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
+                      if(is_null($lead->$fieldToUpdate)){ // only if we havent checked already
+                        $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
+                        $status = $this->getResponseStatus($response, $fieldKey);
+                        if(!is_null($status)){
+                          $lead->addUpdatedField($fieldToUpdate, $status);
+                          $persist = true;
+                        }
                       }
                       break;
 
@@ -129,12 +132,17 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                       // email API call
                       $service = "emails";
                       $fieldKey = "email";
-                      $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                      $status = $this->getResponseStatus($response, $fieldKey);
-                      if(!empty($status)){
-                        // only a stub till pivot tables
-                        $lead->addUpdatedField($integrationFieldName . 'IsValid', $status);
-                      }                      break;
+                      if(is_null($lead->$fieldToUpdate)){ // only if we havent checked already
+                        $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
+                        $status = $this->getResponseStatus($response, $fieldKey);
+                        if(!is_null($status)){
+                          $lead->addUpdatedField($fieldToUpdate, $status, null);
+                          $persist = true;
+                          $lead->__set('city','chicago');
+                       //   $lead->__set($fieldToUpdate, $status);
+                        }
+                      }
+                      break;
 
                     default:      // no matching case
                       continue; // dont do anything - go to next loop iteration
@@ -145,6 +153,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                   throw $e;
               }
             }
+          if($persist){
+              $this->em->persist($lead);
+              $this->em->flush();
+            } // TODO why wont custom fields persist to DB?
         }
     }
 
@@ -170,7 +182,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     protected function getResponseStatus($response, $fieldKey){
       $status = NULL; // default because if we cant get it, its because its invalid
       if(!empty($response) && !empty($fieldKey)){
-        $responseStatus = $response[$fieldKey]['status'];
         if( isset($response[$fieldKey]['status']) && !empty($response[$fieldKey]['status'])){
           $status = $response[$fieldKey]['status'] == "valid" ? 1 : 0;
         }
