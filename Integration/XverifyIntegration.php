@@ -76,18 +76,18 @@ class XverifyIntegration extends AbstractEnhancerIntegration
     {
         return [
             'email'      => ['type' => 'string'],
-            'home_phone' => ['type' => 'string'],
-            'cell_phone' => ['type' => 'string'],
-            'work_phone' => ['type' => 'string'],
+            'homephone' => ['type' => 'string'],
+            'cellphone' => ['type' => 'string'],
+            'workphone' => ['type' => 'string'],
         ];
     }
 
     protected function getEnhancerFieldArray()
     {
-        return ['email_is_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
-                'work_phone_is_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
-                'cell_phone_is_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
-                'home_phone_is_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
+        return ['email_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
+                'workphone_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
+                'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
+                'homephone_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
           ];
     }
 
@@ -107,14 +107,14 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
               $response = $status = $service = $fieldKey = NULL;
-              $fieldToUpdate = $integrationFieldName . '_is_valid'; //which validation field will we update?
+              $fieldToUpdate = $integrationFieldName . '_valid'; //which validation field will we update?
               try {
                 $fieldValue = $lead->$mauticFieldName;
                 if(!empty($fieldValue)){
                   switch ($integrationFieldName) {
-                    case "cell_phone":
-                    case "home_phone":
-                    case "work_phone":
+                    case "cellphone":
+                    case "homephone":
+                    case "workphone":
                       // phone API call
                       $service = "phone";
                       $fieldKey = "phone";
@@ -138,8 +138,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                         if(!is_null($status)){
                           $lead->addUpdatedField($fieldToUpdate, $status, null);
                           $persist = true;
-                          $lead->__set('city','chicago');
-                       //   $lead->__set($fieldToUpdate, $status);
                         }
                       }
                       break;
