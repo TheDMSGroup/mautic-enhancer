@@ -1,7 +1,7 @@
 <?php
 return [
-    'name' => 'Alcazar Enhancers',
-    'description' => 'Adds Alcazar Network Integration for Phone Number Data Enhancement',
+    'name' => 'DMS Enhancers',
+    'description' => '',
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
     'services' => [

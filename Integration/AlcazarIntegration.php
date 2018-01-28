@@ -109,13 +109,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                             'tooltip' => 'mautic.integration.alcazar.dnc.tooltip',
                         ],
                     ]
-                )
-                ->add(
-                    'enhancer',
-                    'hidden',
-                    [
-                        'data' => self::INTEGRATION_NAME
-                    ]
                 );       
         }
     }
@@ -124,11 +117,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     {
         $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
         
-        if ($this->getIntegrationSettings()->getIsPublished()) {
+        
+        $integration = $this->getIntegrationSettings();
+        $feature_settings = $integration->getFeatureSettings();
+        if ($feature_settings['extended']) {        
             $field_list += $this->getExtendedFields();
         }
         
-        error_log(print_r($field_list, true));        
         return $field_list;
     }
     
@@ -152,27 +147,22 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
 
     public function doEnhancement(Lead $lead)
     {
-        if ($this->getIsPublished()) {
-
-            $keys = $this->getDecryptedApiKeys();
-            $params = [
-               'key' => $keys[apikey],
-            ];
-              
-            $params = array_merge(
-                $params,
-                $this->getFeatureSettings()
-            );
-            
-            $params['tn'] = $lead->getPhone();
-                    
-            $response = $this->makeRequest(
-                $keys['server'],
-                ['append_to_query' => $params]
-            );
-                    
-            error_log(print_r($response, true));
-        }        
+        $keys = $this->getDecryptedApiKeys();
+          
+        $params = ['key' => $keys['apikey']];
+        $params['tn'] = $lead->getPhone();
+        
+        $integration = $this->getIntegrationSettings();
+        $params += $integration->getFeatureSettings();
+        if (!$params['ani']) {
+            unset($params['ani']);
+        }
+      
+        $response = $this->makeRequest(
+            $keys['server'],
+            ['append_to_query' => $params]
+        );      
+                   
     }
 }
 
