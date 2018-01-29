@@ -1,3 +1,4 @@
 composer.json
 vendor/
 mautic-enhancer-plugiin.komodoproject
+.idea/
