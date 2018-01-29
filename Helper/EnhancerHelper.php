@@ -43,7 +43,7 @@ class EnhancerHelper
         return null;
     }
 
-    public function getIntegrations()
+    public static function getIntegrations()
     {
         return self::$integrationHelper->getIntegrationObjects(['Alcazar', 'Random']);
     }

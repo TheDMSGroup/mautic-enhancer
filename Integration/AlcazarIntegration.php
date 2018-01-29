@@ -147,22 +147,59 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
 
     public function doEnhancement(Lead $lead)
     {
+        
+        if ($lead->getFieldValue('alcazar_lrn')) {
+            return;
+        }
+        
+        $phone = $lead->getPhone();
+        if (strlen($phone) === 10) {
+            $phone = '1' . $phone;
+        }
+        
         $keys = $this->getDecryptedApiKeys();
           
-        $params = ['key' => $keys['apikey']];
-        $params['tn'] = $lead->getPhone();
+        $params = [
+            'key' => $keys['apikey'],
+            'tn' =>  $phone,
+        ];
         
         $integration = $this->getIntegrationSettings();
-        $params += $integration->getFeatureSettings();
-        if (!$params['ani']) {
-            unset($params['ani']);
+        $settings = $integration->getFeatureSettings();
+        
+        foreach ($settings as $param => $value) {
+            if ($param === 'ani') {
+                if (!$value) {
+                    continue;
+                }
+                if (strlen($value) === 10) {
+                    $value = '1' . $value;
+                }
+                $params['ani'] = $value;
+            }
+            elseif ($param === 'output') {
+                $params['output'] = $value;
+            }
+            elseif (in_array($param, ['extended', 'dnc'])) {
+                $value = $value ? 'true' : 'false';
+                $params[$param] = $value;
+            }
         }
-      
+       
         $response = $this->makeRequest(
             $keys['server'],
-            ['append_to_query' => $params]
-        );      
-                   
+            ['append_to_query' => $params],
+            'GET',
+            ['ignore_event_dispatch' => 1]
+        );       
+        
+        foreach ($response as $label => $value) {
+            $alias = 'alcazar_' . strtolower($label);
+            $default = $lead->getFieldValue($alias);
+            $lead->addUpdatedField($alias, $value, $default);        
+        }
+        
+        $this->leadModel->saveEntity($lead);
     }
 }
 
