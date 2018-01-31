@@ -1,5 +1,5 @@
 {
-    "name": "thedmsgroup/mautic-enhancer",
+    "name": "thedmsgroup/mautic-enhancer-bundle",
     "description": "Various contact enhancer integrations for Mautic.",
     "keywords": ["mautic","marketing","marketing automation","plugin"],
     "type": "mautic-plugin",
