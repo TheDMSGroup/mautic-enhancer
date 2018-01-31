@@ -57,7 +57,8 @@ class RandomIntegration extends AbstractEnhancerIntegration
     
     protected function getEnhancerFieldArray()
     {
-        $settings = $this->settings->getFeatureSettings();
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();
+        
         return [
              $settings['random_field_name'] => [
                 'label' => 'Random Value'
@@ -67,12 +68,16 @@ class RandomIntegration extends AbstractEnhancerIntegration
     
     public function doEnhancement(Lead $lead)
     {
-        if (!$lead->getFieldValue($this->get)) {
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();
+        
+        if (!$lead->getFieldValue($settings['random_field_name'])) {
             $lead->addUpdatedField(
-                $this->settings['random_field_name'],
+                $settings['random_field_name'],
                 rand(1, 100),
                 0
             );
+            $this->leadModel->saveEntity($lead);
+            $this->em->flush();
         }
     }
 }

@@ -109,13 +109,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                             'tooltip' => 'mautic.integration.alcazar.dnc.tooltip',
                         ],
                     ]
-                )
-                ->add(
-                    'enhancer',
-                    'hidden',
-                    [
-                        'data' => self::INTEGRATION_NAME
-                    ]
                 );       
         }
     }
@@ -124,11 +117,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     {
         $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
         
-        if ($this->getIntegrationSettings()->getIsPublished()) {
+        
+        $integration = $this->getIntegrationSettings();
+        $feature_settings = $integration->getFeatureSettings();
+        if ($feature_settings['extended']) {        
             $field_list += $this->getExtendedFields();
         }
         
-        error_log(print_r($field_list, true));        
         return $field_list;
     }
     
@@ -152,27 +147,59 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
 
     public function doEnhancement(Lead $lead)
     {
-        if ($this->getIsPublished()) {
-
-            $keys = $this->getDecryptedApiKeys();
-            $params = [
-               'key' => $keys[apikey],
-            ];
-              
-            $params = array_merge(
-                $params,
-                $this->getFeatureSettings()
-            );
-            
-            $params['tn'] = $lead->getPhone();
-                    
-            $response = $this->makeRequest(
-                $keys['server'],
-                ['append_to_query' => $params]
-            );
-                    
-            error_log(print_r($response, true));
-        }        
+        
+        if ($lead->getFieldValue('alcazar_lrn')) {
+            return;
+        }
+        
+        $phone = $lead->getPhone();
+        if (strlen($phone) === 10) {
+            $phone = '1' . $phone;
+        }
+        
+        $keys = $this->getDecryptedApiKeys();
+          
+        $params = [
+            'key' => $keys['apikey'],
+            'tn' =>  $phone,
+        ];
+        
+        $integration = $this->getIntegrationSettings();
+        $settings = $integration->getFeatureSettings();
+        
+        foreach ($settings as $param => $value) {
+            if ($param === 'ani') {
+                if (!$value) {
+                    continue;
+                }
+                if (strlen($value) === 10) {
+                    $value = '1' . $value;
+                }
+                $params['ani'] = $value;
+            }
+            elseif ($param === 'output') {
+                $params['output'] = $value;
+            }
+            elseif (in_array($param, ['extended', 'dnc'])) {
+                $value = $value ? 'true' : 'false';
+                $params[$param] = $value;
+            }
+        }
+       
+        $response = $this->makeRequest(
+            $keys['server'],
+            ['append_to_query' => $params],
+            'GET',
+            ['ignore_event_dispatch' => 1]
+        );       
+        
+        foreach ($response as $label => $value) {
+            $alias = 'alcazar_' . strtolower($label);
+            $default = $lead->getFieldValue($alias);
+            $lead->addUpdatedField($alias, $value, $default);        
+        }
+        
+        $this->leadModel->saveEntity($lead);
     }
 }
 

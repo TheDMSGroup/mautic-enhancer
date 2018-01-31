@@ -13,6 +13,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
+use Mautic\PluginBundle\Entity\Integration;
 use Mautic\LeadBundle\Model\FieldModel;
 use Mautic\LeadBundle\Entity\Lead;
 
@@ -20,7 +21,7 @@ use Mautic\LeadBundle\Entity\Lead;
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
     // Integrations of this type should use this constant to define the name
-    const INTEGRATION_NAME = null;
+    // const INTEGRATION_NAME = null;
    
     /**
      * This class does not implement the core abstract methods:
@@ -34,44 +35,38 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     
     public function buildEnhancerFields()
     {
-        $feature_settings = $this->getIntegrationSettings()->getFeatureSettings();
+        $integration = $this->getIntegrationSettings();
         
-        if (!isset($feature_settings['installed'])) {
+        if ($integration->getIsPublished()) {
+            $feature_settings = $integration->getFeatureSettings();
+            $created =  isset($feature_settings['installed']) ? $feature_settings['installed'] : []; 
             $creating = $this->getEnhancerFieldArray();
-            
-            
             
             //TODO: error trapping/ column consideration
             foreach ($creating as $alias => $properties) {
-                
-                error_log("Building $alias");
-                         
+                if (in_array($alias, $created)) {
+                    continue;
+                }
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
                 
                 foreach ($properties as $property => $value) {
                     
-                    error_log("Setting $property to $value");  
-                    
                     $method = "set" . implode('', array_map('ucfirst', explode('_',$property)));                
-                    error_log("Attempting to call $alias->$method($value)");
                     
                     try {
                         $new_field->$method($value);
                     } catch(Exception $e) {
                         error_log('Failed with "' . $e->getMessage() . '"');
-                        continue;
                     }
                 }
                 
-                error_log("Saving LeadField");
                 $this->fieldModel->saveEntity($new_field);
-                
+                $created[] = $alias;
             }
-        }
-        $feature_settings['installed'] = true;
-        $this->getIntegrationSettings()->setFeatureSettings($feature_settings)
-        $this->em->flush();
+            $feature_settings['installed'] = $created;
+            $integration->setFeatureSettings($feature_settings);
+        }   
     }
 
     /**
