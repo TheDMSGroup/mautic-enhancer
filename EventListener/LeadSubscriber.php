@@ -17,6 +17,7 @@ use Mautic\LeadBundle\Event\LeadEvent;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
+
 class LeadSubscriber extends CommonSubscriber
 {
     /**
@@ -26,7 +27,8 @@ class LeadSubscriber extends CommonSubscriber
     {
 
         return [
-            LeadEvents::LEAD_POST_SAVE => [
+
+            LeadEvents::LEAD_POST_SAVE => [ // instead of LEAD_IDENTIFIED
                 'doEnhancements',
                 0
             ],
@@ -34,18 +36,18 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     /**
-     * @var IntergrationHelper
+     * @var IntegrationHelper
      */
        
     public function doEnhancements(LeadEvent $e) {
-        $integrations = EnhancerHelper::getIntegrations();
-            
+        $integrations = EnhancerHelper::getIntegrations();       
         foreach ($integrations as $integration) {
             $settings = $integration->getIntegrationSettings();
-            if ($settings->getIsPublished()) {
-                
+            if ($settings->getIsPublished()) {                
                 $integration->doEnhancement($e->getLead());
             }
+          }
         }
+      }
     }    
 }

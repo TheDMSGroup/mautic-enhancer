@@ -28,8 +28,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      *  getAuthenticationType
      *  getName
      */
-     
-    
+
     abstract protected function getEnhancerFieldArray();
     abstract public function doEnhancement(Lead $lead);
     
@@ -64,6 +63,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 $this->fieldModel->saveEntity($new_field);
                 $created[] = $alias;
             }
+
             $feature_settings['installed'] = $created;
             $integration->setFeatureSettings($feature_settings);
         }   
