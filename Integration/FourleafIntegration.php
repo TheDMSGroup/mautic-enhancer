@@ -49,7 +49,10 @@ class FourleafIntegration extends AbstractEnhancerIntegration
 
     public function doEnhancement(Lead $lead)
     {
-        if ($lead->getFieldValue('fourleaf_algo') || !$lead->getEmail()) {
+        $algo = $lead->getFieldValue('fourleaf_algo');
+        $email = $lead->getEmail();
+        
+        if ($algo || !$email) {
             return;
         }
                       
@@ -83,5 +86,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration
         }
         
         $this->leadModel->saveEntity($lead);
+        $this->em->flush();
     }
 }

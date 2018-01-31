@@ -14,8 +14,8 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\LeadEvents;
 use Mautic\LeadBundle\Event\LeadEvent;
-use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
+use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 class LeadSubscriber extends CommonSubscriber
 {
@@ -24,7 +24,6 @@ class LeadSubscriber extends CommonSubscriber
      */
     public static function getSubscribedEvents()
     {
-
         return [
             LeadEvents::LEAD_POST_SAVE => [
                 'doEnhancements',
@@ -37,14 +36,16 @@ class LeadSubscriber extends CommonSubscriber
      * @var IntergrationHelper
      */
        
-    public function doEnhancements(LeadEvent $e) {
+    public function doEnhancements(LeadEvent $e)
+    {    
         $integrations = EnhancerHelper::getIntegrations();
-            
-        foreach ($integrations as $integration) {
+        
+        $completed = array();
+        foreach ($integrations as $name => $integration) {
             $settings = $integration->getIntegrationSettings();
-            if ($settings->getIsPublished()) {
-                
+            if ($settings->getIsPublished()) {                        
                 $integration->doEnhancement($e->getLead());
+                $completed[] = $name;
             }
         }
     }    
