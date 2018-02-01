@@ -53,6 +53,16 @@ class RandomIntegration extends AbstractEnhancerIntegration
                 ]
             );
         }
+        
+        if ($formArea === 'keys') {
+            $builder->add(
+                'autorun',
+                'hidden',
+                [
+                    'data' => true,
+                ]
+            );
+        }
     }
     
     protected function getEnhancerFieldArray()

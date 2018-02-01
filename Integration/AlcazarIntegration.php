@@ -36,7 +36,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     {
         return [
             'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
-            'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label')
+            'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
         ];
     }
     
@@ -109,6 +109,20 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                         ],
                     ]
                 );       
+        }
+        
+        if ($formArea === 'keys') {
+            $builder->add(
+                'autorun',
+                'yesno_button_group',
+                [
+                    'label' => $this->translator->trans('mautic.integration.autorun.label'),
+                    'data'  => !isset($data['autorun']) ? false : $data['autorun'],
+                    'attr'  => [
+                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                    ]
+                ]
+            );
         }
     }
              

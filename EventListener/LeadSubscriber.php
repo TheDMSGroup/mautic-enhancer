@@ -35,9 +35,8 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     /**
-     * @var IntegrationHelper
+     * @param LeadEvent $e
      */
-       
     public function doEnhancements(LeadEvent $e)
     {    
         $integrations = EnhancerHelper::getIntegrations();
@@ -45,7 +44,8 @@ class LeadSubscriber extends CommonSubscriber
         $completed = array();
         foreach ($integrations as $name => $integration) {
             $settings = $integration->getIntegrationSettings();
-            if ($settings->getIsPublished()) {                        
+            $keys = $settings->getKeys();
+            if ($settings->getIsPublished() && $keys['autorun']) {                        
                 $integration->doEnhancement($e->getLead());
                 $completed[] = $name;
             }

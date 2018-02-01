@@ -71,6 +71,22 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         return 'mautic.integration.xverify.apikey.label';
     }
 
+    public function appendToForm(&$builder, $data, $formArea)
+    {
+        if ($formArea === 'keys') {
+            $builder->add(
+                'autorun',
+                'yesno_button_group',
+                [
+                    'label' => $this->translator->trans('mautic.integration.autorun.label'),
+                    'data'  => !isset($data['autorun']) ? false : $data['autorun'],
+                    'attr'  => [
+                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                    ]
+                ]
+            );
+        }
+    }    
 
     public function getAvailableLeadFields($settings = [])
     {
