@@ -116,9 +116,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     {
         $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
         
-        
         $integration = $this->getIntegrationSettings();
         $feature_settings = $integration->getFeatureSettings();
+        
         if ($feature_settings['extended']) {        
             $field_list += $this->getExtendedFields();
         }
@@ -138,9 +138,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
             'alcazar_linetype' => ['label' => 'LINETYPE'],
             'alcazar_dnc'      => ['label' => 'DNC'],
             'alcazar_jurisdiction' => [
-                                        'label' => 'JURISDICTION',
-                                        'default_value' => 'INDETERMINATE',
-                                      ],
+                'label' => 'JURISDICTION',
+                'default_value' => 'INDETERMINATE',
+            ],
         ];
     }
 

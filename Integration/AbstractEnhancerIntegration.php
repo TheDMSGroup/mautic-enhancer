@@ -41,11 +41,13 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             $created =  isset($feature_settings['installed']) ? $feature_settings['installed'] : []; 
             $creating = $this->getEnhancerFieldArray();
             
-            //TODO: error trapping/ column consideration
             foreach ($creating as $alias => $properties) {
+                
                 if (in_array($alias, $created)) {
+                    //do not build an existing column
                     continue;
                 }
+                
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
                 
@@ -66,7 +68,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
             $feature_settings['installed'] = $created;
             $integration->setFeatureSettings($feature_settings);
-        }   
+        }
     }
 
     /**
