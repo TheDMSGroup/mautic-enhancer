@@ -2,10 +2,13 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
+use Exception;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class EnhancerHelper extends IntegrationHelper
 {
+    protected static $enhancerIntegrations = ['Alcazar', 'Random', 'Fourleaf', 'Xverify'];
+    
     /**
      * @var IntegrationHelper
      */
@@ -22,30 +25,24 @@ class EnhancerHelper extends IntegrationHelper
     /**
      * @return IntegrationHelper
      */
-    public static function getInegrations()
+    public static function getInegrationHelper()
     {
         return self::$integrationHelper;
     }
     
       /**
-     * @param $integration
+     * @param string $name
      *
      * @return AbstractIntegration
      */
-    public static function getIntegration($integration)
+    public static function getIntegration($name)
     {
-        try {
-            return self::$integratonHelper->getIntegrationObject($integration);
-        } catch (\Exception $e) {
-            // do nothing
-        }
-
-        return null;
+        return $integration = self::$integratonHelper->getIntegrationObject($name);
     }
 
     public static function getIntegrations()
     {
-        return self::$integrationHelper->getIntegrationObjects(['Alcazar', 'Random']);
+        return self::$integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
     }
    
 }

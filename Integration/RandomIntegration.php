@@ -45,11 +45,21 @@ class RandomIntegration extends AbstractEnhancerIntegration
                 'random_field_name',
                 'text',
                 [
-                    'label' => 'mautic.plugin.random.field_name',
+                    'label' => $this->translator->trans('mautic.plugin.random.field_name.label'),
                     'attr'  => [
-                        'tooltip' => 'mautic.plugin.random.field_name.tooltip',
+                        'tooltip' => $this->translator->trans('mautic.plugin.random.field_name.tooltip'),
                     ],
                     'data' => '',
+                ]
+            );
+        }
+        
+        if ($formArea === 'keys') {
+            $builder->add(
+                'autorun',
+                'hidden',
+                [
+                    'data' => true,
                 ]
             );
         }
