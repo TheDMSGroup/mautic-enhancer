@@ -1,20 +1,15 @@
 {
-    "name": "thedmsgroup/mautic-enhancer-bundle",
-    "description": "Various contact enhancer integrations for Mautic.",
-    "keywords": ["mautic","marketing","marketing automation","plugin"],
+    "name": "thedmsgrp/mautic-enhancer-bundle",
+    "description": "Set of Mautic Data Enhancer Plugins",
     "type": "mautic-plugin",
     "require": {
         "mautic/composer-plugin": "^1.0"
     },
-    "license": "GPL-3.0-only",
+    "license": "GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html",
     "authors": [
         {
             "name": "Nicholai Bush",
-            "email": "nicholaibush@yahoo.com"
-        },
-        {
-            "name": "Scott Shipman",
-            "email": "K.scott.shipman@gmail.com"
+            "email": "nbush@thedmsgrp.com"
         }
     ]
 }
