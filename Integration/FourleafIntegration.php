@@ -27,9 +27,9 @@ class FourleafIntegration extends AbstractEnhancerIntegration
     public function getRequiredKeyFields()
     {
         return [
-            'id' => 'mautic.integration.fourleaf.id.label',
-            'key' => 'mautic.integration.fourleaf.key.label',
-            'url' => 'mautic.integration.fourleaf.url.label',
+            'id' => $this->translator->trans('mautic.integration.fourleaf.id.label'),
+            'key' => $this->translator->trans('mautic.integration.fourleaf.key.label'),
+            'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
         ];
     }
     

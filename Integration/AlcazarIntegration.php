@@ -35,8 +35,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     public function getRequiredKeyFields()
     {
         return [
-            'server' => 'mautic.integration.alcazar.server.label',
-            'apikey' => 'mautic.integration.alcazar.apikey.label'
+            'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
+            'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label')
         ];
     }
     
@@ -53,14 +53,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                             'xml' => 'XML',
                             'text' => 'text',
                         ],
-                        'label' => 'mautic.integration.alcazar.output.label',
+                        'label' => $this->translator->trans('mautic.integration.alcazar.output.label'),
                         'data'  =>  isset($data['output']) ? $data['output'] : 'text',
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.alcazar.output.tooltip',
+                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.output.tooltip'),
                         ],
                     ]
                 )
@@ -68,14 +68,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                     'extended',
                     'yesno_button_group',
                     [
-                        'label' => 'mautic.integration.alcazar.extended.label',
+                        'label' => $this->translator->trans('mautic.integration.alcazar.extended.label'),
                         'data'  => !isset($data['extended']) ? false : $data['extended'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.alcazar.extended.tooltip',
+                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.extended.tooltip'),
                         ],
                     ]
                 )
@@ -83,14 +83,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                     'ani',
                     'yesno_button_group',
                     [
-                        'label' => 'mautic.integration.alcazar.ani.label',
+                        'label' => $this->translator->trans('mautic.integration.alcazar.ani.label'),
                         'data'  => !isset($data['ani']) ? false : $data['ani'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.alcazar.ani.tooltip',
+                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.ani.tooltip'),
                         ],
                     ]
                 )
@@ -98,14 +98,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                     'dnc',
                     'yesno_button_group',
                     [
-                        'label' => 'mautic.integration.alcazar.dnc.label',
+                        'label' => $this->translator->trans('mautic.integration.alcazar.dnc.label'),
                         'data'  => !isset($data['dnc']) ? false : $data['dnc'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class' => 'form-control',
-                            'tooltip' => 'mautic.integration.alcazar.dnc.tooltip',
+                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.dnc.tooltip'),
                         ],
                     ]
                 );       
