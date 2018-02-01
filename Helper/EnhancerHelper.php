@@ -5,7 +5,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Helper;
 use Exception;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
-class EnhancerHelper
+class EnhancerHelper extends IntegrationHelper
 {
     protected static $enhancerIntegrations = ['Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     
