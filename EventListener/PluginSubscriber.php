@@ -1,7 +1,7 @@
 <?php
 
 /*
- * @copyright   2016 Mautic Contributors. All rights reserved
+ * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Mautic, Inc.
  *
  * @link        https://mautic.org
@@ -15,10 +15,14 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
 
+/**
+ * Class PluginSubscriber
+ * @package MauticPlugin\MauticEnhancerBundle\EventListener
+ */
 class PluginSubscriber extends CommonSubscriber
 {
     /**
-     * @return Array[]
+     * @return array
      */
     public static function getSubscribedEvents()
     {
@@ -26,13 +30,15 @@ class PluginSubscriber extends CommonSubscriber
             PluginEvents::PLUGIN_ON_INTEGRATION_CONFIG_SAVE => ['buildCustomFields', 0],
         ];
     }
-    
+
     /**
-     *  
      * @param PluginIntegrationEvent $event
      */
     public function buildCustomFields(PluginIntegrationEvent $event)
     {
-        $event->getIntegration()->buildEnhancerFields();
+        $integration = $event->getIntegration();
+        if ($integration && method_exists($integration, 'buildEnhancerFields')) {
+            $integration->buildEnhancerFields();
+        }
     }
 }
