@@ -5,6 +5,19 @@ return [
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
     
+    'routes'      => [
+        'public' => [
+            'mautic_integration_contacts' => [
+                'path'         => '/plugin/{integration}/contact_data',
+                'controller'   => 'MauticEnhancerBundle:Enhancer:contactData',
+                'requirements' => [
+                    'integration' => '.+',
+                ],
+            ],
+        ],
+    ],
+
+
     'services' => [
         
         'events' => [

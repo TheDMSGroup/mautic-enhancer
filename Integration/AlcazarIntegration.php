@@ -40,6 +40,11 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+    public function getSupportedFeatures()
+    {
+        return ['push_lead'];
+    }
+
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
