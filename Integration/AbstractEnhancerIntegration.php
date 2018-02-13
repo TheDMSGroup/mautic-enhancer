@@ -31,10 +31,17 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
     abstract protected function getEnhancerFieldArray();
     abstract public function doEnhancement(Lead $lead);
+
+    public function pushLead(Lead $lead, array $config = [])
+    {
+        $this->doEnhancement($lead);    
+    }
     
     public function buildEnhancerFields()
     {
         $integration = $this->getIntegrationSettings();
+        
+        $count = count($this->fieldModel->getLeadFields());
         
         if ($integration->getIsPublished()) {
             $feature_settings = $integration->getFeatureSettings();
@@ -50,6 +57,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
+                $new_field->setOrder(++$count);
                 
                 foreach ($properties as $property => $value) {
                     

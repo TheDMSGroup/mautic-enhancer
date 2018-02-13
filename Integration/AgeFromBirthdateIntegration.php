@@ -2,6 +2,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+
 class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 {
     const INTEGRATION_NAME = 'AgeFromBirthdate';
@@ -18,22 +20,25 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     
     public function getDisplayName()
     {
-        return self::INTEGRATION_NAME . 'Age From Date of Birth Data Enhancer';    
+        return 'Age From Date of Birth Data Enhancer';    
+    }
+
+    public function getSupportedFeatures()
+    {
+        return ['push_lead'];
     }
 
     protected function getEnhancerFieldArray()
-    {
-        
+    {     
         return [
             'afb_age' => [
-               'label' => 'Age from DoB'
+               'label' => 'Age (D.o.B.)',
+               'type' => 'number',
             ],
             'afb_dob' => [
-                'label' => 'DoB',
-                'type' =>  BirthdayType::class,
-                
+                'label' => 'D.o.B.',
+                'type' =>  'date',   
             ],
-        
         ];
     }
     
@@ -43,10 +48,15 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         // see the random plugin
         try {
             $dob = $lead->getFieldValue('afb_dob');
-            $age = $lead->getFieldValue('afb_age');
-        
-            $this->leadModel->saveEntity($lead);
-            $this->em->flush();
+            if (isset($dob)) {
+                $today = new DateTime();
+                $age = $today->diff($dob)->format('%y');
+                if ($lead->getFieldValue('afb_age') !== $age) {
+                    $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
+                    $this->leadModel->saveEntity($lead);
+                    $this->em->flush();
+                }
+            }
         } catch (Exception $e) {
             
         }

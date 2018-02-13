@@ -51,6 +51,17 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                         'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
                     ]
                 ]
+            )
+            ->add(
+                'cpe',
+                'number',
+                [
+                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
+                    'data'  => !isset($data['cpe']) ? false : $data['cpe'],
+                    'attr'  => [
+                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
+                    ]
+                ]
             );
         }
     }
