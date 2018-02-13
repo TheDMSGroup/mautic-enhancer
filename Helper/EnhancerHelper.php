@@ -29,15 +29,14 @@ class EnhancerHelper extends IntegrationHelper
     {
         return self::$integrationHelper;
     }
-    
-      /**
-     * @param string $name
-     *
-     * @return AbstractIntegration
+
+    /**
+     * @param $name
+     * @return bool|\Mautic\PluginBundle\Integration\AbstractIntegration
      */
     public static function getIntegration($name)
     {
-        return $integration = self::$integratonHelper->getIntegrationObject($name);
+        return $integration = self::$integrationHelper->getIntegrationObject($name);
     }
 
     public static function getIntegrations()
