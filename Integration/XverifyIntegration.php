@@ -90,7 +90,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                 'number',
                 [
                     'label' => $this->translator->trans('mautic.integration.cpe.label'),
-                    'data'  => !isset($data['cpe']) ? false : $data['cpe'],
+                    'data'  => !isset($data['cpe']) ? 0 : $data['cpe'],
                     'attr'  => [
                         'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
                     ]
