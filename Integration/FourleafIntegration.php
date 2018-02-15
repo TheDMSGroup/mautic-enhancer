@@ -53,11 +53,11 @@ class FourleafIntegration extends AbstractEnhancerIntegration
     protected function getEnhancerFieldArray()
     {
         return [
-            'fourleaf_algo'             => ['label' => 'Algo'],
-            'fourleaf_low_intel'        => ['label' => 'Low Intel'],
-            'fourleaf_activity_score'   => ['label' => 'Activity Score'],
-            'fourleaf_hygiene_reason'   => ['label' => 'Hygiene Reason'],
-            'fourleaf_hygiene_score'    => ['label' => 'Hygiene Score'],
+            'fourleaf_algo'             => ['label' => 'Algo', 'object'=>'extendedField'],
+            'fourleaf_low_intel'        => ['label' => 'Low Intel', 'object'=>'extendedField'],
+            'fourleaf_activity_score'   => ['label' => 'Activity Score', 'object'=>'extendedField'],
+            'fourleaf_hygiene_reason'   => ['label' => 'Hygiene Reason', 'object'=>'extendedField'],
+            'fourleaf_hygiene_score'    => ['label' => 'Hygiene Score', 'object'=>'extendedField'],
             //'fourleaf_md5',
         ];
     }
