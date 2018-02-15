@@ -160,17 +160,18 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     private function getExtendedFields()
     {
         return [
-            'alcazar_spid'     => ['label' => 'SPID'],
-            'alcazar_ocn'      => ['label' => 'OCN'],
-            'alcazar_lata'     => ['label' => 'LATA'],
-            'alcazar_city'     => ['label' => 'CITY'],
-            'alcazar_state'    => ['label' => 'STATE'],
-            'alcazar_lec'      => ['label' => 'LEC'],
-            'alcazar_linetype' => ['label' => 'LINETYPE'],
-            'alcazar_dnc'      => ['label' => 'DNC'],
+            'alcazar_spid'     => ['label' => 'SPID', 'object'=>'extendedField'],
+            'alcazar_ocn'      => ['label' => 'OCN', 'object'=>'extendedField'],
+            'alcazar_lata'     => ['label' => 'LATA', 'object'=>'extendedField'],
+            'alcazar_city'     => ['label' => 'CITY', 'object'=>'extendedField'],
+            'alcazar_state'    => ['label' => 'STATE', 'object'=>'extendedField'],
+            'alcazar_lec'      => ['label' => 'LEC', 'object'=>'extendedField'],
+            'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>'extendedField'],
+            'alcazar_dnc'      => ['label' => 'DNC', 'object'=>'extendedField'],
             'alcazar_jurisdiction' => [
                 'label' => 'JURISDICTION',
                 'default_value' => 'INDETERMINATE',
+                'object'=>'extendedField'
             ],
         ];
     }
