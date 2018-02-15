@@ -40,6 +40,11 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+    public function getSupportedFeatures()
+    {
+        return ['push_lead'];
+    }
+
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
@@ -119,7 +124,19 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                     'label' => $this->translator->trans('mautic.integration.autorun.label'),
                     'data'  => !isset($data['autorun']) ? false : $data['autorun'],
                     'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                        'tooltip' => $this->translator->trans('mautic.integration.alcazar.tooltip'),
+                    ]
+                ]
+                
+            )
+            ->add(
+                'cpe',
+                'number',
+                [
+                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
+                    'data'  => !isset($data['cpe']) ? false : $data['cpe'],
+                    'attr'  => [
+                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
                     ]
                 ]
             );

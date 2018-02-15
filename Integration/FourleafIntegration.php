@@ -33,6 +33,11 @@ class FourleafIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+    public function getSupportedFeatures()
+    {
+        return ['push_lead'];
+    }
+
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ($formArea === 'keys') {
@@ -44,6 +49,17 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                     'data'  => !isset($data['autorun']) ? false : $data['autorun'],
                     'attr'  => [
                         'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                    ]
+                ]
+            )
+            ->add(
+                'cpe',
+                'number',
+                [
+                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
+                    'data'  => !isset($data['cpe']) ? false : $data['cpe'],
+                    'attr'  => [
+                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
                     ]
                 ]
             );
