@@ -44,8 +44,10 @@ class LeadSubscriber extends CommonSubscriber
         $completed = array();
         foreach ($integrations as $name => $integration) {
             $settings = $integration->getIntegrationSettings();
-            $keys = $settings->getKeys();
-            if ($settings->getIsPublished() && $keys['autorun']) {                        
+            if (method_exists($settings, 'getKeys')) {
+                $keys = $settings->getKeys();
+            }
+            if ($settings->getIsPublished() && (!isset($keys) || $keys['autorun'])) {
                 $integration->doEnhancement($e->getLead());
                 $completed[] = $name;
             }
