@@ -84,17 +84,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                         'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
                     ]
                 ]
-            )
-            ->add(
-                'cpe',
-                'number',
-                [
-                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
-                    'data'  => !isset($data['cpe']) ? false : $data['cpe'],
-                    'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
-                    ]
-                ]
             );
         }
     }    
@@ -111,10 +100,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
     protected function getEnhancerFieldArray()
     {
-        return ['email_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean'],
-                'workphone_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean'],
-                'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean'],
-                'homephone_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean'],
+        return ['email_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
+                'workphone_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
+                'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
+                'homephone_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
           ];
     }
 
