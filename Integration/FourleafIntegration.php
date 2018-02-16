@@ -40,7 +40,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration
 
     public function appendToForm(&$builder, $data, $formArea)
     {
-      $foo = '';
         if ($formArea === 'keys') {
             $builder->add(
                 'autorun',
