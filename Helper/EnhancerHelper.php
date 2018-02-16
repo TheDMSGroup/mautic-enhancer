@@ -7,7 +7,7 @@ use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class EnhancerHelper extends IntegrationHelper
 {
-    protected static $enhancerIntegrations = ['Alcazar', 'Random', 'Fourleaf', 'Xverify'];
+    protected static $enhancerIntegrations = ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     
     /**
      * @var IntegrationHelper

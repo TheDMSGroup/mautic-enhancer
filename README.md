@@ -1,14 +1,18 @@
-![Alcazar](./Assets/img/alcazar.png)![Fourleaf](./Assets/img/fourleaf.png)![Random](./Assets/img/random.png)![Xverify](./Assets/img/xverify.png)
+![Age from Birthdate](./Assets/img/agefrombirthdate.png)![Alcazar](./Assets/img/alcazar.png)![Fourleaf](./Assets/img/fourleaf.png)![Random](./Assets/img/random.png)![Xverify](./Assets/img/xverify.png)
 # Mautic Enhancer
 
 A bundle of contact data enhancers.
 
-## Enhancers
+## External Enhancers
 
 - Alcazar - Phone data lookup
 - Fourleaf - Contact activity and hygiene scoring
-- Random - Stores random number for use in A/B splits
 - XVerify - Validates email and phone fields
+
+## Local Enhancers
+
+- Random - Stores random number for use in A/B splits
+- Age from Birthdate - Stores age based on a birthdate field
 
 ## Installation & Usage
 
