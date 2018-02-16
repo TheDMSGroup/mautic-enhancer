@@ -29,15 +29,19 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     protected function getEnhancerFieldArray()
-    {     
-        return [
+    {
+      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+
+      return [
             'afb_age' => [
                'label' => 'Age (D.o.B.)',
                'type' => 'number',
+               'object' => $object
             ],
             'afb_dob' => [
                 'label' => 'D.o.B.',
-                'type' =>  'date',   
+                'type' =>  'date',
+                'object' => $object
             ],
         ];
     }

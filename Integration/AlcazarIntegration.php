@@ -158,20 +158,23 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
     }
     
     private function getExtendedFields()
+
     {
-        return [
-            'alcazar_spid'     => ['label' => 'SPID', 'object'=>'extendedField'],
-            'alcazar_ocn'      => ['label' => 'OCN', 'object'=>'extendedField'],
-            'alcazar_lata'     => ['label' => 'LATA', 'object'=>'extendedField'],
-            'alcazar_city'     => ['label' => 'CITY', 'object'=>'extendedField'],
-            'alcazar_state'    => ['label' => 'STATE', 'object'=>'extendedField'],
-            'alcazar_lec'      => ['label' => 'LEC', 'object'=>'extendedField'],
-            'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>'extendedField'],
-            'alcazar_dnc'      => ['label' => 'DNC', 'object'=>'extendedField'],
+      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+
+      return [
+            'alcazar_spid'     => ['label' => 'SPID', 'object'=>$object],
+            'alcazar_ocn'      => ['label' => 'OCN', 'object'=>$object],
+            'alcazar_lata'     => ['label' => 'LATA', 'object'=>$object],
+            'alcazar_city'     => ['label' => 'CITY', 'object'=>$object],
+            'alcazar_state'    => ['label' => 'STATE', 'object'=>$object],
+            'alcazar_lec'      => ['label' => 'LEC', 'object'=>$object],
+            'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>$object],
+            'alcazar_dnc'      => ['label' => 'DNC', 'object'=>$object],
             'alcazar_jurisdiction' => [
                 'label' => 'JURISDICTION',
                 'default_value' => 'INDETERMINATE',
-                'object'=>'extendedField'
+                'object'=>$object
             ],
         ];
     }

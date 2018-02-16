@@ -111,10 +111,12 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
     protected function getEnhancerFieldArray()
     {
-        return ['email_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
-                'workphone_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
-                'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
-                'homephone_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean', 'object' => 'extendedField'],
+      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+
+      return ['email_valid' => ['label' => 'emailIsValid', 'type'  => 'boolean', 'object' => $object],
+                'workphone_valid' => ['label' => 'work_phoneIsValid', 'type'  => 'boolean', 'object' => $object],
+                'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type'  => 'boolean', 'object' => $object],
+                'homephone_valid' => ['label' => 'home_phoneIsValid', 'type'  => 'boolean', 'object' => $object],
           ];
     }
 
