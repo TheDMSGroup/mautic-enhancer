@@ -32,5 +32,13 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
         ],
+        'other' => [
+            'mautic.enhancer.helper.integrations' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
+                'arguments' => [
+                    'mautic.helper.integration'
+                ]
+            ]
+        ]
     ],
 ];

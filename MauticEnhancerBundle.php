@@ -15,10 +15,4 @@ use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 class MauticEnhancerBundle extends PluginBundleBase
 {
-    public function boot()
-    {
-        parent::boot();
-
-        EnhancerHelper::init($this->container->get('mautic.helper.integration'));
-    }    
 }

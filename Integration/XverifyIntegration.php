@@ -15,9 +15,11 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\CampaignBundle\Entity\Campaign;
 
-class XverifyIntegration extends AbstractEnhancerIntegration
+class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     const INTEGRATION_NAME = 'Xverify';
+    
+    use NonFreeEnhancerTrait;
 
     public function getAuthenticationType()
     {
@@ -73,30 +75,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
 
     public function appendToForm(&$builder, $data, $formArea)
     {
-        if ($formArea === 'keys') {
-            $builder->add(
-                'autorun',
-                'yesno_button_group',
-                [
-                    'label' => $this->translator->trans('mautic.integration.autorun.label'),
-                    'data'  => !isset($data['autorun']) ? false : $data['autorun'],
-                    'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
-                    ]
-                ]
-            )
-            ->add(
-                'cpe',
-                'number',
-                [
-                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
-                    'data'  => !isset($data['cpe']) ? 0 : $data['cpe'],
-                    'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
-                    ]
-                ]
-            );
-        }
+        $this->appendCostToForm($builder, $data, $formArea);
     }    
 
     public function getAvailableLeadFields($settings = [])

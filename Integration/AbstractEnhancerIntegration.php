@@ -29,6 +29,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      *  getName
      */
 
+    
     abstract protected function getEnhancerFieldArray();
     abstract public function doEnhancement(Lead $lead);
 

@@ -13,9 +13,11 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
-class AlcazarIntegration extends AbstractEnhancerIntegration
+class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     const INTEGRATION_NAME = 'Alcazar';
+    
+    use NonFreeEnhancerTrait;
  
     public function getName()
     {
@@ -115,32 +117,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                     ]
                 );       
         }
-        
-        if ($formArea === 'keys') {
-            $builder->add(
-                'autorun',
-                'yesno_button_group',
-                [
-                    'label' => $this->translator->trans('mautic.integration.autorun.label'),
-                    'data'  => !isset($data['autorun']) ? false : $data['autorun'],
-                    'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.alcazar.tooltip'),
-                    ]
-                ]
-                
-            )
-            ->add(
-                'cpe',
-                'number',
-                [
-                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
-                    'data'  => !isset($data['cpe']) ? 0 : $data['cpe'],
-                    'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
-                    ]
-                ]
-            );
-        }
+        $this->appendCostToForm($builder, $data, $formArea);
     }
              
     protected function getEnhancerFieldArray()

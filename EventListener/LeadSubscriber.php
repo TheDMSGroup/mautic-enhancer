@@ -15,6 +15,7 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\LeadEvents;
 use Mautic\LeadBundle\Event\LeadEvent;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
+use MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerInterface;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 
@@ -33,13 +34,19 @@ class LeadSubscriber extends CommonSubscriber
             ],
         ];
     }
+ 
+    public function __contruct(EnhancerHelper $helper)
+    {
+        $this->helper = $helper;    
+    }
     
     /**
      * @param LeadEvent $e
      */
     public function doEnhancements(LeadEvent $e)
     {    
-        $integrations = EnhancerHelper::getIntegrations();
+        $integrations = $this->helper->getIntegrations();
+        $lead = $e->getLead();
         
         $completed = array();
         foreach ($integrations as $name => $integration) {
@@ -48,8 +55,14 @@ class LeadSubscriber extends CommonSubscriber
                 $keys = $settings->getKeys();
             }
             if ($settings->getIsPublished() && (!isset($keys) || $keys['autorun'])) {
-                $integration->doEnhancement($e->getLead());
+                $integration->doEnhancement($lead);
                 $completed[] = $name;
+            }
+            if ($integration instanceof NonFreeEnhancerInterface) {
+                $new_attribution = $lead->getAttribution() + $integration->getCostPerEnhancement();
+                $lead->setUpdatedField($new_attribution);
+                $this->em->getRepository('Lead')->saveEntitiy($lead);
+                $this->em->flush();
             }
         }
     }
