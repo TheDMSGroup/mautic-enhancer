@@ -11,12 +11,11 @@ return [
             'mautic.enhancer.event.lead' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
-                    'mautic.enhancer.helper.integrations'
+                    '@mautic.enhancer.helper.enhancer'
                 ], 
             ],
             'mautic.enhancer.event.plugin' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
-                'arguments' => [],
             ],
         ],
         
@@ -35,10 +34,10 @@ return [
             ],
         ],
         'other' => [
-            'mautic.enhancer.helper.integrations' => [
+            'mautic.enhancer.helper.enhancer' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
-                    'mautic.helper.integration'
+                    '@mautic.helper.integration'
                 ]
             ]
         ]

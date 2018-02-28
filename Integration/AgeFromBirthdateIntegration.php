@@ -4,30 +4,40 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class AgeFromBirthdateIntegration
+ *
+ * @package \MauticPlugin\MauticEnhancerBundle
+ */
 class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 {
-    const INTEGRATION_NAME = 'AgeFromBirthdate';
-    
+    /**
+     * {@inheritdoc}
+     */
     public function getAuthenticationType()
     {
         return 'none';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'AgeFromBirthdate';
     }
     
-    public function getDisplayName()
-    {
-        return 'Age From Date of Birth Data Enhancer';    
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     public function getSupportedFeatures()
     {
         return ['push_lead'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnhancerFieldArray()
     {
       $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
@@ -46,6 +56,25 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
+    public function appendToForm(&$builder, $data, $formArea)
+    {
+        if ($formArea === 'keys') {
+            $builder->add(
+                'autorun_enabled',
+                'hidden',
+                [
+                    'data' => true,
+                ]
+            );
+        }        
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function doEnhancement(Lead $lead)
     {
         //field name can be dynamic, with the field name picked up througn the config

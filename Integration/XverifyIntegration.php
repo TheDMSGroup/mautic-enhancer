@@ -15,43 +15,56 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\CampaignBundle\Entity\Campaign;
 
+/**
+ * Class XverifyIntegration
+ *
+ * @package \MauticPlugin\MauticEnhancerBundle\Integration
+ */
 class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Xverify';
-    
-    use NonFreeEnhancerTrait;
 
+    use NonFreeEnhancerTrait {
+        getRequiredKeyFields as private getNonFreeKeys;
+    } 
+
+    /**
+     * {@inheritdoc}
+     */
     public function getAuthenticationType()
     {
         return 'keys';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Xverify';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDisplayName()
-    {
-        return self::INTEGRATION_NAME . ' Data Enhancer';
-    }
-
     public function getSupportedFeatures()
     {
         return [
             'push_lead',
         ];
     }
-
+    
+    /**
+     * {@inheritdoc}
+     */
     public function getRequiredKeyFields()
     {
-        return [
-            'server' => 'mautic.integration.xverify.server.label',
-            'apikey' => 'mautic.integration.xverify.apikey.label'
-        ];
+        return array_merge(
+            [
+                'server' => 'mautic.integration.xverify.server.label',
+                'apikey' => 'mautic.integration.xverify.apikey.label'
+            ],
+            $this->getNonFreeKeys()
+        );
     }
     /**
      * Get the array key for clientId.
@@ -73,21 +86,22 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
         return 'mautic.integration.xverify.apikey.label';
     }
 
-    public function appendToForm(&$builder, $data, $formArea)
-    {
-        $this->appendCostToForm($builder, $data, $formArea);
-    }    
-
+    /**
+     * {@inheritdoc}
+     */
     public function getAvailableLeadFields($settings = [])
     {
         return [
-            'email'      => ['type' => 'string'],
+            'email'     => ['type' => 'string'],
             'homephone' => ['type' => 'string'],
             'cellphone' => ['type' => 'string'],
             'workphone' => ['type' => 'string'],
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnhancerFieldArray()
     {
       $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
@@ -99,6 +113,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
           ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function doEnhancement(Lead $lead)
     {
         if (!empty($lead)) {
@@ -169,7 +186,16 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
         }
     }
 
-
+    /**
+     * Send to Xverify
+     *
+     * @param string $service
+     * @param string $params
+     * @param string $fieldKey
+     * @param string $fieldValue
+     *
+     * @return string|mixed Xverify's response
+     */
     protected function makeCall($service, $params, $fieldKey, $fieldValue) {
 
       // the response object has a lot of value-add data, that may help to enhance lead data, for a future feature request
@@ -188,6 +214,14 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
     }
 
+    /**
+     * Receive from Xverify
+     *
+     * @param string|mixed $response Response from Xverify
+     * @param string $fieldKey Field that was verified
+     *
+     * @return int Integer T/F values for valid
+     */
     protected function getResponseStatus($response, $fieldKey){
       $status = NULL; // default because if we cant get it, its because its invalid
       if(!empty($response) && !empty($fieldKey)){

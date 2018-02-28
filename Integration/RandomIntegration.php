@@ -13,29 +13,31 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class RandomIntegration
+ *
+ * @package \MauticPlugin\MauticEnhancerBundle\Integration
+ */
 class RandomIntegration extends AbstractEnhancerIntegration
 {
-    const INTEGRATION_NAME = 'Random';
-    
+    /**
+     * {@inheritdoc}
+     */
     public function getAuthenticationType()
     {
         return 'none';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Random';
     }
     
-    public function getDisplayName()
-    {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
-    }
-
     /**
-     * @param FormBuilder|Form $builder
-     * @param array            $data
-     * @param string           $formArea
+     * {@inheritdoc}
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -53,10 +55,9 @@ class RandomIntegration extends AbstractEnhancerIntegration
                 ]
             );
         }
-        
-        if ($formArea === 'keys') {
+        elseif ($formArea === 'keys') {
             $builder->add(
-                'autorun',
+                'autorun_enabled',
                 'hidden',
                 [
                     'data' => true,
@@ -65,6 +66,9 @@ class RandomIntegration extends AbstractEnhancerIntegration
         }
     }
     
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnhancerFieldArray()
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
@@ -78,6 +82,9 @@ class RandomIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function doEnhancement(Lead $lead)
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();

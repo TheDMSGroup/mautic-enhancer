@@ -7,25 +7,32 @@ use Mautic\LeadBundle\Entity\Lead;
 
 class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Fourleaf';
-    
-    use NonFreeEnhancerTrait;
+    /**
+     * Implements NonFreeEnhancerInterface
+     */
+    use NonFreeEnhancerTrait {
+        getRequiredKeyFields as getNonFreeKeyFields;
+    }
  
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
-    }
-    
-    public function getDisplayName()
-    {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
+        return 'Fourleaf';
     }
         
+    /**
+     * {@inheritdoc}
+     */
     public function getAuthenticationType()
     {
         return 'keys';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getRequiredKeyFields()
     {
         return [
@@ -35,16 +42,25 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
         ];
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getSupportedFeatures()
     {
         return ['push_lead'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function appendToForm(&$builder, $data, $formArea)
     {
         $this->appendCostToForm($builder, $data, $formArea);
     }
              
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnhancerFieldArray()
     {
       $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
@@ -59,6 +75,9 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
         ];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function doEnhancement(Lead $lead)
     {
         $algo = $lead->getFieldValue('fourleaf_algo');

@@ -14,15 +14,16 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
+use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 /**
  * Class PluginSubscriber
- * @package MauticPlugin\MauticEnhancerBundle\EventListener
+ * @package \MauticPlugin\MauticEnhancerBundle\EventListener
  */
 class PluginSubscriber extends CommonSubscriber
-{
+{    
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
@@ -32,12 +33,12 @@ class PluginSubscriber extends CommonSubscriber
     }
 
     /**
-     * @param PluginIntegrationEvent $event
+     * @param \Mautic\PluginBundle\Event\PluginIntegrationEvent $event
      */
     public function buildCustomFields(PluginIntegrationEvent $event)
     {
         $integration = $event->getIntegration();
-        if ($integration && method_exists($integration, 'buildEnhancerFields')) {
+        if (in_array($integration->getName(), EnhancerHelper::IntegrationNames())) {
             $integration->buildEnhancerFields();
         }
     }

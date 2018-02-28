@@ -4,5 +4,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 interface NonFreeEnhancerInterface
 {
-    public function getCostPerEnhancement();
+    public function getAutorunEnabled();
+
+    public function getCostPerEnhancement();    
 }

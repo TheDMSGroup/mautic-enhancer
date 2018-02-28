@@ -18,54 +18,66 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 use MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerInterface;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
-
+/**
+ * Class LeadSubsciber
+ * 
+ * @package \MauticPlugin\MauticEnhancerBundle\EventListener
+ */
 class LeadSubscriber extends CommonSubscriber
 {
     /**
-     * @return array
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents()
     {
         return [
-
-            LeadEvents::LEAD_POST_SAVE => [ // instead of LEAD_IDENTIFIED
-                'doEnhancements',
-                0
-            ],
+            LeadEvents::LEAD_POST_SAVE => [ 'doEnhancements', 0 ],
         ];
-    }
- 
-    public function __construct(EnhancerHelper $helper)
-    {
-        $this->helper = $helper;    
     }
     
     /**
-     * @param LeadEvent $e
+     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper Helper for dealing with Enhancer integrations
      */
-    public function doEnhancements(LeadEvent $e)
-    {    
-        $integrations = $this->helper->getIntegrations();
-        $lead = $e->getLead();
-        
+    protected $enhancer_helper;
+    
+    /**
+     * Constructor
+     * 
+     * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
+     */
+    public function __construct(EnhancerHelper $enhancer_helper)
+    {
+        $this->enhancer_helper = $enhancer_helper;    
+    }
+    
+    /**
+     * Finds Enhancer integrations to run for this event
+     *
+     * @param \Mautic\LeadBundle\Event\LeadEvent $event
+     */
+    public function doEnhancements(LeadEvent $event)
+    {
+        $lead = $event->getLead();      
+        $integrations = $this->enhancer_helper->getIntegrations();
         $completed = array();
+        
         foreach ($integrations as $name => $integration) {
-            $settings = $integration->getIntegrationSettings();
-            if (method_exists($settings, 'getKeys')) {
-                $keys = $settings->getKeys();
-            }
-            if ($settings->getIsPublished() && ( 
-                (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) ||
-                ( 1 )
-            )) {
-                $integration->doEnhancement($lead);
-                $completed[] = $name;
-            }
-            if ($integration instanceof NonFreeEnhancerInterface) {
-                $new_attribution = $lead->getAttribution() + $integration->getCostPerEnhancement();
-                $lead->setUpdatedField($new_attribution);
-                $this->em->getRepository('Lead')->saveEntitiy($lead);
-                $this->em->flush();
+            if ($integration->isConfigured() && $integration->getInegrationSettings()->getIsPublished()) {            
+                
+                if (
+                    (isset($keys['autorun_enabled']) && $keys['autorun_enabled'])
+                    /* TODO: || this lead was pushed  ) */
+                ) {
+                    $integration->doEnhancement($lead);
+                    $completed[] = $name;
+                
+                    if ($integration instanceof NonFreeEnhancerInterface) {
+                        $new_attribution = $lead->getAttribution() + $integration->getCostPerEnhancement();
+                        $lead->setUpdatedField($new_attribution);
+                        $this->em->getRepository('Lead')->saveEntitiy($lead);
+                        $this->em->flush();
+                    }
+                }
             }
         }
     }

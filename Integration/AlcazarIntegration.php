@@ -13,40 +13,61 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class AlcazarIntegration
+ *
+ * @package \MauticPlugin\MauticPluginBundle\Integration
+ */
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Alcazar';
-    
-    use NonFreeEnhancerTrait;
+    /**
+     * Pull in a trait to handle the interfacce
+     * 
+     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait 
+     */   
+    use NonFreeEnhancerTrait {
+        appendToForm as private appendNonFreeEnhancer;
+        getRequiredKeyFields as private getNonFreeKeys;
+    }
  
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Alcazar';
     }
     
-    public function getDisplayName()
-    {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
-    }
-        
+    /**
+     * {@inheritdoc}
+     */
     public function getAuthenticationType()
     {
         return 'keys';
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getRequiredKeyFields()
     {
         return [
             'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
             'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
-        ];
+    ]; 
     }
     
+    /**
+     * {@inheritdoc}
+     */
     public function getSupportedFeatures()
     {
         return ['push_lead'];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
@@ -117,38 +138,82 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     ]
                 );       
         }
-        $this->appendCostToForm($builder, $data, $formArea);
+        elseif ('keys' === $formArea) {
+            $this->appendNonFreeEnhancer($builder, $data, $formArea);
+        }
     }
              
+    /**
+     * {@inheritdoc}
+     */
     protected function getEnhancerFieldArray()
     {
-        $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
+        $object_name = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+
+        $field_list = [
+            'alcazar_lrn' => [
+                'label' => 'LRN',
+                'object' => $object_name
+            ]
+        ];
         
         $integration = $this->getIntegrationSettings();
         $feature_settings = $integration->getFeatureSettings();
         
         if ($feature_settings['extended']) {        
-            $field_list += $this->getExtendedFields();
+            $field_list += $this->getAlcazarExtendedFields($object_name);
         }
         
         return $field_list;
     }
     
-    private function getExtendedFields()
-
+    /**
+     * Additional fields that Alcazar can provide if enabled
+     *
+     * ANI requires a phone number representing the dialed party
+     *
+     * @param string $object_name the field obkect to use (lead, company, extendedField)
+     *
+     * @return array[] [lead_field.alias => [ead_field.column => column.value, ...] ...]
+     */
+    private function getAlcazarExtendedFields(string $object_name = 'lead')
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
-
       return [
-            'alcazar_spid'     => ['label' => 'SPID', 'object'=>$object],
-            'alcazar_ocn'      => ['label' => 'OCN', 'object'=>$object],
-            'alcazar_lata'     => ['label' => 'LATA', 'object'=>$object],
-            'alcazar_city'     => ['label' => 'CITY', 'object'=>$object],
-            'alcazar_state'    => ['label' => 'STATE', 'object'=>$object],
-            'alcazar_lec'      => ['label' => 'LEC', 'object'=>$object],
-            'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>$object],
-            'alcazar_dnc'      => ['label' => 'DNC', 'object'=>$object],
-            'alcazar_jurisdiction' => ['label' => 'JURISDICTION', 'object'=>$object],
+            'alcazar_spid'     => [
+                'label' => 'SPID',
+                'object'=>$object_name
+            ],
+            'alcazar_ocn'      => [
+                'label' => 'OCN',
+                'object'=>$object_name
+            ],
+            'alcazar_lata'     => [
+                'label' => 'LATA',
+                'object'=>$object_name
+            ],
+            'alcazar_city'     => [
+                'label' => 'CITY',
+                'object' => $object_name
+            ],
+            'alcazar_state'    => [
+                'label' => 'STATE',
+                'object' => $object_name
+            ],
+            'alcazar_lec'      => [
+                'label' => 'LEC',
+                'object'=> $object_name
+            ],
+            'alcazar_linetype' => [
+                'label' => 'LINETYPE',
+                'object'=> $object_name],
+            'alcazar_dnc'      => [
+                'label' => 'DNC',
+                'object'=>$object_name
+            ],
+            'alcazar_jurisdiction' => [
+                'label' => 'JURISDICTION',
+                'object'=>$object_name
+            ],
         ];
     }
 
