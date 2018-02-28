@@ -7,19 +7,18 @@ use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class EnhancerHelper
 {
-    protected static $enhancerIntegrations = ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
+    public static $enhancerIntegrations = ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     
     /**
      * @var IntegrationHelper
      */
     private $integrationHelper;
-    
     /**
      * @param IntegrationHelper $helper
      */
     public function _construct(IntegrationHelper $helper)
     {
-        $this->$integrationHelper = $helper;
+        $this->integrationHelper = $helper;
     }
 
     /**
@@ -41,7 +40,8 @@ class EnhancerHelper
 
     public function getIntegrations()
     {
-        return $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
+        $foo = 'bar';
+        return $integrations = $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
     }
    
 }

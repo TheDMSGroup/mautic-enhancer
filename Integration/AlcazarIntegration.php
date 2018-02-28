@@ -148,11 +148,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             'alcazar_lec'      => ['label' => 'LEC', 'object'=>$object],
             'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>$object],
             'alcazar_dnc'      => ['label' => 'DNC', 'object'=>$object],
-            'alcazar_jurisdiction' => [
-                'label' => 'JURISDICTION',
-                'default_value' => 'INDETERMINATE',
-                'object'=>$object
-            ],
+            'alcazar_jurisdiction' => ['label' => 'JURISDICTION', 'object'=>$object],
         ];
     }
 

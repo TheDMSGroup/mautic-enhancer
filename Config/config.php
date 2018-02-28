@@ -10,7 +10,9 @@ return [
         'events' => [
             'mautic.enhancer.event.lead' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
-                'arguments' => [], 
+                'arguments' => [
+                    'mautic.enhancer.helper.integrations'
+                ], 
             ],
             'mautic.enhancer.event.plugin' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,

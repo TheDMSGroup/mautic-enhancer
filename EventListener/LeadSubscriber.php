@@ -35,7 +35,7 @@ class LeadSubscriber extends CommonSubscriber
         ];
     }
  
-    public function __contruct(EnhancerHelper $helper)
+    public function __construct(EnhancerHelper $helper)
     {
         $this->helper = $helper;    
     }
@@ -54,7 +54,10 @@ class LeadSubscriber extends CommonSubscriber
             if (method_exists($settings, 'getKeys')) {
                 $keys = $settings->getKeys();
             }
-            if ($settings->getIsPublished() && (!isset($keys) || $keys['autorun'])) {
+            if ($settings->getIsPublished() && ( 
+                (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) ||
+                ( 1 )
+            )) {
                 $integration->doEnhancement($lead);
                 $completed[] = $name;
             }
