@@ -217,7 +217,10 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
         ];
     }
 
-    public function doEnhancement(Lead $lead)
+    /**
+     * {@inheritdoc}
+     */
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
@@ -229,18 +232,23 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $phone = '1' . $phone;
         }
         
-        $keys = $this->getDecryptedApiKeys();
-          
+        if (strlen($phone) !== 11) {
+            //not a proper phone number
+            return false;
+        }
+        
+        $keys = $this->getKeys();     
         $params = [
             'key' => $keys['apikey'],
             'tn' =>  $phone,
         ];
         
-        $integration = $this->getIntegrationSettings();
-        $settings = $integration->getFeatureSettings();
-        
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();    
         foreach ($settings as $param => $value) {
-            if ($param === 'ani') {
+            if ($param === 'installed') {
+                continue;
+            }
+            elseif ($param === 'ani') {
                 if (!$value) {
                     continue;
                 }
@@ -253,26 +261,31 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 $params['output'] = $value;
             }
             elseif (in_array($param, ['extended', 'dnc'])) {
-                $value = $value ? 'true' : 'false';
-                $params[$param] = $value;
+                $params[$param] = $value ? 'true' : 'false';
             }
         }
        
-        $response = $this->makeRequest(
-            $keys['server'],
-            ['append_to_query' => $params],
-            'GET',
-            ['ignore_event_dispatch' => 1]
-        );       
+        try {
+            $response = $this->makeRequest(
+                $keys['server'],
+                ['append_to_query' => $params],
+                'GET',
+                ['ignore_event_dispatch' => 1]
+            );       
         
-        foreach ($response as $label => $value) {
-            $alias = 'alcazar_' . strtolower($label);
-            $default = $lead->getFieldValue($alias);
-            $lead->addUpdatedField($alias, $value, $default);        
+            foreach ($response as $label => $value) {
+                $alias = 'alcazar_' . strtolower($label);
+                $default = $lead->getFieldValue($alias);
+                $lead->addUpdatedField($alias, $value, $default);        
+            }
+            
+            $this->leadModel->saveEntity($lead);
+            $this->em->flush();
+        } catch (Exception $e) {
+            return false;
         }
-        
-        $this->leadModel->saveEntity($lead);
-        $this->em->flush();
+                
+        return true;
     }
 }
 

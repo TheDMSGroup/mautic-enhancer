@@ -36,7 +36,7 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper Helper for dealing with Enhancer integrations
+     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper Helper for dealing with Enhancer integrations
      */
     protected $enhancer_helper;
     
@@ -51,33 +51,24 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     /**
-     * Finds Enhancer integrations to run for this event
+     * Runs Enhancer integrations configured to autorun (only for new contacts)
      *
      * @param \Mautic\LeadBundle\Event\LeadEvent $event
      */
     public function doEnhancements(LeadEvent $event)
     {
-        $lead = $event->getLead();      
-        $integrations = $this->enhancer_helper->getIntegrations();
-        $completed = array();
-        
-        foreach ($integrations as $name => $integration) {
-            if ($integration->isConfigured() && $integration->getInegrationSettings()->getIsPublished()) {            
-                
-                if (
-                    (isset($keys['autorun_enabled']) && $keys['autorun_enabled'])
-                    /* TODO: || this lead was pushed  ) */
-                ) {
-                    $integration->doEnhancement($lead);
-                    $completed[] = $name;
-                
-                    if ($integration instanceof NonFreeEnhancerInterface) {
-                        $new_attribution = $lead->getAttribution() + $integration->getCostPerEnhancement();
-                        $lead->setUpdatedField($new_attribution);
-                        $this->em->getRepository('Lead')->saveEntitiy($lead);
-                        $this->em->flush();
+        if ($event->isNew()) {
+            /**
+             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[] $integrations
+             */
+            $integrations = $this->enhancer_helper->getEnhancerIntegrations();
+            foreach ($integrations as $integration) {
+                if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {            
+                    $keys = $integration->getKeys();
+                    if ($keys['autorun_enabled']) {
+                        $integration->doEnhancement($event->getLead());
                     }
-                }
+                }   
             }
         }
     }

@@ -85,7 +85,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
     /**
      * {@inheritdoc}
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
         

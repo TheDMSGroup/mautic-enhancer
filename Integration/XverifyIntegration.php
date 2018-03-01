@@ -116,7 +116,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * {@inheritdoc}
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         if (!empty($lead)) {
             $settings = $this->getIntegrationSettings()->getFeatureSettings();

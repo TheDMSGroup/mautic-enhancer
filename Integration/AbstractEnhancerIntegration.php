@@ -42,11 +42,12 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * Performs the plugin's enhancemnt on the current Lead/Contact
      *
-     * @param \Mautic\LeadBundle\Entity\Lead
+     * @param \Mautic\LeadBundle\Entity\Lead $lead the lead to enhance
+     * @param array $config options for a push to integration
      *
-     * @return bool true if enhancemnt considered itself successful, otherwise false
+     * @return bool true if enhancement considered itself successful, otherwise false
      */
-    abstract public function doEnhancement(Lead $lead);
+    abstract public function doEnhancement(Lead $lead, array $config = []);
 
     /**
      * {@inheritdoc}
@@ -62,7 +63,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      */
     public function pushLead(Lead $lead, array $config = [])
     {
-        $this->doEnhancement($lead);    
+        $this->doEnhancement($lead, $config);    
     }
       
     /**

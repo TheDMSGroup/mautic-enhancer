@@ -75,7 +75,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     /**
      * {@inheritdoc}
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         //field name can be dynamic, with the field name picked up througn the config
         // see the random plugin

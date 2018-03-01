@@ -78,7 +78,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     /**
      * {@inheritdoc}
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         $algo = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();
