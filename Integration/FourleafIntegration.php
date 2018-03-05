@@ -18,7 +18,8 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     
     public function getDisplayName()
     {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
+        return 'Email Engagement Scoring with ' . self::INTEGRATION_NAME;
+        //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
         
     public function getAuthenticationType()

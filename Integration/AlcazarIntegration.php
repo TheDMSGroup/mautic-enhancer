@@ -26,7 +26,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     
     public function getDisplayName()
     {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
+        return 'Phone Validation and Lookup with Alcazar';
+        //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
         
     public function getAuthenticationType()

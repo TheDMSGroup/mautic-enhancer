@@ -29,7 +29,8 @@ class RandomIntegration extends AbstractEnhancerIntegration
     
     public function getDisplayName()
     {
-        return self::INTEGRATION_NAME . ' Data Enhancer';    
+        return 'Generate Random Number Token';
+        //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
 
     /**

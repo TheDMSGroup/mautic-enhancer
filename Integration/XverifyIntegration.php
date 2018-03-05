@@ -36,7 +36,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getDisplayName()
     {
-        return self::INTEGRATION_NAME . ' Data Enhancer';
+        return  'Email Validation with ' . self::INTEGRATION_NAME;
+
+        //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
 
     public function getSupportedFeatures()
