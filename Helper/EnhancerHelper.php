@@ -13,10 +13,11 @@ class EnhancerHelper
      * @var IntegrationHelper
      */
     private $integrationHelper;
+
     /**
      * @param IntegrationHelper $helper
      */
-    public function _construct(IntegrationHelper $helper)
+    public function __construct(IntegrationHelper $helper)
     {
         $this->integrationHelper = $helper;
     }
@@ -40,8 +41,7 @@ class EnhancerHelper
 
     public function getIntegrations()
     {
-        $foo = 'bar';
-        return $integrations = $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
+        return $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
     }
    
 }
