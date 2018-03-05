@@ -24,14 +24,17 @@ class EnhancerHelper
     /**
      * @var \Mautic\PluginBundle\Helper\IntegrationHelper $integration_helper Mautic's helper to help us
      */
+
     protected $integration_helper;
-    
+
     /**
      * Constructor
      * 
      * @param \Mautic\PluginBundle\Helper\IntegrationHelper $integration_helper
      */
+
     public function __construct(IntegrationHelper $integration_helper)
+
     {
         $this->integration_helper = $integration_helper;
     }
@@ -67,6 +70,7 @@ class EnhancerHelper
      */
     public function getEnhancerIntegrations()
     {
-        return $integrations = $this->integration_helper->getIntegrationObjects(EnhancerHelper::IntegrationNames());        
-    } 
+        return $this->integration_helper->getIntegrationObjects(EnhancerHelper::IntegrationNames());
+    }
+
 }
