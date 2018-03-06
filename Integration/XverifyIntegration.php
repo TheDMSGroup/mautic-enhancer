@@ -96,8 +96,8 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
     /**
      * @param \Symfony\Component\Form\FormBuilder $builder
-     * @param array                                                                     $data
-     * @param string                                                                    $formArea
+     * @param array                               $data
+     * @param string                              $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
