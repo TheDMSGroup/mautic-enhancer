@@ -1,14 +1,23 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
-use Exception;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 class EnhancerHelper
 {
+    /** @var array */
     public static $enhancerIntegrations = ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
-    
+
     /**
      * @var IntegrationHelper
      */
@@ -32,6 +41,7 @@ class EnhancerHelper
 
     /**
      * @param $name
+     *
      * @return bool|\Mautic\PluginBundle\Integration\AbstractIntegration
      */
     public function getIntegration($name)
@@ -39,9 +49,11 @@ class EnhancerHelper
         return $integration = $this->integrationHelper->getIntegrationObject($name);
     }
 
+    /**
+     * @return mixed
+     */
     public function getIntegrations()
     {
         return $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
     }
-   
 }

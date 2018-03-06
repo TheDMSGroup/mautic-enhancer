@@ -4,7 +4,7 @@
  * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Nicholai Bush <nbush@thedmsgrp.com>
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -16,25 +16,37 @@ use Mautic\LeadBundle\Entity\Lead;
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     const INTEGRATION_NAME = 'Alcazar';
-    
+
     use NonFreeEnhancerTrait;
- 
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return self::INTEGRATION_NAME;
     }
-    
+
+    /**
+     * @return string
+     */
     public function getDisplayName()
     {
         return 'Phone Validation and Lookup with Alcazar';
         //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
-        
+
+    /**
+     * @return string
+     */
     public function getAuthenticationType()
     {
         return 'keys';
     }
-    
+
+    /**
+     * @return array
+     */
     public function getRequiredKeyFields()
     {
         return [
@@ -42,12 +54,20 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
         ];
     }
-    
+
+    /**
+     * @return array
+     */
     public function getSupportedFeatures()
     {
         return ['push_lead'];
     }
 
+    /**
+     * @param \Symfony\Component\Form\FormBuilder $builder
+     * @param array                               $data
+     * @param string                              $formArea
+     */
     public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
@@ -56,18 +76,18 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'output',
                     'choice',
                     [
-                        'choices' => [
+                        'choices'     => [
                             'json' => 'JSON',
-                            'xml' => 'XML',
+                            'xml'  => 'XML',
                             'text' => 'text',
                         ],
-                        'label' => $this->translator->trans('mautic.integration.alcazar.output.label'),
-                        'data'  =>  isset($data['output']) ? $data['output'] : 'text',
+                        'label'       => $this->translator->trans('mautic.integration.alcazar.output.label'),
+                        'data'        => isset($data['output']) ? $data['output'] : 'text',
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
-                            'class' => 'form-control',
+                            'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.alcazar.output.tooltip'),
                         ],
                     ]
@@ -76,13 +96,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'extended',
                     'yesno_button_group',
                     [
-                        'label' => $this->translator->trans('mautic.integration.alcazar.extended.label'),
-                        'data'  => !isset($data['extended']) ? false : $data['extended'],
+                        'label'       => $this->translator->trans('mautic.integration.alcazar.extended.label'),
+                        'data'        => !isset($data['extended']) ? false : $data['extended'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
-                            'class' => 'form-control',
+                            'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.alcazar.extended.tooltip'),
                         ],
                     ]
@@ -91,13 +111,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'ani',
                     'yesno_button_group',
                     [
-                        'label' => $this->translator->trans('mautic.integration.alcazar.ani.label'),
-                        'data'  => !isset($data['ani']) ? false : $data['ani'],
+                        'label'       => $this->translator->trans('mautic.integration.alcazar.ani.label'),
+                        'data'        => !isset($data['ani']) ? false : $data['ani'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
-                            'class' => 'form-control',
+                            'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.alcazar.ani.tooltip'),
                         ],
                     ]
@@ -106,109 +126,119 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'dnc',
                     'yesno_button_group',
                     [
-                        'label' => $this->translator->trans('mautic.integration.alcazar.dnc.label'),
-                        'data'  => !isset($data['dnc']) ? false : $data['dnc'],
+                        'label'       => $this->translator->trans('mautic.integration.alcazar.dnc.label'),
+                        'data'        => !isset($data['dnc']) ? false : $data['dnc'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
-                            'class' => 'form-control',
+                            'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.alcazar.dnc.tooltip'),
                         ],
                     ]
-                );       
+                );
         }
         $this->appendCostToForm($builder, $data, $formArea);
     }
-             
+
+    /**
+     * @return array|mixed
+     */
     protected function getEnhancerFieldArray()
     {
         $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
-        
-        $integration = $this->getIntegrationSettings();
+
+        $integration      = $this->getIntegrationSettings();
         $feature_settings = $integration->getFeatureSettings();
-        
-        if ($feature_settings['extended']) {        
+
+        if ($feature_settings['extended']) {
             $field_list += $this->getExtendedFields();
         }
-        
+
         return $field_list;
     }
-    
+
+    /**
+     * @return array
+     */
     private function getExtendedFields()
-
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+        $object = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
-      return [
-            'alcazar_spid'     => ['label' => 'SPID', 'object'=>$object],
-            'alcazar_ocn'      => ['label' => 'OCN', 'object'=>$object],
-            'alcazar_lata'     => ['label' => 'LATA', 'object'=>$object],
-            'alcazar_city'     => ['label' => 'CITY', 'object'=>$object],
-            'alcazar_state'    => ['label' => 'STATE', 'object'=>$object],
-            'alcazar_lec'      => ['label' => 'LEC', 'object'=>$object],
-            'alcazar_linetype' => ['label' => 'LINETYPE', 'object'=>$object],
-            'alcazar_dnc'      => ['label' => 'DNC', 'object'=>$object],
-            'alcazar_jurisdiction' => ['label' => 'JURISDICTION', 'object'=>$object],
+        return [
+            'alcazar_spid'         => ['label' => 'SPID', 'object' => $object],
+            'alcazar_ocn'          => ['label' => 'OCN', 'object' => $object],
+            'alcazar_lata'         => ['label' => 'LATA', 'object' => $object],
+            'alcazar_city'         => ['label' => 'CITY', 'object' => $object],
+            'alcazar_state'        => ['label' => 'STATE', 'object' => $object],
+            'alcazar_lec'          => ['label' => 'LEC', 'object' => $object],
+            'alcazar_linetype'     => ['label' => 'LINETYPE', 'object' => $object],
+            'alcazar_dnc'          => ['label' => 'DNC', 'object' => $object],
+            'alcazar_jurisdiction' => ['label' => 'JURISDICTION', 'object' => $object],
         ];
     }
 
+    /**
+     * @param Lead $lead
+     *
+     * @return mixed|void
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function doEnhancement(Lead $lead)
     {
-        
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;
         }
-        
+
         $phone = $lead->getPhone();
-        if (strlen($phone) === 10) {
-            $phone = '1' . $phone;
+        if (10 === strlen($phone)) {
+            $phone = '1'.$phone;
         }
-        
+
         $keys = $this->getDecryptedApiKeys();
-          
+
         $params = [
             'key' => $keys['apikey'],
-            'tn' =>  $phone,
+            'tn'  => $phone,
         ];
-        
+
         $integration = $this->getIntegrationSettings();
-        $settings = $integration->getFeatureSettings();
-        
+        $settings    = $integration->getFeatureSettings();
+
         foreach ($settings as $param => $value) {
-            if ($param === 'ani') {
+            if ('ani' === $param) {
                 if (!$value) {
                     continue;
                 }
-                if (strlen($value) === 10) {
-                    $value = '1' . $value;
+                if (10 === strlen($value)) {
+                    $value = '1'.$value;
                 }
                 $params['ani'] = $value;
-            }
-            elseif ($param === 'output') {
+            } elseif ('output' === $param) {
                 $params['output'] = $value;
-            }
-            elseif (in_array($param, ['extended', 'dnc'])) {
-                $value = $value ? 'true' : 'false';
+            } elseif (in_array($param, ['extended', 'dnc'])) {
+                $value          = $value ? 'true' : 'false';
                 $params[$param] = $value;
             }
         }
-       
+
         $response = $this->makeRequest(
             $keys['server'],
             ['append_to_query' => $params],
             'GET',
             ['ignore_event_dispatch' => 1]
-        );       
-        
+        );
+
         foreach ($response as $label => $value) {
-            $alias = 'alcazar_' . strtolower($label);
+            $alias   = 'alcazar_'.strtolower($label);
             $default = $lead->getFieldValue($alias);
-            $lead->addUpdatedField($alias, $value, $default);        
+            $lead->addUpdatedField($alias, $value, $default);
         }
-        
+
         $this->leadModel->saveEntity($lead);
         $this->em->flush();
     }
 }
-

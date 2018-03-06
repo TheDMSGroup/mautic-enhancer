@@ -1,51 +1,85 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class AgeFromBirthdateIntegration.
+ */
 class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 {
     const INTEGRATION_NAME = 'AgeFromBirthdate';
-    
+
+    /**
+     * @return string
+     */
     public function getAuthenticationType()
     {
         return 'none';
     }
-    
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return self::INTEGRATION_NAME;
     }
-    
+
+    /**
+     * @return string
+     */
     public function getDisplayName()
     {
-        return 'Age From Date of Birth Data Enhancer';    
+        return 'Age From Date of Birth Data Enhancer';
     }
 
+    /**
+     * @return array
+     */
     public function getSupportedFeatures()
     {
         return ['push_lead'];
     }
 
+    /**
+     * @return array|mixed
+     */
     protected function getEnhancerFieldArray()
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+        $object = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
-      return [
+        return [
             'afb_age' => [
-               'label' => 'Age (D.o.B.)',
-               'type' => 'number',
-               'object' => $object
+                'label'  => 'Age (D.o.B.)',
+                'type'   => 'number',
+                'object' => $object,
             ],
             'afb_dob' => [
-                'label' => 'D.o.B.',
-                'type' =>  'date',
-                'object' => $object
+                'label'  => 'D.o.B.',
+                'type'   => 'date',
+                'object' => $object,
             ],
         ];
     }
-    
+
+    /**
+     * @param Lead $lead
+     *
+     * @return mixed|void
+     */
     public function doEnhancement(Lead $lead)
     {
         //field name can be dynamic, with the field name picked up througn the config
@@ -54,15 +88,14 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             $dob = $lead->getFieldValue('afb_dob');
             if (isset($dob)) {
                 $today = new DateTime();
-                $age = $today->diff($dob)->format('%y');
+                $age   = $today->diff($dob)->format('%y');
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
                     $this->leadModel->saveEntity($lead);
                     $this->em->flush();
                 }
             }
-        } catch (Exception $e) {
-            
+        } catch (\Exception $e) {
         }
     }
 }

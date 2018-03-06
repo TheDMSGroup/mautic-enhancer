@@ -1,46 +1,55 @@
 <?php
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 return [
-    'name' => 'Mautic Data Enhancers',
+    'name'        => 'Mautic Data Enhancers',
     'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, and xVerify.',
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
-    
+
     'services' => [
-        
         'events' => [
-            'mautic.enhancer.event.lead' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
+            'mautic.enhancer.event.lead'   => [
+                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber',
                 'arguments' => [
-                    'mautic.enhancer.helper.integrations'
-                ], 
+                    'mautic.enhancer.helper.integrations',
+                ],
             ],
             'mautic.enhancer.event.plugin' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
+                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber',
                 'arguments' => [],
             ],
         ],
-        
+
         'integrations' => [
-            'mautic.enhancer.integration.alcazar' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
+            'mautic.enhancer.integration.alcazar'  => [
+                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration',
             ],
-            'mautic.enhancer.integration.random' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
+            'mautic.enhancer.integration.random'   => [
+                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration',
             ],
             'mautic.enhancer.integration.fourleaf' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration::class,
+                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration',
             ],
-            'mautic.enhancer.integration.xverify' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
+            'mautic.enhancer.integration.xverify'  => [
+                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration',
             ],
         ],
-        'other' => [
+        'other'        => [
             'mautic.enhancer.helper.integrations' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
+                'class'     => 'MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper',
                 'arguments' => [
-                    'mautic.helper.integration'
-                ]
-            ]
-        ]
+                    'mautic.helper.integration',
+                ],
+            ],
+        ],
     ],
 ];

@@ -2,9 +2,9 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
+ * @author      Mautic, Inc
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -16,8 +16,7 @@ use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
 
 /**
- * Class PluginSubscriber
- * @package MauticPlugin\MauticEnhancerBundle\EventListener
+ * Class PluginSubscriber.
  */
 class PluginSubscriber extends CommonSubscriber
 {
