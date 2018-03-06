@@ -87,7 +87,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         try {
             $dob = $lead->getFieldValue('afb_dob');
             if (isset($dob)) {
-                $today = new DateTime();
+                $today = new \DateTime();
                 $age   = $today->diff($dob)->format('%y');
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));

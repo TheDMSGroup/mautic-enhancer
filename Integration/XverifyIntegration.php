@@ -95,7 +95,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param \Mautic\PluginBundle\Integration\Form|\Symfony\Component\Form\FormBuilder $builder
+     * @param \Symfony\Component\Form\FormBuilder $builder
      * @param array                                                                     $data
      * @param string                                                                    $formArea
      */
