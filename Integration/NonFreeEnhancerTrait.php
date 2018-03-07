@@ -17,15 +17,24 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 trait NonFreeEnhancerTrait
 {
     /**
-     * @var bool $autorun_enabled 
+     * @var bool $autorun_enabled
      */
     protected $autorun_enabled = false;
-    
+
     /**
      * @var string|float $cost_per_enhancement
      */
     protected $cost_per_enhancement = "0.0000";
-    
+
+    /**
+     * @param Lead  $lead
+     * @param array $config
+     */
+    public function pushLead(Lead $lead, array $config = [])
+    {
+        $this->doEnhancement($lead, $config);
+    }
+
     /**
      * @return bool
      */
@@ -33,7 +42,7 @@ trait NonFreeEnhancerTrait
     {
         return $this->autorun_enabled;
     }
-    
+
     /**
      * @param bool $enabled
      * @return $this
@@ -43,7 +52,7 @@ trait NonFreeEnhancerTrait
        $this->autorun_enabled = $enabled;
        return $this;
     }
-    
+
     /**
      * @return string|float
      */
@@ -51,9 +60,9 @@ trait NonFreeEnhancerTrait
     {
         return $this->cost_per_enhancement;
     }
-    
+
     public function setCostPerEnhancement($cost)
-    {   
+    {
         if (is_string($cost) && (false !== floatval($cost))) {
             $this->cost_per_enhancement = $cost;
         }
@@ -61,7 +70,7 @@ trait NonFreeEnhancerTrait
             $this->cost_per_enhancement = "$cost";
         }
     }
-    
+
     /**
      * @return array
      */
@@ -72,7 +81,7 @@ trait NonFreeEnhancerTrait
             'cost_per_enhancmebt' => $this->translator->trans('mautic.integration.cpe.label'),
         ];
     }
-    
+
     /**
      * @param $builder
      * @param $data

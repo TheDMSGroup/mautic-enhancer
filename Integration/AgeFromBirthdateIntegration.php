@@ -35,7 +35,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     {
         return 'AgeFromBirthdate';
     }
-    
+
     /**
      * @return string
      */
@@ -74,7 +74,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             ],
         ];
     }
-    
 
     /**
      * @param \Symfony\ComponentForm\FormBuilderInterface $builder
@@ -91,12 +90,13 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                     'data' => true,
                 ]
             );
-        }        
+        }
     }
-    
+
     /**
      * @param Lead $lead
      * @param array $config
+     *
      * @return mixed|void
      */
     public function doEnhancement(Lead $lead, array $config = [])

@@ -19,8 +19,6 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 /**
  * Class LeadSubsciber
- * 
- * @package \MauticPlugin\MauticEnhancerBundle\EventListener
  */
 class LeadSubscriber extends CommonSubscriber
 {
@@ -30,44 +28,42 @@ class LeadSubscriber extends CommonSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            LeadEvents::LEAD_POST_SAVE => [ 'doEnhancements', 0 ],
+            LeadEvents::LEAD_POST_SAVE => [ 'doListenerEnhancements', 0 ],
         ];
     }
-    
+
     /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper Helper for dealing with Enhancer integrations
+     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
      */
-    protected $enhancer_helper;
-    
+    protected $enhancerHelper;
+
     /**
-     * Constructor
-     * 
      * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
      */
-    public function __construct(EnhancerHelper $enhancer_helper)
+    public function __construct(EnhancerHelper $helper)
     {
-        $this->enhancer_helper = $enhancer_helper;    
+        $this->enhancerHelper = $enhancerHelper;
     }
-    
+
     /**
-     * @param LeadEvent $e
+     * @param LeadEvent $event
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancements(LeadEvent $event)
+    public function doListenerEnhancements(LeadEvent $event)
     {
         if ($event->isNew()) {
             /**
              * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[] $integrations
              */
-            $integrations = $this->enhancer_helper->getEnhancerIntegrations();
+            $integrations = $this->enhancerHelper->getEnhancerIntegrations();
             foreach ($integrations as $integration) {
-                if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {            
+                if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
                     if ($keys['autorun_enabled']) {
                         $integration->doEnhancement($event->getLead());
                     }
-                }   
+                }
             }
         }
     }

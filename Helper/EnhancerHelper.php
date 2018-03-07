@@ -20,19 +20,16 @@ use Mautic\PluginBundle\Helper\IntegrationHelper;
 class EnhancerHelper
 {
     /**
-     * The list of available MauticEnhancerIntegrations
-     *
      * @return string[]
      */
     final static public function IntegrationNames()
     {
         return  ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     }
-    
+
     /**
      * @var IntegrationHelper
      */
-
     protected $integrationHelper;
 
     /**
@@ -60,9 +57,9 @@ class EnhancerHelper
     {
         return $this->integrationHelper->getIntegrationObject($name);
     }
-    
+
     /**
-     * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[] 
+     * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
      */
     public function getEnhancerIntegrations()
     {

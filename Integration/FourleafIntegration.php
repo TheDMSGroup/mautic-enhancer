@@ -38,7 +38,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function getDisplayName()
     {
-        return 'Email Engagement Scoring with '.self::INTEGRATION_NAME;
+        return 'Email Engagement Scoring with '.$this->getName();
     }
 
     /**
@@ -54,11 +54,13 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function getRequiredKeyFields()
     {
-        return [
+        $integrationFields = [
             'id'  => $this->translator->trans('mautic.integration.fourleaf.id.label'),
             'key' => $this->translator->trans('mautic.integration.fourleaf.key.label'),
             'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
         ];
+
+        return array_merge($integrationFields, $this->getNonFreeKeyFields());
     }
 
     /**
@@ -67,16 +69,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     public function getSupportedFeatures()
     {
         return ['push_lead'];
-    }
-
-    /**
-     * @param \Symfony\Component\Form\FormBuilderInterface $builder
-     * @param array                                        $data
-     * @param string                                       $formArea
-     */
-    public function appendToForm(&$builder, $data, $formArea)
-    {
-        $this->appendCostToForm($builder, $data, $formArea);
     }
 
     /**

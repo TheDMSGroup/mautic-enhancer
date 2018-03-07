@@ -16,7 +16,19 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
  */
 interface NonFreeEnhancerInterface
 {
+    /**
+     * @param Lead  $lead
+     * @param array $config
+     */
+    public function pushLead(Lead $lead, array $config = []);
+
+    /**
+     * @return bool
+     */
     public function getAutorunEnabled();
 
-    public function getCostPerEnhancement();    
+    /**
+     * @return string|float
+     */
+    public function getCostPerEnhancement();
 }

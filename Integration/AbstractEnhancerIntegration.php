@@ -19,6 +19,9 @@ use Mautic\PluginBundle\Integration\AbstractIntegration;
 
 /**
  * Class AbstractEnhancerIntegration
+ *
+ * @method string getAuthorizationType()
+ * @method string getName()
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
@@ -26,11 +29,11 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      * @returns array[]
      */
     abstract protected function getEnhancerFieldArray();
-    
+
     /**
      * @param Lead  $lead
      * @param array $config
-     * @return bool
+     * @return bool|void
      */
     abstract public function doEnhancement(Lead $lead, array $config = []);
 
@@ -40,51 +43,45 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function getDisplayName()
     {
         $spaced_name = preg_replace('/([a-z])([A-Z])/', "$1 $2", $this->getName());
-        return sprintf('%s Data Enhancer', $spaced_name);    
+        return sprintf('%s Data Enhancer', $spaced_name);
     }
-        
+
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @return void
      */
-    public function pushLead(Lead $lead, array $config = [])
-    {
-        $this->doEnhancement($lead, $config);    
-    }
-    
     public function buildEnhancerFields()
     {
         $integration = $this->getIntegrationSettings();
-        
+
         $count = count($this->fieldModel->getLeadFields());
-        
+
         if ($integration->getIsPublished()) {
             $feature_settings = $integration->getFeatureSettings();
-            $created =  isset($feature_settings['installed']) ? $feature_settings['installed'] : []; 
+            $created =  isset($feature_settings['installed']) ? $feature_settings['installed'] : [];
             $creating = $this->getEnhancerFieldArray();
-            
+
             foreach ($creating as $alias => $properties) {
-                
+
                 if (in_array($alias, $created)) {
                     //do not build an existing column
                     continue;
                 }
-                
+
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
                 $new_field->setOrder(++$count);
-                
+
                 foreach ($properties as $property => $value) {
-                    
-                    $method = "set" . implode('', array_map('ucfirst', explode('_',$property)));                
-                    
+
+                    $method = "set" . implode('', array_map('ucfirst', explode('_',$property)));
+
                     try {
                         $new_field->$method($value);
                     } catch(Exception $e) {
                         error_log('Failed with "' . $e->getMessage() . '"');
                     }
                 }
-                
+
                 $this->fieldModel->saveEntity($new_field);
                 $created[] = $alias;
             }
@@ -95,8 +92,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param array $settings
      *
      * @return array

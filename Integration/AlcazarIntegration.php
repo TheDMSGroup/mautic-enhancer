@@ -19,13 +19,13 @@ use Mautic\LeadBundle\Entity\Lead;
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait 
-     */   
+     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
+     */
     use NonFreeEnhancerTrait {
-        appendToForm as private appendNonFreeEnhancer;
-        getRequiredKeyFields as private getNonFreeKeys;
+        appendToForm as appendNonFreeKeyFields;
+        getRequiredKeyFields as getNonFreeKeyFields;
     }
- 
+
     /**
      * @return string
      */
@@ -34,7 +34,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
         return 'Alcazar';
     }
 
-        
     /**
      * @return string
      */
@@ -48,10 +47,12 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getRequiredKeyFields()
     {
-        return [
+        $integrationFields = [
             'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
             'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
         ];
+
+        return array_merge($integrationFields, $this->getNonFreeKeyFields());
     }
 
     /**
@@ -135,10 +136,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                             'tooltip' => $this->translator->trans('mautic.integration.alcazar.dnc.tooltip'),
                         ],
                     ]
-                );       
-        }
-        elseif ('keys' === $formArea) {
-            $this->appendNonFreeEnhancer($builder, $data, $formArea);
+                );
+            $this->appendNonFreeKeyFields($builder, $data, $formArea);
         }
     }
 
@@ -147,7 +146,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     protected function getEnhancerFieldArray()
     {
-        $object_name = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+        $object_name = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
         $field_list = [
             'alcazar_lrn' => [
@@ -155,26 +156,23 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 'object' => $object_name
             ]
         ];
-        
-        $integration = $this->getIntegrationSettings();
-        $feature_settings = $integration->getFeatureSettings();
-        
-        if ($feature_settings['extended']) {        
+
+        $feature_settings = $integration->getFeatureSettings()->getIntegrationSettings();
+
+        if ($feature_settings['extended']) {
             $field_list += $this->getAlcazarExtendedFields($object_name);
         }
-        
+
         return $field_list;
     }
 
     /**
-     * @param string $object_name the field obkect to use (lead, company, extendedField)
-     * @return array[] [lead_field.alias => [ead_field.column => column.value, ...] ...]
+     * @param string $object_name
+     * @return array[]
      */
-    private function getExtendedFields()
+    private function getAlcazarExtendedFields($object_name)
 
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
-
       return [
             'alcazar_spid'     => [
                 'label' => 'SPID',
@@ -223,7 +221,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancement(Lead $lead, array $config = [])
-    {        
+    {
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;
         }
@@ -231,7 +229,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
         $phone = $lead->getPhone();
         if (10 === strlen($phone)) {
             $phone = '1'.$phone;
-        }      
+        }
         if (11 !== strlen($phone)) {
             return false;
         }
@@ -243,7 +241,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             'tn'  => $phone,
         ];
 
-        $settings = $this->getIntegrationSettings()->getFeatureSettings();    
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();
         foreach ($settings as $param => $value) {
             if ('ani' === $param) {
                 //the value of ani should be a phone number
