@@ -13,15 +13,15 @@ namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
+/**
+ * Class EnhancerHelper.
+ */
 class EnhancerHelper
 {
-    /** @var array */
-    public static $enhancerIntegrations = ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
-
     /**
      * @var IntegrationHelper
      */
-    private $integrationHelper;
+    protected $integrationHelper;
 
     /**
      * @param IntegrationHelper $helper
@@ -46,14 +46,22 @@ class EnhancerHelper
      */
     public function getIntegration($name)
     {
-        return $integration = $this->integrationHelper->getIntegrationObject($name);
+        return $this->integrationHelper->getIntegrationObject($name);
     }
 
     /**
-     * @return mixed
+     * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
      */
-    public function getIntegrations()
+    public function getEnhancerIntegrations()
     {
-        return $this->integrationHelper->getIntegrationObjects(self::$enhancerIntegrations);
+        return $this->integrationHelper->getIntegrationObjects(self::IntegrationNames());
+    }
+
+    /**
+     * @return string[]
+     */
+    final public static function IntegrationNames()
+    {
+        return ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     }
 }

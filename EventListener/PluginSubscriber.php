@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
+use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 /**
  * Class PluginSubscriber.
@@ -36,7 +37,7 @@ class PluginSubscriber extends CommonSubscriber
     public function buildCustomFields(PluginIntegrationEvent $event)
     {
         $integration = $event->getIntegration();
-        if ($integration && method_exists($integration, 'buildEnhancerFields')) {
+        if (in_array($integration->getName(), EnhancerHelper::IntegrationNames())) {
             $integration->buildEnhancerFields();
         }
     }

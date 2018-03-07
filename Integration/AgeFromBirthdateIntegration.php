@@ -11,6 +11,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use DateTime;
+use Exception;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
@@ -18,8 +20,6 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 {
-    const INTEGRATION_NAME = 'AgeFromBirthdate';
-
     /**
      * @return string
      */
@@ -33,7 +33,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'AgeFromBirthdate';
     }
 
     /**
@@ -45,7 +45,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getSupportedFeatures()
     {
@@ -53,7 +53,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return array|mixed
+     * @return array[]
      */
     protected function getEnhancerFieldArray()
     {
@@ -76,18 +76,37 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead $lead
+     * @param \Symfony\Component\Form\FormBuilder $builder
+     * @param array                               $data
+     * @param string                              $formArea
+     */
+    public function appendToForm(&$builder, $data, $formArea)
+    {
+        if ('keys' === $formArea) {
+            $builder->add(
+                'autorun_enabled',
+                'hidden',
+                [
+                    'data' => true,
+                ]
+            );
+        }
+    }
+
+    /**
+     * @param Lead  $lead
+     * @param array $config
      *
      * @return mixed|void
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         //field name can be dynamic, with the field name picked up througn the config
         // see the random plugin
         try {
             $dob = $lead->getFieldValue('afb_dob');
             if (isset($dob)) {
-                $today = new \DateTime();
+                $today = new DateTime();
                 $age   = $today->diff($dob)->format('%y');
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
@@ -95,7 +114,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                     $this->em->flush();
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
     }
 }

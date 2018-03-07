@@ -20,34 +20,33 @@ return [
             'mautic.enhancer.event.lead'   => [
                 'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber',
                 'arguments' => [
-                    'mautic.enhancer.helper.integrations',
+                    '@mautic.enhancer.helper.enhancer',
                 ],
             ],
             'mautic.enhancer.event.plugin' => [
-                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber',
-                'arguments' => [],
+                'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
             ],
         ],
 
         'integrations' => [
             'mautic.enhancer.integration.alcazar'  => [
-                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration',
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
             ],
             'mautic.enhancer.integration.random'   => [
-                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration',
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
             ],
             'mautic.enhancer.integration.fourleaf' => [
-                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration',
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration::class,
             ],
             'mautic.enhancer.integration.xverify'  => [
-                'class' => 'MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration',
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
         ],
         'other'        => [
-            'mautic.enhancer.helper.integrations' => [
-                'class'     => 'MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper',
+            'mautic.enhancer.helper.enhancer' => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
-                    'mautic.helper.integration',
+                    '@mautic.helper.integration',
                 ],
             ],
         ],

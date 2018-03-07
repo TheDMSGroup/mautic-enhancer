@@ -18,16 +18,19 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Fourleaf';
-
-    use NonFreeEnhancerTrait;
+    /*
+     * @var NonFreeEnhancerInterface
+     */
+    use NonFreeEnhancerTrait {
+        getRequiredKeyFields as getNonFreeKeyFields;
+    }
 
     /**
      * @return string
      */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Fourleaf';
     }
 
     /**
@@ -35,8 +38,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function getDisplayName()
     {
-        return 'Email Engagement Scoring with '.self::INTEGRATION_NAME;
-        //return self::INTEGRATION_NAME . ' Data Enhancer';
+        return 'Email Engagement Scoring with '.$this->getName();
     }
 
     /**
@@ -52,11 +54,13 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function getRequiredKeyFields()
     {
-        return [
+        $integrationFields = [
             'id'  => $this->translator->trans('mautic.integration.fourleaf.id.label'),
             'key' => $this->translator->trans('mautic.integration.fourleaf.key.label'),
             'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
         ];
+
+        return array_merge($integrationFields, $this->getNonFreeKeyFields());
     }
 
     /**
@@ -65,16 +69,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     public function getSupportedFeatures()
     {
         return ['push_lead'];
-    }
-
-    /**
-     * @param \Symfony\Component\Form\FormBuilder $builder
-     * @param array                               $data
-     * @param string                              $formArea
-     */
-    public function appendToForm(&$builder, $data, $formArea)
-    {
-        $this->appendCostToForm($builder, $data, $formArea);
     }
 
     /**
@@ -97,13 +91,14 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
+     * @param array $config
      *
      * @return mixed|void
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         $algo  = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();
@@ -129,8 +124,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
         curl_close($ch);
 
         $response = json_decode($response, true);
-
-        error_log(print_r($response, true));
 
         foreach ($response as $key => $value) {
             if ('md5' === $key) {

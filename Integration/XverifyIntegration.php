@@ -23,9 +23,12 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Xverify';
-
-    use NonFreeEnhancerTrait;
+    /*
+     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
+     */
+    use NonFreeEnhancerTrait {
+        getRequiredKeyFields as private getNonFreeKeys;
+    }
 
     /**
      * @return string
@@ -40,7 +43,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Xverify';
     }
 
     /**
@@ -48,9 +51,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getDisplayName()
     {
-        return 'Email Validation with '.self::INTEGRATION_NAME;
-
-        //return self::INTEGRATION_NAME . ' Data Enhancer';
+        return 'Email Validation with '.$this->getName();
     }
 
     /**
@@ -68,10 +69,13 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getRequiredKeyFields()
     {
-        return [
-            'server' => 'mautic.integration.xverify.server.label',
-            'apikey' => 'mautic.integration.xverify.apikey.label',
-        ];
+        return array_merge(
+            [
+                'server' => 'mautic.integration.xverify.server.label',
+                'apikey' => 'mautic.integration.xverify.apikey.label',
+            ],
+            $this->getNonFreeKeys()
+        );
     }
 
     /**
@@ -92,16 +96,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     public function getClientSecretKey()
     {
         return 'mautic.integration.xverify.apikey.label';
-    }
-
-    /**
-     * @param \Symfony\Component\Form\FormBuilder $builder
-     * @param array                               $data
-     * @param string                              $formArea
-     */
-    public function appendToForm(&$builder, $data, $formArea)
-    {
-        $this->appendCostToForm($builder, $data, $formArea);
     }
 
     /**
@@ -137,14 +131,15 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
+     * @param array $config
      *
      * @return mixed|void
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         if (!empty($lead)) {
             $settings            = $this->getIntegrationSettings()->getFeatureSettings();

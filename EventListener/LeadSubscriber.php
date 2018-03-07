@@ -15,24 +15,23 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadEvent;
 use Mautic\LeadBundle\LeadEvents;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
-use MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerInterface;
 
 /**
- * Class LeadSubscriber.
+ * Class LeadSubsciber.
  */
 class LeadSubscriber extends CommonSubscriber
 {
-    /** @var EnhancerHelper */
-    protected $helper;
+    /**
+     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper
+     */
+    protected $enhancerHelper;
 
     /**
-     * LeadSubscriber constructor.
-     *
-     * @param EnhancerHelper $helper
+     * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
      */
     public function __construct(EnhancerHelper $helper)
     {
-        $this->helper = $helper;
+        $this->enhancerHelper = $helper;
     }
 
     /**
@@ -41,41 +40,29 @@ class LeadSubscriber extends CommonSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            LeadEvents::LEAD_POST_SAVE => [ // instead of LEAD_IDENTIFIED
-                'doEnhancements',
-                0,
-            ],
+            LeadEvents::LEAD_POST_SAVE => ['doListenerEnhancements', 0],
         ];
     }
 
     /**
-     * @param LeadEvent $e
+     * @param LeadEvent $event
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancements(LeadEvent $e)
+    public function doListenerEnhancements(LeadEvent $event)
     {
-        $integrations = $this->helper->getIntegrations();
-        $lead         = $e->getLead();
-
-        $completed = [];
-        foreach ($integrations as $name => $integration) {
-            $settings = $integration->getIntegrationSettings();
-            if (method_exists($settings, 'getKeys')) {
-                $keys = $settings->getKeys();
-            }
-            if ($settings->getIsPublished() && (
-                    (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) ||
-                    (1)
-                )) {
-                $integration->doEnhancement($lead);
-                $completed[] = $name;
-            }
-            if ($integration instanceof NonFreeEnhancerInterface) {
-                $new_attribution = $lead->getAttribution() + $integration->getCostPerEnhancement();
-                $lead->setUpdatedField($new_attribution);
-                $this->em->getRepository('Lead')->saveEntitiy($lead);
-                $this->em->flush();
+        if ($event->isNew()) {
+            /**
+             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
+             */
+            $integrations = $this->enhancerHelper->getEnhancerIntegrations();
+            foreach ($integrations as $integration) {
+                if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {
+                    $keys = $integration->getKeys();
+                    if ($keys['autorun_enabled']) {
+                        $integration->doEnhancement($event->getLead());
+                    }
+                }
             }
         }
     }

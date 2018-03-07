@@ -18,8 +18,6 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class RandomIntegration extends AbstractEnhancerIntegration
 {
-    const INTEGRATION_NAME = 'Random';
-
     /**
      * @return string
      */
@@ -33,7 +31,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
      */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
+        return 'Random';
     }
 
     /**
@@ -42,13 +40,12 @@ class RandomIntegration extends AbstractEnhancerIntegration
     public function getDisplayName()
     {
         return 'Generate Random Number Token';
-        //return self::INTEGRATION_NAME . ' Data Enhancer';
     }
 
     /**
-     * @param \Symfony\Component\Form\FormBuilder $builder
-     * @param array                               $data
-     * @param string                              $formArea
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -64,11 +61,9 @@ class RandomIntegration extends AbstractEnhancerIntegration
                     'data'  => '',
                 ]
             );
-        }
-
-        if ('keys' === $formArea) {
+        } elseif ('keys' === $formArea) {
             $builder->add(
-                'autorun',
+                'autorun_enabled',
                 'hidden',
                 [
                     'data' => true,
@@ -78,7 +73,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return array|mixed
+     * @return array[]
      */
     protected function getEnhancerFieldArray()
     {
@@ -94,13 +89,14 @@ class RandomIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
+     * @param array $config
      *
      * @return mixed|void
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
 

@@ -4,7 +4,7 @@
  * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Nicholai Bush <nbush@thedmsgrp.com>
  *
- * @link        http://mautic.org
+ * @link        https://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -13,27 +13,25 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class AlcazarIntegration.
+ */
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    const INTEGRATION_NAME = 'Alcazar';
-
-    use NonFreeEnhancerTrait;
+    /*
+     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
+     */
+    use NonFreeEnhancerTrait {
+        appendToForm as appendNonFreeKeyFields;
+        getRequiredKeyFields as getNonFreeKeyFields;
+    }
 
     /**
      * @return string
      */
     public function getName()
     {
-        return self::INTEGRATION_NAME;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDisplayName()
-    {
-        return 'Phone Validation and Lookup with Alcazar';
-        //return self::INTEGRATION_NAME . ' Data Enhancer';
+        return 'Alcazar';
     }
 
     /**
@@ -64,9 +62,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param \Symfony\Component\Form\FormBuilder $builder
-     * @param array                               $data
-     * @param string                              $formArea
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -137,8 +135,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         ],
                     ]
                 );
+        } else {
+            $this->appendNonFreeKeyFields($builder, $data, $formArea);
         }
-        $this->appendCostToForm($builder, $data, $formArea);
     }
 
     /**
@@ -146,37 +145,70 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     protected function getEnhancerFieldArray()
     {
-        $field_list = ['alcazar_lrn' => ['label' => 'LRN']];
+        $object_name = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
-        $integration      = $this->getIntegrationSettings();
-        $feature_settings = $integration->getFeatureSettings();
+        $field_list = [
+            'alcazar_lrn' => [
+                'label'  => 'LRN',
+                'object' => $object_name,
+            ],
+        ];
+
+        $feature_settings = $this->getIntegrationSettings()->getFeatureSettings();
 
         if ($feature_settings['extended']) {
-            $field_list += $this->getExtendedFields();
+            $field_list += $this->getAlcazarExtendedFields($object_name);
         }
 
         return $field_list;
     }
 
     /**
-     * @return array
+     * @param string $object_name
+     *
+     * @return array[]
      */
-    private function getExtendedFields()
+    private function getAlcazarExtendedFields($object_name)
     {
-        $object = class_exists(
-            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
-        ) ? 'extendedField' : 'lead';
-
         return [
-            'alcazar_spid'         => ['label' => 'SPID', 'object' => $object],
-            'alcazar_ocn'          => ['label' => 'OCN', 'object' => $object],
-            'alcazar_lata'         => ['label' => 'LATA', 'object' => $object],
-            'alcazar_city'         => ['label' => 'CITY', 'object' => $object],
-            'alcazar_state'        => ['label' => 'STATE', 'object' => $object],
-            'alcazar_lec'          => ['label' => 'LEC', 'object' => $object],
-            'alcazar_linetype'     => ['label' => 'LINETYPE', 'object' => $object],
-            'alcazar_dnc'          => ['label' => 'DNC', 'object' => $object],
-            'alcazar_jurisdiction' => ['label' => 'JURISDICTION', 'object' => $object],
+            'alcazar_spid'         => [
+                'label'  => 'SPID',
+                'object' => $object_name,
+            ],
+            'alcazar_ocn'          => [
+                'label'  => 'OCN',
+                'object' => $object_name,
+            ],
+            'alcazar_lata'         => [
+                'label'  => 'LATA',
+                'object' => $object_name,
+            ],
+            'alcazar_city'         => [
+                'label'  => 'CITY',
+                'object' => $object_name,
+            ],
+            'alcazar_state'        => [
+                'label'  => 'STATE',
+                'object' => $object_name,
+            ],
+            'alcazar_lec'          => [
+                'label'  => 'LEC',
+                'object' => $object_name,
+            ],
+            'alcazar_linetype'     => [
+                'label'  => 'LINETYPE',
+                'object' => $object_name,
+            ],
+            'alcazar_dnc'          => [
+                'label'  => 'DNC',
+                'object' => $object_name,
+            ],
+            'alcazar_jurisdiction' => [
+                'label'  => 'JURISDICTION',
+                'object' => $object_name,
+            ],
         ];
     }
 
@@ -187,7 +219,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Lead $lead, array $config = [])
     {
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;
@@ -197,19 +229,23 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
         if (10 === strlen($phone)) {
             $phone = '1'.$phone;
         }
+        if (11 !== strlen($phone)) {
+            return false;
+        }
 
-        $keys = $this->getDecryptedApiKeys();
+        $keys = $this->getKeys();
 
         $params = [
             'key' => $keys['apikey'],
             'tn'  => $phone,
         ];
 
-        $integration = $this->getIntegrationSettings();
-        $settings    = $integration->getFeatureSettings();
-
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();
         foreach ($settings as $param => $value) {
             if ('ani' === $param) {
+                //the value of ani should be a phone number
+                //but this service is currently unused
+                continue;
                 if (!$value) {
                     continue;
                 }
@@ -220,8 +256,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             } elseif ('output' === $param) {
                 $params['output'] = $value;
             } elseif (in_array($param, ['extended', 'dnc'])) {
-                $value          = $value ? 'true' : 'false';
-                $params[$param] = $value;
+                $params[$param] = ($value ? 'true' : 'false');
             }
         }
 

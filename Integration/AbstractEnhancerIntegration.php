@@ -16,31 +16,31 @@ use Mautic\PluginBundle\Integration\AbstractIntegration;
 
 /**
  * Class AbstractEnhancerIntegration.
+ *
+ * @method string getAuthorizationType()
+ * @method string getName()
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
-    // Integrations of this type should use this constant to define the name
-    // const INTEGRATION_NAME = null;
-
     /**
      * @param Lead  $lead
      * @param array $config
+     *
+     * @return bool|void
      */
-    public function pushLead(Lead $lead, array $config = [])
+    abstract public function doEnhancement(Lead $lead, array $config = []);
+
+    /**
+     * @return string
+     */
+    public function getDisplayName()
     {
-        $this->doEnhancement($lead);
+        $spaced_name = preg_replace('/([a-z])([A-Z])/', '$1 $2', $this->getName());
+
+        return sprintf('%s Data Enhancer', $spaced_name);
     }
 
     /**
-     * @param Lead $lead
-     *
-     * @return mixed
-     */
-    abstract public function doEnhancement(Lead $lead);
-
-    /**
-     * {@inheritdoc}
-     *
      * @param array $settings
      *
      * @return array
@@ -50,7 +50,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         static $fields = [];
 
         if (empty($fields)) {
-            $s         = $this->getName();
+            // $name = $this->getName();
             $available = $this->getAvailableLeadFields($settings);
             if (empty($available) || !is_array($available)) {
                 return [];
@@ -172,11 +172,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * This class does not implement the core abstract methods:
-     *  getAuthenticationType
-     *  getName.
-     *
-     * @return mixed
+     * @returns array[]
      */
     abstract protected function getEnhancerFieldArray();
 }
