@@ -44,7 +44,7 @@ return [
             ],
         ],
         'other' => [
-            'mautic.enhancer.helper.integrations' => [
+            'mautic.enhancer.helper.enhancer' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
                     '@mautic.helper.integration'

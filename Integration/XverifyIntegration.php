@@ -40,7 +40,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getName()
     {
-        return 'Xverify'
+        return 'Xverify';
     }
 
     /**
