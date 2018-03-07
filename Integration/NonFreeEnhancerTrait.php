@@ -1,22 +1,32 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+/**
+ * Trait NonFreeEnhancerTrait.
+ */
 trait NonFreeEnhancerTrait
 {
     /**
-     * @var bool $autorun_enabled Whether or not to run this automatically at Lead creation or only when actively pushed, must be added to the required field array
+     * @var bool $autorun_enabled 
      */
     protected $autorun_enabled = false;
     
     /**
-     * @var string|float $cost_per_enhancement Really a decimal type representing the currency cost of the enhancer
+     * @var string|float $cost_per_enhancement
      */
     protected $cost_per_enhancement = "0.0000";
     
     /**
-     * $autorun_enabled getter
-     *
      * @return bool
      */
     public function getAutorunEnabled()
@@ -25,22 +35,16 @@ trait NonFreeEnhancerTrait
     }
     
     /**
-     * $autorun_enabled setter
-     *
-     * @param bool $enabled state to set $autorun_enabled to
-     *
+     * @param bool $enabled
      * @return $this
      */
     public function setAutorunEnabled(bool $enabled)
     {
-       $this->autorun_enabled = $rnabled;
-       
+       $this->autorun_enabled = $enabled;
        return $this;
     }
     
     /**
-     * $cost_per_enhancement getter
-     *
      * @return string|float
      */
     public function getCostPerEnhancement()
@@ -48,13 +52,6 @@ trait NonFreeEnhancerTrait
         return $this->cost_per_enhancement;
     }
     
-    /**
-     * $cost_per_enhancement setter
-     *
-     * @param string|float $cost The cost to credit for each enhancement run
-     *
-     * @return $this
-     */
     public function setCostPerEnhancement($cost)
     {   
         if (is_string($cost) && (false !== floatval($cost))) {
@@ -66,11 +63,7 @@ trait NonFreeEnhancerTrait
     }
     
     /**
-     * Overrides AbstractIntegration definition, can be overriden by user Class,
-     * 
-     * Forces autorun_enabled and cost_per_enhancment into the api_keys field
-     *
-     * {@inheritdoc}
+     * @return array
      */
     public function getRequiredKeyFields()
     {
@@ -81,12 +74,13 @@ trait NonFreeEnhancerTrait
     }
     
     /**
-     * {@inheritdoc}
+     * @param $builder
+     * @param $data
+     * @param $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        
-        if ($formArea === 'keys') {
+        if ('keys' === $formArea) {
             $builder->add(
                 'autorun_enabled',
                 'yesno_button_group',
@@ -98,24 +92,23 @@ trait NonFreeEnhancerTrait
                     'attr'        => [
                         'class' => 'form-control',
                         'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
-                    ]
+                    ],
                 ]
-                
             )
-            ->add(
-                'cost_per_enhancement',
-                'number',
-                [
-                    'label' => $this->translator->trans('mautic.integration.cpe.label'),
-                    'data'  => !isset($data['cost_per_enhancement']) ? '0.0000' : $data['cost_per_enhancement'],
-                    'required'    => true,
-                    'label_attr'  => ['class' => 'control-label'],
-                    'attr'        => [
-                        'class' => 'form-control',
-                        'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
+                ->add(
+                    'cost_per_enhancement',
+                    'number',
+                    [
+                        'label'       => $this->translator->trans('mautic.integration.cpe.label'),
+                        'data'        => !isset($data['cost_per_enhancement']) ? '0.0000' : $data['cost_per_enhancement'],
+                        'required'    => true,
+                        'label_attr'  => ['class' => 'control-label'],
+                        'attr'        => [
+                            'class'   => 'form-control',
+                            'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
+                        ],
                     ]
-                ]
-            );
-        }        
+                );
+        }
     }
 }

@@ -4,53 +4,38 @@
  * @copyright   2018 Mautic Contributors. All rights reserved
  * @author      Nicholai Bush <nbush@thedmsgrp.com>
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\PluginBundle\Integration\AbstractIntegration;
-use Mautic\PluginBundle\Helper\IntegrationHelper;
-use Mautic\PluginBundle\Entity\Integration;
-use Mautic\LeadBundle\Model\FieldModel;
 use Mautic\LeadBundle\Entity\Lead;
-
+use Mautic\LeadBundle\Model\FieldModel;
+use Mautic\PluginBundle\Entity\Integration;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
+use Mautic\PluginBundle\Integration\AbstractIntegration;
 
 /**
  * Class AbstractEnhancerIntegration
- *
- * @package \MauticPlugin\MauticEnhancerBundle\Integration
- * @see \Mautic\PluginBundle\Integration\AbstractIntegration 
- *
- * This class also requires implementation of these abstract methods:
- *
- * @method getAuthenticationType()
- * @method getName()
- *  
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
     /**
-     * Provides an array of fields that will be created as Custom Fields when the plugin is activated and feature-specific settings are needed
-     *
      * @returns array[]
      */
     abstract protected function getEnhancerFieldArray();
     
     /**
-     * Performs the plugin's enhancemnt on the current Lead/Contact
-     *
-     * @param \Mautic\LeadBundle\Entity\Lead $lead the lead to enhance
-     * @param array $config options for a push to integration
-     *
-     * @return bool true if enhancement considered itself successful, otherwise false
+     * @param Lead  $lead
+     * @param array $config
+     * @return bool
      */
     abstract public function doEnhancement(Lead $lead, array $config = []);
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getDisplayName()
     {
@@ -59,17 +44,14 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
         
     /**
-     * {@inheritdoc}
+     * @param Lead  $lead
+     * @param array $config
      */
     public function pushLead(Lead $lead, array $config = [])
     {
         $this->doEnhancement($lead, $config);    
     }
-      
-    /**
-     * Creates the required fields
-     * TODO: Unpublish the deconfigured feature fields
-     */
+    
     public function buildEnhancerFields()
     {
         $integration = $this->getIntegrationSettings();
@@ -137,7 +119,10 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                     case 'string':
                     case 'boolean':
                         $fields[$fn] = (!$label)
-                            ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$name}.{$fn}.label")
+                            ? $this->translator->transConditional(
+                                "mautic.integration.common.{$fn}",
+                                "mautic.integration.{$s}.{$fn}.label"
+                            )
                             : $label;
                         break;
                     case 'object':
@@ -145,32 +130,47 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                             foreach ($details['fields'] as $f) {
                                 $fn          = $this->matchFieldName($field, $f);
                                 $fields[$fn] = (!$label)
-                                    ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$name}.{$fn}.label")
+                                    ? $this->translator->transConditional(
+                                        "mautic.integration.common.{$fn}",
+                                        "mautic.integration.{$s}.{$fn}.label"
+                                    )
                                     : $label;
                             }
                         } else {
                             $fields[$field] = (!$label)
-                                ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$name}.{$fn}.label")
+                                ? $this->translator->transConditional(
+                                    "mautic.integration.common.{$fn}",
+                                    "mautic.integration.{$s}.{$fn}.label"
+                                )
                                 : $label;
                         }
                         break;
                     case 'array_object':
-                        if ($field == 'urls' || $field == 'url') {
+                        if ('urls' == $field || 'url' == $field) {
                             foreach ($details['fields'] as $f) {
                                 $fields["{$p}Urls"] = (!$label)
-                                    ? $this->translator->transConditional("mautic.integration.common.{$f}Urls", "mautic.integration.{$name}.{$f}Urls")
+                                    ? $this->translator->transConditional(
+                                        "mautic.integration.common.{$f}Urls",
+                                        "mautic.integration.{$s}.{$f}Urls"
+                                    )
                                     : $label;
                             }
                         } elseif (isset($details['fields'])) {
                             foreach ($details['fields'] as $f) {
                                 $fn          = $this->matchFieldName($field, $f);
                                 $fields[$fn] = (!$label)
-                                    ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$name}.{$fn}.label")
+                                    ? $this->translator->transConditional(
+                                        "mautic.integration.common.{$fn}",
+                                        "mautic.integration.{$s}.{$fn}.label"
+                                    )
                                     : $label;
                             }
                         } else {
                             $fields[$fn] = (!$label)
-                                ? $this->translator->transConditional("mautic.integration.common.{$fn}", "mautic.integration.{$name}.{$fn}.label")
+                                ? $this->translator->transConditional(
+                                    "mautic.integration.common.{$fn}",
+                                    "mautic.integration.{$s}.{$fn}.label"
+                                )
                                 : $label;
                         }
                         break;

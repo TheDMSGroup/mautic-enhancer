@@ -1,8 +1,8 @@
 <?php
 
 /*
- * @copyright   2014 Mautic Contributors. All rights reserved
- * @author      Mautic
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
  *
  * @link        http://mautic.org
  *
@@ -14,35 +14,42 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
- * Class RandomIntegration
- *
- * @package \MauticPlugin\MauticEnhancerBundle\Integration
+ * Class RandomIntegration.
  */
 class RandomIntegration extends AbstractEnhancerIntegration
 {
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getAuthenticationType()
     {
         return 'none';
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getName()
     {
         return 'Random';
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return string
+     */
+    public function getDisplayName()
+    {
+        return 'Generate Random Number Token';
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        
-        if ($formArea === 'features' && !isset($data['random_field_name'])) {
+        if ('features' === $formArea && !isset($data['random_field_name'])) {
             $builder->add(
                 'random_field_name',
                 'text',
@@ -51,7 +58,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
                     'attr'  => [
                         'tooltip' => $this->translator->trans('mautic.plugin.random.field_name.tooltip'),
                     ],
-                    'data' => '',
+                    'data'  => '',
                 ]
             );
         }
@@ -65,30 +72,35 @@ class RandomIntegration extends AbstractEnhancerIntegration
             );
         }
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return array[]
      */
     protected function getEnhancerFieldArray()
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
-        
+
         return [
-             $settings['random_field_name'] => [
-                'label' => 'Random Value',
+            $settings['random_field_name'] => [
+                'label'  => 'Random Value',
                 'object' => 'lead',
-                'type'  => 'number'
-            ]
+                'type'   => 'number',
+            ],
         ];
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @param Lead $lead
+     * @param array $config
+     *
+     * @return mixed|void
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancement(Lead $lead, array $config = [])
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
-        
+
         if (!$lead->getFieldValue($settings['random_field_name'])) {
             $lead->addUpdatedField(
                 $settings['random_field_name'],

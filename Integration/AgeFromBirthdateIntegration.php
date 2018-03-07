@@ -1,26 +1,35 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use DateTime;
+use Exception;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
- * Class AgeFromBirthdateIntegration
- *
- * @package \MauticPlugin\MauticEnhancerBundle
+ * Class AgeFromBirthdateIntegration.
  */
 class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 {
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getAuthenticationType()
     {
         return 'none';
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getName()
     {
@@ -28,7 +37,15 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
     
     /**
-     * {@inheritdoc}
+     * @return string
+     */
+    public function getDisplayName()
+    {
+        return 'Age From Date of Birth Data Enhancer';
+    }
+
+    /**
+     * @return string[]
      */
     public function getSupportedFeatures()
     {
@@ -36,11 +53,13 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * {@inheritdoc}
+     * @return array[]
      */
     protected function getEnhancerFieldArray()
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+        $object = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
       return [
             'afb_age' => [
@@ -56,8 +75,11 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         ];
     }
     
+
     /**
-     * {@inheritdoc}
+     * @param \Symfony\ComponentForm\FormBuilderInterface $builder
+     * @param array $data
+     * @param string $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -73,7 +95,9 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
     
     /**
-     * {@inheritdoc}
+     * @param Lead $lead
+     * @param array $config
+     * @return mixed|void
      */
     public function doEnhancement(Lead $lead, array $config = [])
     {
@@ -91,7 +115,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 }
             }
         } catch (Exception $e) {
-            
         }
     }
 }

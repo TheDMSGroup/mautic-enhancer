@@ -1,10 +1,10 @@
 <?php
 
 /*
- * @copyright   2016 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -12,11 +12,10 @@
 namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
-use Mautic\LeadBundle\LeadEvents;
 use Mautic\LeadBundle\Event\LeadEvent;
-use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
-use MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerInterface;
+use Mautic\LeadBundle\LeadEvents;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
+use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 /**
  * Class LeadSubsciber
@@ -26,7 +25,7 @@ use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 class LeadSubscriber extends CommonSubscriber
 {
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public static function getSubscribedEvents()
     {
@@ -51,9 +50,9 @@ class LeadSubscriber extends CommonSubscriber
     }
     
     /**
-     * Runs Enhancer integrations configured to autorun (only for new contacts)
+     * @param LeadEvent $e
      *
-     * @param \Mautic\LeadBundle\Event\LeadEvent $event
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancements(LeadEvent $event)
     {

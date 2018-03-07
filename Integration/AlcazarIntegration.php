@@ -15,14 +15,10 @@ use Mautic\LeadBundle\Entity\Lead;
 
 /**
  * Class AlcazarIntegration
- *
- * @package \MauticPlugin\MauticPluginBundle\Integration
  */
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     /**
-     * Pull in a trait to handle the interfacce
-     * 
      * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait 
      */   
     use NonFreeEnhancerTrait {
@@ -31,34 +27,35 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
  
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getName()
     {
         return 'Alcazar';
     }
-    
+
+        
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getAuthenticationType()
     {
         return 'keys';
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public function getRequiredKeyFields()
     {
         return [
             'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
             'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
-    ]; 
+        ];
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public function getSupportedFeatures()
     {
@@ -66,7 +63,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * {@inheritdoc}
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -142,9 +141,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $this->appendNonFreeEnhancer($builder, $data, $formArea);
         }
     }
-             
+
     /**
-     * {@inheritdoc}
+     * @return array|mixed
      */
     protected function getEnhancerFieldArray()
     {
@@ -166,18 +165,16 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
         
         return $field_list;
     }
-    
+
     /**
-     * Additional fields that Alcazar can provide if enabled
-     *
-     * ANI requires a phone number representing the dialed party
-     *
      * @param string $object_name the field obkect to use (lead, company, extendedField)
-     *
      * @return array[] [lead_field.alias => [ead_field.column => column.value, ...] ...]
      */
-    private function getAlcazarExtendedFields(string $object_name = 'lead')
+    private function getExtendedFields()
+
     {
+      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+
       return [
             'alcazar_spid'     => [
                 'label' => 'SPID',
@@ -218,74 +215,68 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * {@inheritdoc}
+     * @param Lead $lead
+     ^ @param array $config
+     *
+     * @return mixed|void
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancement(Lead $lead, array $config = [])
-    {
-        
+    {        
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;
         }
-        
+
         $phone = $lead->getPhone();
-        if (strlen($phone) === 10) {
-            $phone = '1' . $phone;
-        }
-        
-        if (strlen($phone) !== 11) {
-            //not a proper phone number
+        if (10 === strlen($phone)) {
+            $phone = '1'.$phone;
+        }      
+        if (11 !== strlen($phone)) {
             return false;
         }
-        
-        $keys = $this->getKeys();     
+
+        $keys = $this->getKeys();
+
         $params = [
             'key' => $keys['apikey'],
-            'tn' =>  $phone,
+            'tn'  => $phone,
         ];
-        
+
         $settings = $this->getIntegrationSettings()->getFeatureSettings();    
         foreach ($settings as $param => $value) {
-            if ($param === 'installed') {
-                continue;
-            }
-            elseif ($param === 'ani') {
+            if ('ani' === $param) {
+                //the value of ani should be a phone number
+                //but this service is currently unused
+		continue;
                 if (!$value) {
                     continue;
                 }
-                if (strlen($value) === 10) {
-                    $value = '1' . $value;
+                if (10 === strlen($value)) {
+                    $value = '1'.$value;
                 }
                 $params['ani'] = $value;
-            }
-            elseif ($param === 'output') {
+            } elseif ('output' === $param) {
                 $params['output'] = $value;
-            }
-            elseif (in_array($param, ['extended', 'dnc'])) {
-                $params[$param] = $value ? 'true' : 'false';
+            } elseif (in_array($param, ['extended', 'dnc'])) {
+                 $params[$param] = ($value ? 'true' : 'false');
             }
         }
-       
-        try {
-            $response = $this->makeRequest(
-                $keys['server'],
-                ['append_to_query' => $params],
-                'GET',
-                ['ignore_event_dispatch' => 1]
-            );       
-        
-            foreach ($response as $label => $value) {
-                $alias = 'alcazar_' . strtolower($label);
-                $default = $lead->getFieldValue($alias);
-                $lead->addUpdatedField($alias, $value, $default);        
-            }
-            
-            $this->leadModel->saveEntity($lead);
-            $this->em->flush();
-        } catch (Exception $e) {
-            return false;
+
+        $response = $this->makeRequest(
+            $keys['server'],
+            ['append_to_query' => $params],
+            'GET',
+            ['ignore_event_dispatch' => 1]
+        );
+
+        foreach ($response as $label => $value) {
+            $alias   = 'alcazar_'.strtolower($label);
+            $default = $lead->getFieldValue($alias);
+            $lead->addUpdatedField($alias, $value, $default);
         }
-                
-        return true;
+
+        $this->leadModel->saveEntity($lead);
+        $this->em->flush();
     }
 }
-

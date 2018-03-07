@@ -1,6 +1,16 @@
 <?php
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 return [
-    'name' => 'Mautic Data Enhancers',
+    'name'        => 'Mautic Data Enhancers',
     'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, and xVerify.',
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
@@ -8,8 +18,8 @@ return [
     'services' => [
         
         'events' => [
-            'mautic.enhancer.event.lead' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
+            'mautic.enhancer.event.lead'   => [
+                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber',
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer'
                 ], 
@@ -34,7 +44,7 @@ return [
             ],
         ],
         'other' => [
-            'mautic.enhancer.helper.enhancer' => [
+            'mautic.enhancer.helper.integrations' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
                     '@mautic.helper.integration'

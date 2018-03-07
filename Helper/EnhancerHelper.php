@@ -1,13 +1,21 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
+use Exception;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 /**
  * Class EnhancerHelper
- * 
- * @package \MauticPlugin\MauticEnhancerBundle\Helper
  */
 class EnhancerHelper
 {
@@ -22,55 +30,42 @@ class EnhancerHelper
     }
     
     /**
-     * @var \Mautic\PluginBundle\Helper\IntegrationHelper $integration_helper Mautic's helper to help us
+     * @var IntegrationHelper
      */
 
-    protected $integration_helper;
+    protected $integrationHelper;
 
     /**
-     * Constructor
-     * 
-     * @param \Mautic\PluginBundle\Helper\IntegrationHelper $integration_helper
+     * @param IntegrationHelper $helper
      */
-
-    public function __construct(IntegrationHelper $integration_helper)
-
+    public function __construct(IntegrationHelper $helper)
     {
-        $this->integration_helper = $integration_helper;
+        $this->integrationHelper = $helper;
     }
 
     /**
-     * Getter for IntegrationHelper
-     * 
-     * @return \Mautic\PluginBundle\Helper\IntegrationHelper
+     * @return IntegrationHelper
      */
     public function getInegrationHelper()
     {
-        return $this->integration_helper;
+        return $this->integrationHelper;
     }
 
     /**
-     * Returns an AbstractIntegration Typed object
+     * @param $name
      *
-     * A concrete inegration instance of $name or false if not found.
-     * 
-     * @param $name The integration's name
-     *
-     * @return \Mautic\PluginBundle\Integration\AbstractIntegration|bool 
+     * @return bool|\Mautic\PluginBundle\Integration\AbstractIntegration
      */
     public function getIntegration($name)
     {
-        return $integration = $this->integration_helper->getIntegrationObject($name);
+        return $this->integrationHelper->getIntegrationObject($name);
     }
     
     /**
-     * Returns an array of available AbstractEnhancerIntegrations
-     *
      * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[] 
      */
     public function getEnhancerIntegrations()
     {
-        return $this->integration_helper->getIntegrationObjects(EnhancerHelper::IntegrationNames());
+        return $this->integrationHelper->getIntegrationObjects(EnhancerHelper::IntegrationNames());
     }
-
 }

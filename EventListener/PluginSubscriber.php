@@ -2,9 +2,9 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc.
+ * @author      Mautic, Inc
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -14,16 +14,14 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\PluginBundle\Event\PluginIntegrationEvent;
 use Mautic\PluginBundle\PluginEvents;
-use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 /**
- * Class PluginSubscriber
- * @package \MauticPlugin\MauticEnhancerBundle\EventListener
+ * Class PluginSubscriber.
  */
 class PluginSubscriber extends CommonSubscriber
-{    
+{
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public static function getSubscribedEvents()
     {
@@ -33,7 +31,7 @@ class PluginSubscriber extends CommonSubscriber
     }
 
     /**
-     * @param \Mautic\PluginBundle\Event\PluginIntegrationEvent $event
+     * @param PluginIntegrationEvent $event
      */
     public function buildCustomFields(PluginIntegrationEvent $event)
     {

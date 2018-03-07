@@ -1,49 +1,68 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class FourleafIntegration.
+ */
 class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
     /**
-     * Implements NonFreeEnhancerInterface
+     * @var NonFreeEnhancerInterface
      */
     use NonFreeEnhancerTrait {
         getRequiredKeyFields as getNonFreeKeyFields;
     }
- 
+
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getName()
     {
         return 'Fourleaf';
     }
-        
+
     /**
-     * {@inheritdoc}
+     * @return string
+     */
+    public function getDisplayName()
+    {
+        return 'Email Engagement Scoring with '.self::INTEGRATION_NAME;
+    }
+
+    /**
+     * @return string
      */
     public function getAuthenticationType()
     {
         return 'keys';
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public function getRequiredKeyFields()
     {
         return [
-            'id' => $this->translator->trans('mautic.integration.fourleaf.id.label'),
+            'id'  => $this->translator->trans('mautic.integration.fourleaf.id.label'),
             'key' => $this->translator->trans('mautic.integration.fourleaf.key.label'),
             'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
         ];
     }
-    
+
     /**
-     * {@inheritdoc}
+     * @return array
      */
     public function getSupportedFeatures()
     {
@@ -51,71 +70,78 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     }
 
     /**
-     * {@inheritdoc}
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
         $this->appendCostToForm($builder, $data, $formArea);
     }
-             
+
     /**
-     * {@inheritdoc}
+     * @return array|mixed
      */
     protected function getEnhancerFieldArray()
     {
-      $object = class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle') ? 'extendedField' : 'lead';
+        $object = class_exists(
+            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
+        ) ? 'extendedField' : 'lead';
 
-      return [
-            'fourleaf_algo'             => ['label' => 'Algo', 'object'=>$object],
-            'fourleaf_low_intel'        => ['label' => 'Low Intel', 'object'=>$object],
-            'fourleaf_activity_score'   => ['label' => 'Activity Score', 'object'=>$object],
-            'fourleaf_hygiene_reason'   => ['label' => 'Hygiene Reason', 'object'=>$object],
-            'fourleaf_hygiene_score'    => ['label' => 'Hygiene Score', 'object'=>$object],
+        return [
+            'fourleaf_algo'           => ['label' => 'Algo', 'object' => $object],
+            'fourleaf_low_intel'      => ['label' => 'Low Intel', 'object' => $object],
+            'fourleaf_activity_score' => ['label' => 'Activity Score', 'object' => $object],
+            'fourleaf_hygiene_reason' => ['label' => 'Hygiene Reason', 'object' => $object],
+            'fourleaf_hygiene_score'  => ['label' => 'Hygiene Score', 'object' => $object],
             //'fourleaf_md5',
         ];
     }
 
     /**
-     * {@inheritdoc}
+     * @param Lead $lead
+     * @param array $config
+     *
+     * @return mixed|void
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancement(Lead $lead, array $config = [])
     {
-        $algo = $lead->getFieldValue('fourleaf_algo');
+        $algo  = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();
-        
+
         if ($algo || !$email) {
             return;
         }
-                      
+
         $keys = $this->getDecryptedApiKeys();
-        
+
         $options = [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $keys['url'] . $lead->getEmail(),
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_URL            => $keys['url'].$lead->getEmail(),
+            CURLOPT_HTTPHEADER     => [
                 "x-fourleaf-id: $keys[id]",
-                "x-fourleaf-key: $keys[key]",                
-            ]
+                "x-fourleaf-key: $keys[key]",
+            ],
         ];
 
         $ch = curl_init();
         curl_setopt_array($ch, $options);
-        $response = curl_exec($ch);        
+        $response = curl_exec($ch);
         curl_close($ch);
-        
+
         $response = json_decode($response, true);
-               
-        error_log(print_r($response, true));
-        
+
         foreach ($response as $key => $value) {
-            if ($key === 'md5') {
+            if ('md5' === $key) {
                 continue;
             }
-            $alias = 'fourleaf_' . str_replace('user_', '', $key);
+            $alias   = 'fourleaf_'.str_replace('user_', '', $key);
             $default = $lead->getFieldValue($alias);
-            $lead->addUpdatedField($alias, $value, $default);        
+            $lead->addUpdatedField($alias, $value, $default);
         }
-        
+
         $this->leadModel->saveEntity($lead);
         $this->em->flush();
     }
