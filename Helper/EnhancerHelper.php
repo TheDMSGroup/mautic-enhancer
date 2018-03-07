@@ -11,22 +11,13 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
-use Exception;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 /**
- * Class EnhancerHelper
+ * Class EnhancerHelper.
  */
 class EnhancerHelper
 {
-    /**
-     * @return string[]
-     */
-    final static public function IntegrationNames()
-    {
-        return  ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
-    }
-
     /**
      * @var IntegrationHelper
      */
@@ -63,6 +54,14 @@ class EnhancerHelper
      */
     public function getEnhancerIntegrations()
     {
-        return $this->integrationHelper->getIntegrationObjects(EnhancerHelper::IntegrationNames());
+        return $this->integrationHelper->getIntegrationObjects(self::IntegrationNames());
+    }
+
+    /**
+     * @return string[]
+     */
+    final public static function IntegrationNames()
+    {
+        return ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
     }
 }

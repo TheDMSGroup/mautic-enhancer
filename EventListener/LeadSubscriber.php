@@ -15,25 +15,14 @@ use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadEvent;
 use Mautic\LeadBundle\LeadEvents;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
-use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 /**
- * Class LeadSubsciber
+ * Class LeadSubsciber.
  */
 class LeadSubscriber extends CommonSubscriber
 {
     /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            LeadEvents::LEAD_POST_SAVE => [ 'doListenerEnhancements', 0 ],
-        ];
-    }
-
-    /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
+     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper
      */
     protected $enhancerHelper;
 
@@ -46,6 +35,16 @@ class LeadSubscriber extends CommonSubscriber
     }
 
     /**
+     * @return array
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            LeadEvents::LEAD_POST_SAVE => ['doListenerEnhancements', 0],
+        ];
+    }
+
+    /**
      * @param LeadEvent $event
      *
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -54,7 +53,7 @@ class LeadSubscriber extends CommonSubscriber
     {
         if ($event->isNew()) {
             /**
-             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[] $integrations
+             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
              */
             $integrations = $this->enhancerHelper->getEnhancerIntegrations();
             foreach ($integrations as $integration) {

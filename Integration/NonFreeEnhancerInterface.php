@@ -11,6 +11,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+
 /**
  * Interface NonFreeEnhancerInterface.
  */

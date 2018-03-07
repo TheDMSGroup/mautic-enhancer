@@ -61,7 +61,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
                     'data'  => '',
                 ]
             );
-        } elseif ($formArea === 'keys') {
+        } elseif ('keys' === $formArea) {
             $builder->add(
                 'autorun_enabled',
                 'hidden',
@@ -89,7 +89,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
      * @param array $config
      *
      * @return mixed|void

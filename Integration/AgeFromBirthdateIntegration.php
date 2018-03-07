@@ -61,24 +61,24 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
         ) ? 'extendedField' : 'lead';
 
-      return [
+        return [
             'afb_age' => [
-               'label' => 'Age (D.o.B.)',
-               'type' => 'number',
-               'object' => $object
+                'label'  => 'Age (D.o.B.)',
+                'type'   => 'number',
+                'object' => $object,
             ],
             'afb_dob' => [
-                'label' => 'D.o.B.',
-                'type' =>  'date',
-                'object' => $object
+                'label'  => 'D.o.B.',
+                'type'   => 'date',
+                'object' => $object,
             ],
         ];
     }
 
     /**
-     * @param \Symfony\ComponentForm\FormBuilderInterface $builder
-     * @param array $data
-     * @param string $formArea
+     * @param \Symfony\Component\Form\FormBuilder $builder
+     * @param array                               $data
+     * @param string                              $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -94,7 +94,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
      * @param array $config
      *
      * @return mixed|void
@@ -107,7 +107,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             $dob = $lead->getFieldValue('afb_dob');
             if (isset($dob)) {
                 $today = new DateTime();
-                $age = $today->diff($dob)->format('%y');
+                $age   = $today->diff($dob)->format('%y');
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
                     $this->leadModel->saveEntity($lead);

@@ -11,20 +11,22 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+
 /**
  * Trait NonFreeEnhancerTrait.
  */
 trait NonFreeEnhancerTrait
 {
     /**
-     * @var bool $autorun_enabled
+     * @var bool
      */
     protected $autorun_enabled = false;
 
     /**
-     * @var string|float $cost_per_enhancement
+     * @var string|float
      */
-    protected $cost_per_enhancement = "0.0000";
+    protected $cost_per_enhancement = '0.0000';
 
     /**
      * @param Lead  $lead
@@ -45,12 +47,14 @@ trait NonFreeEnhancerTrait
 
     /**
      * @param bool $enabled
+     *
      * @return $this
      */
     public function setAutorunEnabled(bool $enabled)
     {
-       $this->autorun_enabled = $enabled;
-       return $this;
+        $this->autorun_enabled = $enabled;
+
+        return $this;
     }
 
     /**
@@ -65,8 +69,7 @@ trait NonFreeEnhancerTrait
     {
         if (is_string($cost) && (false !== floatval($cost))) {
             $this->cost_per_enhancement = $cost;
-        }
-        elseif (is_numeric($cost)) {
+        } elseif (is_numeric($cost)) {
             $this->cost_per_enhancement = "$cost";
         }
     }
@@ -83,10 +86,10 @@ trait NonFreeEnhancerTrait
     }
 
     /**
-     * @param \Symfony\Component\Form\FormBuilderInterface  $builder
-     * @param array                                         $data
-     * @param string                                        $formArea
-     * @param bool                                          $overrideArea
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
+     * @param bool                                         $overrideArea
      */
     public function appendToForm(&$builder, $data, $formArea, $overrideArea = false)
     {
@@ -96,13 +99,13 @@ trait NonFreeEnhancerTrait
                     'autorun_enabled',
                     'yesno_button_group',
                     [
-                        'label' => $this->translator->trans('mautic.integration.autorun.label'),
-                        'data'  => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
+                        'label'       => $this->translator->trans('mautic.integration.autorun.label'),
+                        'data'        => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
-                            'class' => 'form-control',
+                            'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
                         ],
                     ]
@@ -111,11 +114,11 @@ trait NonFreeEnhancerTrait
                     'cost_per_enhancement',
                     'number',
                     [
-                        'label'       => $this->translator->trans('mautic.integration.cpe.label'),
-                        'data'        => !isset($data['cost_per_enhancement']) ? '0.0000' : $data['cost_per_enhancement'],
-                        'required'    => true,
-                        'label_attr'  => ['class' => 'control-label'],
-                        'attr'        => [
+                        'label'      => $this->translator->trans('mautic.integration.cpe.label'),
+                        'data'       => !isset($data['cost_per_enhancement']) ? '0.0000' : $data['cost_per_enhancement'],
+                        'required'   => true,
+                        'label_attr' => ['class' => 'control-label'],
+                        'attr'       => [
                             'class'   => 'form-control',
                             'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
                         ],

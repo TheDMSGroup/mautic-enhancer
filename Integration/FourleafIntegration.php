@@ -18,7 +18,7 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    /**
+    /*
      * @var NonFreeEnhancerInterface
      */
     use NonFreeEnhancerTrait {
@@ -91,7 +91,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
      * @param array $config
      *
      * @return mixed|void

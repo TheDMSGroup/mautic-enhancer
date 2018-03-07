@@ -23,7 +23,7 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    /**
+    /*
      * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
      */
     use NonFreeEnhancerTrait {
@@ -72,7 +72,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
         return array_merge(
             [
                 'server' => 'mautic.integration.xverify.server.label',
-                'apikey' => 'mautic.integration.xverify.apikey.label'
+                'apikey' => 'mautic.integration.xverify.apikey.label',
             ],
             $this->getNonFreeKeys()
         );
@@ -131,8 +131,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
      * @param array $config
+     *
      * @return mixed|void
      *
      * @throws \Doctrine\ORM\OptimisticLockException
