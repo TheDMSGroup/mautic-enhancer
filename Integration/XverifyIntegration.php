@@ -23,9 +23,12 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
+    /**
+     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
+     */
     use NonFreeEnhancerTrait {
         getRequiredKeyFields as private getNonFreeKeys;
-    } 
+    }
 
     /**
      * @return string
@@ -48,7 +51,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getDisplayName()
     {
-        return 'Email Validation with '.self::INTEGRATION_NAME;
+        return 'Email Validation with '.$this->getName();
     }
 
     /**

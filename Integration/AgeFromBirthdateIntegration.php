@@ -82,7 +82,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        if ($formArea === 'keys') {
+        if ('keys' === $formArea) {
             $builder->add(
                 'autorun_enabled',
                 'hidden',

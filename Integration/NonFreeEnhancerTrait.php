@@ -77,33 +77,36 @@ trait NonFreeEnhancerTrait
     public function getRequiredKeyFields()
     {
         return [
-            'autorun_enabled'     => $this->translator->trans('mautic.integration.aoutorun.label'),
+            'autorun_enabled'     => $this->translator->trans('mautic.integration.autorun.label'),
             'cost_per_enhancmebt' => $this->translator->trans('mautic.integration.cpe.label'),
         ];
     }
 
     /**
-     * @param $builder
-     * @param $data
-     * @param $formArea
+     * @param \Symfony\Component\Form\FormBuilderInterface  $builder
+     * @param array                                         $data
+     * @param string                                        $formArea
+     * @param bool                                          $overrideArea
      */
-    public function appendToForm(&$builder, $data, $formArea)
+    public function appendToForm(&$builder, $data, $formArea, $overrideArea = false)
     {
-        if ('keys' === $formArea) {
-            $builder->add(
-                'autorun_enabled',
-                'yesno_button_group',
-                [
-                    'label' => $this->translator->trans('mautic.integration.autorun.label'),
-                    'data'  => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
-                    'required'    => true,
-                    'label_attr'  => ['class' => 'control-label'],
-                    'attr'        => [
-                        'class' => 'form-control',
-                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
-                    ],
-                ]
-            )
+        if (($overrideArea ? 'features' : 'keys') === $formArea) {
+            $builder
+                ->add(
+                    'autorun_enabled',
+                    'yesno_button_group',
+                    [
+                        'label' => $this->translator->trans('mautic.integration.autorun.label'),
+                        'data'  => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
+                        'required'    => false,
+                        'empty_value' => false,
+                        'label_attr'  => ['class' => 'control-label'],
+                        'attr'        => [
+                            'class' => 'form-control',
+                            'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                        ],
+                    ]
+                )
                 ->add(
                     'cost_per_enhancement',
                     'number',

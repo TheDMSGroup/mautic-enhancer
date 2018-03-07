@@ -47,12 +47,10 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getRequiredKeyFields()
     {
-        $integrationFields = [
+        return [
             'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
             'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
         ];
-
-        return array_merge($integrationFields, $this->getNonFreeKeyFields());
     }
 
     /**
@@ -137,7 +135,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         ],
                     ]
                 );
+        } else {
             $this->appendNonFreeKeyFields($builder, $data, $formArea);
+
         }
     }
 
@@ -157,7 +157,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             ]
         ];
 
-        $feature_settings = $integration->getFeatureSettings()->getIntegrationSettings();
+        $feature_settings = $this->getIntegrationSettings()->getFeatureSettings();
 
         if ($feature_settings['extended']) {
             $field_list += $this->getAlcazarExtendedFields($object_name);

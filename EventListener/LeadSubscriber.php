@@ -42,7 +42,7 @@ class LeadSubscriber extends CommonSubscriber
      */
     public function __construct(EnhancerHelper $helper)
     {
-        $this->enhancerHelper = $enhancerHelper;
+        $this->enhancerHelper = $helper;
     }
 
     /**
