@@ -12,6 +12,8 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 
 /**
  * Class XverifyIntegration.
@@ -205,10 +207,17 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     throw $e;
                 }
             }
+
             if ($persist) {
                 $this->em->persist($lead);
                 $this->em->flush();
             } // TODO why wont custom fields persist to DB?
+
+            if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+                $isNew = !$lead->getId();
+                $complete = new MauticEnhancerEvent($this, $lead, $isNew);
+                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+            }
         }
     }
 

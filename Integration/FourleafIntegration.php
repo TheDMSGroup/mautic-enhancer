@@ -12,6 +12,8 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 
 /**
  * Class FourleafIntegration.
@@ -134,7 +136,13 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             $lead->addUpdatedField($alias, $value, $default);
         }
 
-        $this->leadModel->saveEntity($lead);
-        $this->em->flush();
+//        $this->leadModel->saveEntity($lead);
+//        $this->em->flush();
+
+        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+            $isNew = !$lead->getId();
+            $complete = new MauticEnhancerEvent($this, $lead, $isNew);
+            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+        }
     }
 }

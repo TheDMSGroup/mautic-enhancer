@@ -14,6 +14,8 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use DateTime;
 use Exception;
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 
 /**
  * Class AgeFromBirthdateIntegration.
@@ -99,7 +101,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      *
      * @return mixed|void
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         //field name can be dynamic, with the field name picked up througn the config
         // see the random plugin
@@ -115,6 +117,12 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 }
             }
         } catch (Exception $e) {
+        }
+
+        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+            $isNew = !$lead->getId();
+            $complete = new MauticEnhancerEvent($this, $lead, $isNew);
+            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
         }
     }
 }
