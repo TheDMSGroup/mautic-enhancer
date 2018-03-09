@@ -12,6 +12,8 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class FourleafIntegration.
@@ -98,7 +100,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         $algo  = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();
@@ -134,7 +136,13 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             $lead->addUpdatedField($alias, $value, $default);
         }
 
-        $this->leadModel->saveEntity($lead);
-        $this->em->flush();
+//        $this->leadModel->saveEntity($lead);
+//        $this->em->flush();
+
+        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+            $isNew    = !$lead->getId();
+            $complete = new MauticEnhancerEvent($this, $lead, $isNew);
+            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+        }
     }
 }

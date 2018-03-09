@@ -28,7 +28,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      *
      * @return bool|void
      */
-    abstract public function doEnhancement(Lead $lead, array $config = []);
+    abstract public function doEnhancement(Lead &$lead, array $config = []);
 
     /**
      * @return string

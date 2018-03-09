@@ -22,12 +22,22 @@ use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 class LeadSubscriber extends CommonSubscriber
 {
     /**
+     * @return array
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            LeadEvents::LEAD_PRE_SAVE => ['doAutoRunEnhancements', 10],
+        ];
+    }
+
+    /**
      * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper
      */
     protected $enhancerHelper;
 
     /**
-     * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $enhancer_helper
+     * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $helper
      */
     public function __construct(EnhancerHelper $helper)
     {
@@ -35,13 +45,26 @@ class LeadSubscriber extends CommonSubscriber
     }
 
     /**
-     * @return array
+     * @param LeadEvent $event
+     *
+     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public static function getSubscribedEvents()
+    public function doAutoRunEnhancements(LeadEvent $event)
     {
-        return [
-            LeadEvents::LEAD_POST_SAVE => ['doListenerEnhancements', 0],
-        ];
+        if (!$event->getLead()->getId()) {
+            /**
+             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
+             */
+            $integrations = $this->enhancerHelper->getEnhancerIntegrations();
+            foreach ($integrations as $integration) {
+                if ($integration->getIntegrationSettings()->getIsPublished()) {
+                    $keys = $integration->getKeys();
+                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
+                        $integration->doEnhancement($event->getLead());
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -49,19 +72,17 @@ class LeadSubscriber extends CommonSubscriber
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doListenerEnhancements(LeadEvent $event)
+    public function doPostSaveEnhancements(LeadEvent $event)
     {
-        if ($event->isNew()) {
-            /**
-             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
-             */
-            $integrations = $this->enhancerHelper->getEnhancerIntegrations();
-            foreach ($integrations as $integration) {
-                if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {
-                    $keys = $integration->getKeys();
-                    if ($keys['autorun_enabled']) {
-                        $integration->doEnhancement($event->getLead());
-                    }
+        /**
+         * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
+         */
+        $integrations = $this->enhancerHelper->getEnhancerIntegrations();
+        foreach ($integrations as $integration) {
+            if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {
+                $keys = $integration->getKeys();
+                if ($keys['autorun_enabled']) {
+                    $integration->doEnhancement($event->getLead());
                 }
             }
         }

@@ -34,7 +34,7 @@ class PluginSubscriber extends CommonSubscriber
     /**
      * @param PluginIntegrationEvent $event
      */
-    public function buildCustomFields(PluginIntegrationEvent $event)
+    public function buildCustomFields(PluginIntegrationEvent &$event)
     {
         $integration = $event->getIntegration();
         if (in_array($integration->getName(), EnhancerHelper::IntegrationNames())) {
