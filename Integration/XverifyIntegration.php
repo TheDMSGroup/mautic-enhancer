@@ -141,7 +141,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         if (!empty($lead)) {
             $settings            = $this->getIntegrationSettings()->getFeatureSettings();

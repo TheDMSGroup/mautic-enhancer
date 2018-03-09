@@ -222,7 +222,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;

@@ -100,7 +100,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         $algo  = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();

@@ -98,7 +98,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
      *
      * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead $lead, array $config = [])
+    public function doEnhancement(Lead &$lead, array $config = [])
     {
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
