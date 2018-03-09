@@ -7,9 +7,7 @@ use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration as Enhancer;
 
 /**
- * Class MauticEnhancerEvent
- *
- * @package \MauticPlugin\mauticEnhancerBundle\Event
+ * Class MauticEnhancerEvent.
  */
 class MauticEnhancerEvent extends CommonEvent
 {
@@ -19,11 +17,11 @@ class MauticEnhancerEvent extends CommonEvent
     protected $enhancer;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
-     * @param \Mautic\LeadBundle\Entity\Lead $lead
-     * @param bool $isNew
+     * @param \Mautic\LeadBundle\Entity\Lead                                             $lead
+     * @param bool                                                                       $isNew
      */
     public function __construct(Enhancer &$enhancer, Lead &$lead, $isNew)
     {
@@ -33,7 +31,7 @@ class MauticEnhancerEvent extends CommonEvent
     }
 
     /**
-     * @return  \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
+     * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
      */
     public function getEnhancer()
     {
@@ -48,6 +46,7 @@ class MauticEnhancerEvent extends CommonEvent
     public function setEnhancer(Enhancer $enhancer)
     {
         $this->enhancer = $enhancer;
+
         return $this;
     }
 

@@ -12,8 +12,8 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class AlcazarIntegration.
@@ -215,7 +215,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param Lead $lead
+     * @param Lead  $lead
      * @param array $config
      *
      * @return mixed|void
@@ -279,7 +279,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
 //        $this->em->flush();
 
         if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            $isNew = !$lead->getId();
+            $isNew    = !$lead->getId();
             $complete = new MauticEnhancerEvent($this, $lead, $isNew);
             $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
         }

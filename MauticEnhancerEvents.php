@@ -3,12 +3,12 @@
 namespace MauticPlugin\MauticEnhancerBundle;
 
 /**
- * Class MauticEnhancerEvents
+ * Class MauticEnhancerEvents.
  */
 final class MauticEnhancerEvents
 {
     /**
-     * Fired when an enhancer completes
+     * Fired when an enhancer completes.
      *
      * The event listener receives a
      * MauticPlugin\MauticEnhancerBundle\Event\EnhancerCompleted instance.

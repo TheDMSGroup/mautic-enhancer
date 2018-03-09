@@ -59,7 +59,7 @@ class LeadSubscriber extends CommonSubscriber
             foreach ($integrations as $integration) {
                 if ($integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
-                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled'])  {
+                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
                         $integration->doEnhancement($event->getLead());
                     }
                 }
@@ -87,5 +87,4 @@ class LeadSubscriber extends CommonSubscriber
             }
         }
     }
-
 }

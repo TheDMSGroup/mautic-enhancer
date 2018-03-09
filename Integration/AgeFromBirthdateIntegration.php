@@ -14,8 +14,8 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use DateTime;
 use Exception;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class AgeFromBirthdateIntegration.
@@ -120,7 +120,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         }
 
         if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            $isNew = !$lead->getId();
+            $isNew    = !$lead->getId();
             $complete = new MauticEnhancerEvent($this, $lead, $isNew);
             $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
         }

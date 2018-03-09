@@ -12,8 +12,8 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class RandomIntegration.
@@ -106,7 +106,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
             $lead->{$settings['random_field_name']} = rand(1, 101);
 
             if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-                $isNew = !$lead->getId();
+                $isNew    = !$lead->getId();
                 $complete = new MauticEnhancerEvent($this, $lead, $isNew);
                 $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
             }
