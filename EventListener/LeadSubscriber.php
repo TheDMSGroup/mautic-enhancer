@@ -45,6 +45,8 @@ class LeadSubscriber extends CommonSubscriber
     }
 
     /**
+     * Runs enhancements before the Lead is persisted
+     *
      * @param LeadEvent $event
      *
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -60,7 +62,8 @@ class LeadSubscriber extends CommonSubscriber
                 if ($integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
                     if (isset($keys['autorun_enabled']) && $keys['autorun_enabled'])  {
-                        $integration->doEnhancement($event->getLead());
+                        $lead = $event->getLead();
+                        $integration->doEnhancement($lead);
                     }
                 }
             }

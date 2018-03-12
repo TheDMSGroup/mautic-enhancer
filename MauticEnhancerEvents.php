@@ -11,9 +11,9 @@ final class MauticEnhancerEvents
      * Fired when an enhancer completes
      *
      * The event listener receives a
-     * MauticPlugin\MauticEnhancerBundle\Event\EnhancerCompleted instance.
+     * MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent.
      *
      * @var string
      */
-    const ENHANCER_COMPLETED = 'mauticplugin.enhancer_complete';
+    const ENHANCER_COMPLETED = 'mauticplugin.mautic_enhancer.enhancer_complete';
 }

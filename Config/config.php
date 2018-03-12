@@ -18,7 +18,7 @@ return [
     'services' => [
         'events' => [
             'mautic.enhancer.event.lead'   => [
-                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber',
+                'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer',
                 ],
@@ -29,6 +29,9 @@ return [
         ],
 
         'integrations' => [
+            'mautic.enhancer.integration.agefrombirthdate'  => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
+            ],
             'mautic.enhancer.integration.alcazar'  => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
             ],

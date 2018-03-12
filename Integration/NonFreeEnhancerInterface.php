@@ -19,17 +19,6 @@ use Mautic\LeadBundle\Entity\Lead;
 interface NonFreeEnhancerInterface
 {
     /**
-     * @param Lead  $lead
-     * @param array $config
-     */
-    public function pushLead(Lead $lead, array $config = []);
-
-    /**
-     * @return bool
-     */
-    public function getAutorunEnabled();
-
-    /**
      * @return string|float
      */
     public function getCostPerEnhancement();

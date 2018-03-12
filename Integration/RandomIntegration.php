@@ -104,12 +104,6 @@ class RandomIntegration extends AbstractEnhancerIntegration
 
         if (!$lead->getFieldValue($settings['random_field_name'])) {
             $lead->{$settings['random_field_name']} = rand(1, 101);
-
-            if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-                $isNew = !$lead->getId();
-                $complete = new MauticEnhancerEvent($this, $lead, $isNew);
-                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-            }
         }
     }
 }

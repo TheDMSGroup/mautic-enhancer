@@ -28,9 +28,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /*
      * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
      */
-    use NonFreeEnhancerTrait {
-        getRequiredKeyFields as private getNonFreeKeys;
-    }
+    use NonFreeEnhancerTrait;
 
     /**
      * @return string
@@ -59,25 +57,12 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * @return array
      */
-    public function getSupportedFeatures()
-    {
-        return [
-            'push_lead',
-        ];
-    }
-
-    /**
-     * @return array
-     */
     public function getRequiredKeyFields()
     {
-        return array_merge(
-            [
-                'server' => 'mautic.integration.xverify.server.label',
-                'apikey' => 'mautic.integration.xverify.apikey.label',
-            ],
-            $this->getNonFreeKeys()
-        );
+        return [
+            'server' => 'mautic.integration.xverify.server.label',
+            'apikey' => 'mautic.integration.xverify.apikey.label',
+        ];
     }
 
     /**
@@ -141,7 +126,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
      */
-    public function doEnhancement(Lead &$lead, array $config = [])
+    public function doEnhancement(Lead &$lead)
     {
         if (!empty($lead)) {
             $settings            = $this->getIntegrationSettings()->getFeatureSettings();
@@ -209,8 +194,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
             }
 
             if ($persist) {
-                $this->em->persist($lead);
-                $this->em->flush();
+                $this->leadModel->saveEntity($lead);
             } // TODO why wont custom fields persist to DB?
 
             if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
