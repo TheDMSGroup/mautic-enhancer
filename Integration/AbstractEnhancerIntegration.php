@@ -12,9 +12,11 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+
 /**
  * Class AbstractEnhancerIntegration.
  *
@@ -178,6 +180,14 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->getIntegrationSettings()->getId();;
+    }
+
+    /**
      * @return string[]
      */
     public function getSupportedFeatures()
@@ -189,15 +199,16 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      * @param Lead  $lead
      * @param array $config
      */
-    public function pushLead(Lead $lead, array $config = [])
+    public function pushLead(Lead &$lead, array $config = [])
     {
-        $this->logger->warning('Push Config: ' . print_r($config, true));
+        $this->logger->warning('Pushing to Enhancer '.$this->getName().' Config: '.print_r($config, true));
         $this->doEnhancement($lead);
         if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-
-            $complete = new MauticEnhancerEvent($this, $lead);
-            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
             $this->logger->warning('Enhancer completed event triggered');
+            //Extract campaign from $config (or other method)
+            $campaign = new Campaign();  // BLOCKER: ???
+            $complete = new MauticEnhancerEvent($this, $lead, $campaign);
+            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
         }
     }
 

@@ -35,11 +35,12 @@ class MauticEnhancerEvent extends Event
      * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
      * @param \Mautic\LeadBundle\Entity\Lead $lead
      */
-    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign)
+    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign =null)
     {
-        
+
         $this->enhancer = $enhancer;
         $this->lead = $lead;
+        $this->campaign = $campaign;
     }
 
     /**
@@ -51,23 +52,18 @@ class MauticEnhancerEvent extends Event
     }
 
     /**
-     *  @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
-     *
-     *  @return $this
+     * @return \Mautic\LeadBundle\Entity\Lead
      */
-    public function setEnhancer(Enhancer $enhancer)
+    public function getLead()
     {
-        $this->enhancer = $enhancer;
-        return $this;
+        return $this->lead;
     }
 
     /**
-     * @param bool $display
-     *
-     * @return string
+     * @return \Mautic\CampaignBundle\Entity\Campaign
      */
-    public function getEnhancerName($display = false)
+    public function getCampaign()
     {
-        return $display ? $this->enhancer->getDisplayName() : $this->enhancer->getName();
+        return $this->campaign;
     }
 }

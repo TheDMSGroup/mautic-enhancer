@@ -17,13 +17,13 @@ return [
 
     'services' => [
         'events' => [
-            'mautic.enhancer.event.lead'   => [
+            'mautic.enhancer.eventlistener.lead'   => [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer',
                 ],
             ],
-            'mautic.enhancer.event.plugin' => [
+            'mautic.enhancer.eventlistener.plugin' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
             ],
         ],
