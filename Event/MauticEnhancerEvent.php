@@ -8,9 +8,7 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration as
 use Symfony\Component\EventDispatcher\Event;
 
 /**
- * Class MauticEnhancerEvent
- *
- * @package \MauticPlugin\mauticEnhancerBundle\Event
+ * Class MauticEnhancerEvent.
  */
 class MauticEnhancerEvent extends Event
 {
@@ -30,21 +28,20 @@ class MauticEnhancerEvent extends Event
     protected $campaign;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
-     * @param \Mautic\LeadBundle\Entity\Lead $lead
+     * @param \Mautic\LeadBundle\Entity\Lead                                             $lead
      */
     public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign =null)
     {
-
         $this->enhancer = $enhancer;
-        $this->lead = $lead;
+        $this->lead     = $lead;
         $this->campaign = $campaign;
     }
 
     /**
-     * @return  \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
+     * @return \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
      */
     public function getEnhancer()
     {

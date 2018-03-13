@@ -11,11 +11,11 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\LeadBundle\Entity\Lead;
 use Mautic\CampaignBundle\Entity\Campaign;
+use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class AbstractEnhancerIntegration.
@@ -180,11 +180,11 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * @return integer
+     * @return int
      */
     public function getId()
     {
-        return $this->getIntegrationSettings()->getId();;
+        return $this->getIntegrationSettings()->getId();
     }
 
     /**
@@ -211,5 +211,4 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
         }
     }
-
 }
