@@ -14,8 +14,6 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use DateTime;
 use Exception;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
-use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 
 /**
  * Class AgeFromBirthdateIntegration.
@@ -113,7 +111,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
                     $this->leadModel->saveEntity($lead);
-                    //
+
                     $this->em->flush();
                 }
             }

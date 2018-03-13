@@ -12,8 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
-use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 
 /**
  * Class FourleafIntegration.

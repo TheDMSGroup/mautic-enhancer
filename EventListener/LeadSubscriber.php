@@ -45,7 +45,7 @@ class LeadSubscriber extends CommonSubscriber
     }
 
     /**
-     * Runs enhancements before the Lead is persisted
+     * Runs enhancements before the Lead is persisted.
      *
      * @param LeadEvent $event
      *
@@ -61,7 +61,7 @@ class LeadSubscriber extends CommonSubscriber
             foreach ($integrations as $integration) {
                 if ($integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
-                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled'])  {
+                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
                         $lead = $event->getLead();
                         $integration->doEnhancement($lead);
                     }
@@ -90,5 +90,4 @@ class LeadSubscriber extends CommonSubscriber
             }
         }
     }
-
 }

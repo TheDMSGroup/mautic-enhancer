@@ -11,8 +11,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\LeadBundle\Entity\Lead;
-
 /**
  * Trait NonFreeEnhancerTrait.
  */
@@ -23,13 +21,13 @@ trait NonFreeEnhancerTrait
     /**
      * @return string|float
      */
-
     public function getCostPerEnhancement()
     {
         if (!isset($this->cost_per_enhancement)) {
-            $settings = $this->getIntegrationSettings()->getFeatureSettings();
+            $settings                   = $this->getIntegrationSettings()->getFeatureSettings();
             $this->cost_per_enhancement = $settings['cost_per_enhancement'];
         }
+
         return $this->cost_per_enhancement;
     }
 
