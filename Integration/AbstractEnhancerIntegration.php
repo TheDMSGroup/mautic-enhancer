@@ -203,13 +203,47 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     {
         $this->logger->warning('Pushing to Enhancer '.$this->getName().' Config: '.print_r($config, true));
         $this->doEnhancement($lead);
+        if (method_exists($this, 'getCostPerEnhancement')) {
+            $attribution = $lead->getFieldValue('attribution');
+            $lead->attribution -= $this->getCostPerEnhancement();
+            $lead->addUpdatedField(
+                'attribution',
+                $attribution - $this->getCostPerEnhancement(),
+                $attribution
+            );
+        }
         if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
             $this->logger->warning('Enhancer completed event triggered');
-            //Extract campaign from $config (or other method)
-            $campaign = new Campaign();  // BLOCKER: ???
-            $complete = new MauticEnhancerEvent($this, $lead, $campaign);
-            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+            $campaign = null;
+            if (is_int($config['campaignId'])) {
+                // In the future a core fix may provide the correct campaign id.
+                $campaign = $this->em->getReference('Mautic\CampaignBundle\Enitity\Campaign', $config['campaignId']);
+            } else {
+                // Otherwise we must obtain it from the unit of work.
+                try {
+                    $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
+                    if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
+                        foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
+                            $properties = $leadEventLog->getEvent()->getProperties();
+                            if (
+                                $properties['_token'] === $config['_token']
+                                && $properties['campaignId'] === $config['campaignId']
+                            ) {
+                                $campaign = $leadEventLog->getCampaign();
+                                break;
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+
+                }
+            }
+            if ($campaign !== null) {
+                $complete = new MauticEnhancerEvent($this, $lead, $campaign);
+                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+            } else {
+                throw new \Exception('Should we allow null campaigns...for example some sort of data backfill opperation?');
+            }
         }
     }
-
 }
