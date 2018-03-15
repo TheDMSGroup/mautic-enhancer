@@ -2,14 +2,15 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Event;
 
-use Mautic\CoreBundle\Event\CommonEvent;
+use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration as Enhancer;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class MauticEnhancerEvent.
  */
-class MauticEnhancerEvent extends CommonEvent
+class MauticEnhancerEvent extends Event
 {
     /**
      * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
@@ -17,17 +18,26 @@ class MauticEnhancerEvent extends CommonEvent
     protected $enhancer;
 
     /**
+     * @var \Mautic\LeadBundle\Entity\Lead
+     */
+    protected $lead;
+
+    /**
+     * @var \Mautic\CampaignBundle\Entity\Campaign
+     */
+    protected $campaign;
+
+    /**
      * Constructor.
      *
      * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
      * @param \Mautic\LeadBundle\Entity\Lead                                             $lead
-     * @param bool                                                                       $isNew
      */
-    public function __construct(Enhancer &$enhancer, Lead &$lead, $isNew)
+    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign = null)
     {
-        parent::__contruct($lead, $isNew);
-
         $this->enhancer = $enhancer;
+        $this->lead     = $lead;
+        $this->campaign = $campaign;
     }
 
     /**
@@ -39,24 +49,18 @@ class MauticEnhancerEvent extends CommonEvent
     }
 
     /**
-     *  @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
-     *
-     *  @return $this
+     * @return \Mautic\LeadBundle\Entity\Lead
      */
-    public function setEnhancer(Enhancer $enhancer)
+    public function getLead()
     {
-        $this->enhancer = $enhancer;
-
-        return $this;
+        return $this->lead;
     }
 
     /**
-     * @param bool $display
-     *
-     * @return string
+     * @return \Mautic\CampaignBundle\Entity\Campaign
      */
-    public function getEnhancerName($display = false)
+    public function getCampaign()
     {
-        return $display ? $this->enhancer->getDisplayName() : $this->enhancer->getName();
+        return $this->campaign;
     }
 }

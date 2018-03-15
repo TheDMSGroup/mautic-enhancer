@@ -12,8 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class FourleafIntegration.
@@ -23,9 +21,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     /*
      * @var NonFreeEnhancerInterface
      */
-    use NonFreeEnhancerTrait {
-        getRequiredKeyFields as getNonFreeKeyFields;
-    }
+    use NonFreeEnhancerTrait;
 
     /**
      * @return string
@@ -40,7 +36,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function getDisplayName()
     {
-        return 'Email Engagement Scoring with '.$this->getName();
+        return 'Email Engagement Scoring by '.$this->getName();
     }
 
     /**
@@ -62,15 +58,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
         ];
 
-        return array_merge($integrationFields, $this->getNonFreeKeyFields());
-    }
-
-    /**
-     * @return array
-     */
-    public function getSupportedFeatures()
-    {
-        return ['push_lead'];
+        return $integrationFields;
     }
 
     /**
@@ -93,14 +81,11 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @param Lead $lead
      *
      * @return mixed|void
-     *
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
-    public function doEnhancement(Lead &$lead, array $config = [])
+    public function doEnhancement(Lead &$lead)
     {
         $algo  = $lead->getFieldValue('fourleaf_algo');
         $email = $lead->getEmail();
@@ -135,14 +120,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             $default = $lead->getFieldValue($alias);
             $lead->addUpdatedField($alias, $value, $default);
         }
-
-//        $this->leadModel->saveEntity($lead);
-//        $this->em->flush();
-
-        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            $isNew    = !$lead->getId();
-            $complete = new MauticEnhancerEvent($this, $lead, $isNew);
-            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-        }
+        $this->leadModel->saveEntity($lead);
     }
 }

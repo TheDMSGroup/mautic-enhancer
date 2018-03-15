@@ -12,8 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class AlcazarIntegration.
@@ -24,8 +22,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
      */
     use NonFreeEnhancerTrait {
-        appendToForm as appendNonFreeKeyFields;
-        getRequiredKeyFields as getNonFreeKeyFields;
+        appendToForm as appendNonFreeFields;
     }
 
     /**
@@ -83,7 +80,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         ],
                         'label'       => $this->translator->trans('mautic.integration.alcazar.output.label'),
                         'data'        => isset($data['output']) ? $data['output'] : 'text',
-                        'required'    => false,
+                        'required'    => true,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
@@ -98,7 +95,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     [
                         'label'       => $this->translator->trans('mautic.integration.alcazar.extended.label'),
                         'data'        => !isset($data['extended']) ? false : $data['extended'],
-                        'required'    => false,
+                        'required'    => true,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
@@ -137,9 +134,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         ],
                     ]
                 );
-        } else {
-            $this->appendNonFreeKeyFields($builder, $data, $formArea);
         }
+        $this->appendNonFreeFields($builder, $data, $formArea);
     }
 
     /**
@@ -215,14 +211,11 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @param Lead $lead
      *
-     * @return mixed|void
-     *
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @return bool|mixed|void
      */
-    public function doEnhancement(Lead &$lead, array $config = [])
+    public function doEnhancement(Lead &$lead)
     {
         if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
             return;
@@ -249,13 +242,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 //the value of ani should be a phone number
                 //but this service is currently unused
                 continue;
-                if (!$value) {
-                    continue;
-                }
-                if (10 === strlen($value)) {
-                    $value = '1'.$value;
-                }
-                $params['ani'] = $value;
             } elseif ('output' === $param) {
                 $params['output'] = $value;
             } elseif (in_array($param, ['extended', 'dnc'])) {
@@ -275,13 +261,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $default = $lead->getFieldValue($alias);
             $lead->addUpdatedField($alias, $value, $default);
         }
-//        $this->leadModel->saveEntity($lead);
-//        $this->em->flush();
 
-        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            $isNew    = !$lead->getId();
-            $complete = new MauticEnhancerEvent($this, $lead, $isNew);
-            $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-        }
+        $this->leadModel->saveEntity($lead);
     }
 }

@@ -17,28 +17,31 @@ return [
 
     'services' => [
         'events' => [
-            'mautic.enhancer.event.lead'   => [
-                'class'     => 'MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber',
+            'mautic.enhancer.eventlistener.lead'   => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer',
                 ],
             ],
-            'mautic.enhancer.event.plugin' => [
+            'mautic.enhancer.eventlistener.plugin' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
             ],
         ],
 
         'integrations' => [
-            'mautic.enhancer.integration.alcazar'  => [
+            'mautic.enhancer.integration.agefrombirthdate' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
+            ],
+            'mautic.enhancer.integration.alcazar'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
             ],
-            'mautic.enhancer.integration.random'   => [
+            'mautic.enhancer.integration.random'           => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
             ],
-            'mautic.enhancer.integration.fourleaf' => [
+            'mautic.enhancer.integration.fourleaf'         => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration::class,
             ],
-            'mautic.enhancer.integration.xverify'  => [
+            'mautic.enhancer.integration.xverify'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
         ],
