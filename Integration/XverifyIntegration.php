@@ -118,12 +118,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @param Lead $lead
      *
      * @return mixed|void
      *
-     * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Exception
      */
     public function doEnhancement(Lead &$lead)

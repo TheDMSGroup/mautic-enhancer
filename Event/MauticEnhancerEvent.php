@@ -33,7 +33,7 @@ class MauticEnhancerEvent extends Event
      * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
      * @param \Mautic\LeadBundle\Entity\Lead                                             $lead
      */
-    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign =null)
+    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign = null)
     {
         $this->enhancer = $enhancer;
         $this->lead     = $lead;

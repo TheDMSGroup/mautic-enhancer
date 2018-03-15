@@ -213,9 +213,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
-     *
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @return bool|mixed|void
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -244,13 +242,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 //the value of ani should be a phone number
                 //but this service is currently unused
                 continue;
-                if (!$value) {
-                    continue;
-                }
-                if (10 === strlen($value)) {
-                    $value = '1'.$value;
-                }
-                $params['ani'] = $value;
             } elseif ('output' === $param) {
                 $params['output'] = $value;
             } elseif (in_array($param, ['extended', 'dnc'])) {

@@ -29,19 +29,19 @@ return [
         ],
 
         'integrations' => [
-            'mautic.enhancer.integration.agefrombirthdate'  => [
+            'mautic.enhancer.integration.agefrombirthdate' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
             ],
-            'mautic.enhancer.integration.alcazar'  => [
+            'mautic.enhancer.integration.alcazar'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
             ],
-            'mautic.enhancer.integration.random'   => [
+            'mautic.enhancer.integration.random'           => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
             ],
-            'mautic.enhancer.integration.fourleaf' => [
+            'mautic.enhancer.integration.fourleaf'         => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration::class,
             ],
-            'mautic.enhancer.integration.xverify'  => [
+            'mautic.enhancer.integration.xverify'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
         ],

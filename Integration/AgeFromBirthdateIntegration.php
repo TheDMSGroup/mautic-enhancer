@@ -94,8 +94,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @param Lead $lead
      *
      * @return mixed|void
      */

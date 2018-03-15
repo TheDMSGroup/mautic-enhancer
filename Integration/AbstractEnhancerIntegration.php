@@ -11,7 +11,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
@@ -69,12 +68,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
-     *
-     * @return bool|void
+     * @returns array[]
      */
-    abstract public function doEnhancement(Lead &$lead);
+    abstract protected function getEnhancerFieldArray();
 
     /**
      * @return string
@@ -85,11 +81,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
         return sprintf('%s Data Enhancer', $spaced_name);
     }
-
-    /**
-     * @returns array[]
-     */
-    abstract protected function getEnhancerFieldArray();
 
     /**
      * @param array $settings
@@ -180,14 +171,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->getIntegrationSettings()->getId();
-    }
-
-    /**
      * @return string[]
      */
     public function getSupportedFeatures()
@@ -198,17 +181,21 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @param Lead  $lead
      * @param array $config
+     *
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      */
     public function pushLead(Lead &$lead, array $config = [])
     {
         $this->logger->warning('Pushing to Enhancer '.$this->getName().' Config: '.print_r($config, true));
         $this->doEnhancement($lead);
-        if (method_exists($this, 'getCostPerEnhancement')) {
+        $costPerEnhancement = $this->getCostPerEnhancement();
+        if (null !== $costPerEnhancement) {
             $attribution = $lead->getFieldValue('attribution');
-            $lead->attribution -= $this->getCostPerEnhancement();
+            // $lead->attribution -= $costPerEnhancement;
             $lead->addUpdatedField(
                 'attribution',
-                $attribution - $this->getCostPerEnhancement(),
+                $attribution - $costPerEnhancement,
                 $attribution
             );
         }
@@ -235,15 +222,39 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         }
                     }
                 } catch (\Exception $e) {
-
                 }
             }
-            if ($campaign !== null) {
+            if (null !== $campaign) {
                 $complete = new MauticEnhancerEvent($this, $lead, $campaign);
                 $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
             } else {
-                throw new \Exception('Should we allow null campaigns...for example some sort of data backfill opperation?');
+                throw new \Exception(
+                    'Should we allow null campaigns...for example some sort of data backfill opperation?'
+                );
             }
         }
+    }
+
+    /**
+     * @param Lead $lead
+     *
+     * @return mixed
+     */
+    abstract public function doEnhancement(Lead &$lead);
+
+    /**
+     * Return null if there is no cost attributed to the integration.
+     */
+    public function getCostPerEnhancement()
+    {
+        return null;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->getIntegrationSettings()->getId();
     }
 }

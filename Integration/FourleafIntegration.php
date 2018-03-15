@@ -81,12 +81,9 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     }
 
     /**
-     * @param Lead  $lead
-     * @param array $config
+     * @param Lead $lead
      *
      * @return mixed|void
-     *
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doEnhancement(Lead &$lead)
     {
