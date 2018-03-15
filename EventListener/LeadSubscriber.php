@@ -22,16 +22,6 @@ use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 class LeadSubscriber extends CommonSubscriber
 {
     /**
-     * @return array
-     */
-    public static function getSubscribedEvents()
-    {
-        return [
-            LeadEvents::LEAD_PRE_SAVE => ['doAutoRunEnhancements', 10],
-        ];
-    }
-
-    /**
      * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper
      */
     protected $enhancerHelper;
@@ -45,9 +35,19 @@ class LeadSubscriber extends CommonSubscriber
     }
 
     /**
-     * @param LeadEvent $event
+     * @return array
+     */
+    public static function getSubscribedEvents()
+    {
+        return [
+            LeadEvents::LEAD_PRE_SAVE => ['doAutoRunEnhancements', 10],
+        ];
+    }
+
+    /**
+     * Runs enhancements before the Lead is persisted.
      *
-     * @throws \Doctrine\ORM\OptimisticLockException
+     * @param LeadEvent $event
      */
     public function doAutoRunEnhancements(LeadEvent $event)
     {
@@ -60,7 +60,8 @@ class LeadSubscriber extends CommonSubscriber
                 if ($integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
                     if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
-                        $integration->doEnhancement($event->getLead());
+                        $lead = $event->getLead();
+                        $integration->doEnhancement($lead);
                     }
                 }
             }
@@ -69,8 +70,6 @@ class LeadSubscriber extends CommonSubscriber
 
     /**
      * @param LeadEvent $event
-     *
-     * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function doPostSaveEnhancements(LeadEvent $event)
     {

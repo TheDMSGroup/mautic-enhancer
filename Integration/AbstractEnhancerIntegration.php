@@ -13,6 +13,8 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
+use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
+use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class AbstractEnhancerIntegration.
@@ -23,12 +25,52 @@ use Mautic\PluginBundle\Integration\AbstractIntegration;
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
     /**
-     * @param Lead  $lead
-     * @param array $config
-     *
-     * @return bool|void
+     * @throws \Doctrine\DBAL\DBALException
      */
-    abstract public function doEnhancement(Lead &$lead, array $config = []);
+    public function buildEnhancerFields()
+    {
+        $integration = $this->getIntegrationSettings();
+
+        $count = count($this->fieldModel->getLeadFields());
+
+        if ($integration->getIsPublished()) {
+            $feature_settings = $integration->getFeatureSettings();
+            $created          = isset($feature_settings['installed']) ? $feature_settings['installed'] : [];
+            $creating         = $this->getEnhancerFieldArray();
+
+            foreach ($creating as $alias => $properties) {
+                if (in_array($alias, $created)) {
+                    //do not build an existing column
+                    continue;
+                }
+
+                $new_field = $this->fieldModel->getEntity();
+                $new_field->setAlias($alias);
+                $new_field->setOrder(++$count);
+
+                foreach ($properties as $property => $value) {
+                    $method = 'set'.implode('', array_map('ucfirst', explode('_', $property)));
+
+                    try {
+                        $new_field->$method($value);
+                    } catch (\Exception $e) {
+                        error_log('Failed with "'.$e->getMessage().'"');
+                    }
+                }
+
+                $this->fieldModel->saveEntity($new_field);
+                $created[] = $alias;
+            }
+
+            $feature_settings['installed'] = $created;
+            $integration->setFeatureSettings($feature_settings);
+        }
+    }
+
+    /**
+     * @returns array[]
+     */
+    abstract protected function getEnhancerFieldArray();
 
     /**
      * @return string
@@ -129,50 +171,90 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @return string[]
      */
-    public function buildEnhancerFields()
+    public function getSupportedFeatures()
     {
-        $integration = $this->getIntegrationSettings();
+        return ['push_lead'];
+    }
 
-        $count = count($this->fieldModel->getLeadFields());
-
-        if ($integration->getIsPublished()) {
-            $feature_settings = $integration->getFeatureSettings();
-            $created          = isset($feature_settings['installed']) ? $feature_settings['installed'] : [];
-            $creating         = $this->getEnhancerFieldArray();
-
-            foreach ($creating as $alias => $properties) {
-                if (in_array($alias, $created)) {
-                    //do not build an existing column
-                    continue;
-                }
-
-                $new_field = $this->fieldModel->getEntity();
-                $new_field->setAlias($alias);
-                $new_field->setOrder(++$count);
-
-                foreach ($properties as $property => $value) {
-                    $method = 'set'.implode('', array_map('ucfirst', explode('_', $property)));
-
-                    try {
-                        $new_field->$method($value);
-                    } catch (\Exception $e) {
-                        error_log('Failed with "'.$e->getMessage().'"');
+    /**
+     * @param Lead  $lead
+     * @param array $config
+     *
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
+     */
+    public function pushLead(Lead &$lead, array $config = [])
+    {
+        $this->logger->warning('Pushing to Enhancer '.$this->getName().' Config: '.print_r($config, true));
+        $this->doEnhancement($lead);
+        $costPerEnhancement = $this->getCostPerEnhancement();
+        if (null !== $costPerEnhancement) {
+            $attribution = $lead->getFieldValue('attribution');
+            // $lead->attribution -= $costPerEnhancement;
+            $lead->addUpdatedField(
+                'attribution',
+                $attribution - $costPerEnhancement,
+                $attribution
+            );
+        }
+        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+            $this->logger->warning('Enhancer completed event triggered');
+            $campaign = null;
+            if (is_int($config['campaignId'])) {
+                // In the future a core fix may provide the correct campaign id.
+                $campaign = $this->em->getReference('Mautic\CampaignBundle\Enitity\Campaign', $config['campaignId']);
+            } else {
+                // Otherwise we must obtain it from the unit of work.
+                try {
+                    $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
+                    if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
+                        foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
+                            $properties = $leadEventLog->getEvent()->getProperties();
+                            if (
+                                $properties['_token'] === $config['_token']
+                                && $properties['campaignId'] === $config['campaignId']
+                            ) {
+                                $campaign = $leadEventLog->getCampaign();
+                                break;
+                            }
+                        }
                     }
+                } catch (\Exception $e) {
                 }
-
-                $this->fieldModel->saveEntity($new_field);
-                $created[] = $alias;
             }
-
-            $feature_settings['installed'] = $created;
-            $integration->setFeatureSettings($feature_settings);
+            if (null !== $campaign) {
+                $complete = new MauticEnhancerEvent($this, $lead, $campaign);
+                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+            } else {
+                throw new \Exception(
+                    'Should we allow null campaigns...for example some sort of data backfill opperation?'
+                );
+            }
         }
     }
 
     /**
-     * @returns array[]
+     * @param Lead $lead
+     *
+     * @return mixed
      */
-    abstract protected function getEnhancerFieldArray();
+    abstract public function doEnhancement(Lead &$lead);
+
+    /**
+     * Return null if there is no cost attributed to the integration.
+     */
+    public function getCostPerEnhancement()
+    {
+        return null;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->getIntegrationSettings()->getId();
+    }
 }
