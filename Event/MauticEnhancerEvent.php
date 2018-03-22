@@ -28,12 +28,13 @@ class MauticEnhancerEvent extends Event
     protected $campaign;
 
     /**
-     * Constructor.
+     * MauticEnhancerEvent constructor.
      *
-     * @param \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $enhancer
-     * @param \Mautic\LeadBundle\Entity\Lead                                             $lead
+     * @param Enhancer      $enhancer
+     * @param Lead          $lead
+     * @param Campaign|null $campaign
      */
-    public function __construct(Enhancer &$enhancer, Lead &$lead, Campaign &$campaign = null)
+    public function __construct(Enhancer $enhancer, Lead $lead, Campaign $campaign = null)
     {
         $this->enhancer = $enhancer;
         $this->lead     = $lead;
