@@ -96,6 +96,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
         $keys = $this->getDecryptedApiKeys();
 
+        // @todo - Update to use Guzzle.
         $options = [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_URL            => $keys['url'].$lead->getEmail(),
@@ -112,6 +113,8 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
         $response = json_decode($response, true);
 
+        $this->applyCost($lead);
+
         foreach ($response as $key => $value) {
             if ('md5' === $key) {
                 continue;
@@ -120,6 +123,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             $default = $lead->getFieldValue($alias);
             $lead->addUpdatedField($alias, $value, $default);
         }
-        $this->leadModel->saveEntity($lead);
+        $this->saveLead($lead);
     }
 }

@@ -109,9 +109,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 $age   = $today->diff($dob)->format('%y');
                 if ($lead->getFieldValue('afb_age') !== $age) {
                     $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
-                    $this->leadModel->saveEntity($lead);
-
-                    $this->em->flush();
+                    $this->saveLead($lead);
                 }
             }
         } catch (Exception $e) {

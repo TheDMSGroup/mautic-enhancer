@@ -256,12 +256,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             ['ignore_event_dispatch' => 1]
         );
 
+        $this->applyCost($lead);
+
         foreach ($response as $label => $value) {
             $alias   = 'alcazar_'.strtolower($label);
             $default = $lead->getFieldValue($alias);
             $lead->addUpdatedField($alias, $value, $default);
         }
 
-        $this->leadModel->saveEntity($lead);
+        $this->saveLead($lead);
     }
 }

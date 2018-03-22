@@ -12,8 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
 /**
  * Class XverifyIntegration.
@@ -153,10 +151,11 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 $fieldKey = 'phone';
                                 if (is_null($lead->$fieldToUpdate)) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                                    $status   = $this->getResponseStatus($response, $fieldKey);
+                                    $this->applyCost($lead);
+                                    $persist = true;
+                                    $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
                                         $lead->addUpdatedField($fieldToUpdate, $status);
-                                        $persist = true;
                                         $this->logger->addDebug(
                                             'XVERIFY: verification values to update: '.$fieldToUpdate.' => '.$status
                                         );
@@ -170,7 +169,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 $fieldKey = 'email';
                                 if (is_null($lead->$fieldToUpdate)) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
-                                    $status   = $this->getResponseStatus($response, $fieldKey);
+                                    $this->applyCost($lead);
+                                    $persist = true;
+                                    $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
                                         $lead->addUpdatedField($fieldToUpdate, $status, null);
                                         $persist = true;
@@ -187,19 +188,24 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     }
                 } catch (\Exception $e) {
                     $this->logIntegrationError($e);
+                    if ($persist) {
+                        // We don't want to potentially lose track of a cost.
+                        $this->saveLead($lead);
+                    }
                     throw $e;
                 }
             }
 
             if ($persist) {
-                $this->leadModel->saveEntity($lead);
+                $this->saveLead($lead);
             } // TODO why wont custom fields persist to DB?
 
-            if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-                $isNew    = !$lead->getId();
-                $complete = new MauticEnhancerEvent($this, $lead, $isNew);
-                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-            }
+            // This would be a duplicate event now.
+            // if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
+            //     $isNew    = !$lead->getId();
+            //     $complete = new MauticEnhancerEvent($this, $lead, $isNew);
+            //     $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
+            // }
         }
     }
 
@@ -214,6 +220,8 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     protected function makeCall($service, $params, $fieldKey, $fieldValue)
     {
         // the response object has a lot of value-add data, that may help to enhance lead data, for a future feature request
+
+        // @todo - Update to use Guzzle.
 
         // set a timeout default to 20 seconds
         $settings = ['curl_options' => [CURLOPT_CONNECTTIMEOUT => 20, CURLOPT_TIMEOUT => 20]];
