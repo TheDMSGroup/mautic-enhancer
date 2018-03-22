@@ -25,7 +25,6 @@ use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
-
     /** @var array */
     protected $config;
 
