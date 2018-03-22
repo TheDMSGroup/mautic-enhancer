@@ -13,6 +13,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
+use MauticPlugin\MauticEnhancerBundle\Event\ContactLedgerContextEvent;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
 
@@ -24,6 +25,12 @@ use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
+    /** @var array */
+    protected $config;
+
+    /** @var \Mautic\CampaignBundle\Entity\Campaign */
+    protected $campaign;
+
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -101,6 +108,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             foreach ($available as $field => $details) {
                 $label = (!empty($details['label'])) ? $details['label'] : false;
                 $fn    = $this->matchFieldName($field);
+                // @todo - Maybe we should define $f, $p, $s?
                 switch ($details['type']) {
                     case 'string':
                     case 'boolean':
@@ -181,14 +189,66 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @param Lead  $lead
      * @param array $config
-     *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
      */
     public function pushLead(Lead &$lead, array $config = [])
     {
-        $this->logger->warning('Pushing to Enhancer '.$this->getName().' Config: '.print_r($config, true));
+        $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
+        $this->config = $config;
         $this->doEnhancement($lead);
+        $event = new MauticEnhancerEvent($this, $lead, $this->getCampaign());
+        $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $event);
+    }
+
+    /**
+     * @param Lead $lead
+     *
+     * @return mixed
+     */
+    abstract public function doEnhancement(Lead &$lead);
+
+    /**
+     * @return bool|\Doctrine\Common\Proxy\Proxy|\Mautic\CampaignBundle\Entity\Campaign|null|object
+     */
+    private function getCampaign()
+    {
+        if (!$this->campaign) {
+            $config = $this->config;
+            try {
+                if (is_int($config['campaignId'])) {
+                    // In the future a core fix may provide the correct campaign id.
+                    $this->campaign = $this->em->getReference(
+                        'Mautic\CampaignBundle\Enitity\Campaign',
+                        $config['campaignId']
+                    );
+                } else {
+                    // Otherwise we must obtain it from the unit of work.
+                    $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
+                    if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
+                        /** @var \Mautic\LeadBundle\Entity\LeadEventLog $leadEventLog */
+                        foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
+                            $properties = $leadEventLog->getEvent()->getProperties();
+                            if (
+                                $properties['_token'] === $config['_token']
+                                && $properties['campaignId'] === $config['campaignId']
+                            ) {
+                                $this->campaign = $leadEventLog->getCampaign();
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+            }
+        }
+
+        return $this->campaign;
+    }
+
+    /**
+     * @param Lead $lead
+     */
+    public function applyCost($lead)
+    {
         $costPerEnhancement = $this->getCostPerEnhancement();
         if (null !== $costPerEnhancement) {
             $attribution = $lead->getFieldValue('attribution');
@@ -199,48 +259,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 $attribution
             );
         }
-        if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            $this->logger->warning('Enhancer completed event triggered');
-            $campaign = null;
-            if (is_int($config['campaignId'])) {
-                // In the future a core fix may provide the correct campaign id.
-                $campaign = $this->em->getReference('Mautic\CampaignBundle\Enitity\Campaign', $config['campaignId']);
-            } else {
-                // Otherwise we must obtain it from the unit of work.
-                try {
-                    $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
-                    if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
-                        foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
-                            $properties = $leadEventLog->getEvent()->getProperties();
-                            if (
-                                $properties['_token'] === $config['_token']
-                                && $properties['campaignId'] === $config['campaignId']
-                            ) {
-                                $campaign = $leadEventLog->getCampaign();
-                                break;
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                }
-            }
-            if (null !== $campaign) {
-                $complete = new MauticEnhancerEvent($this, $lead, $campaign);
-                $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-            } else {
-                throw new \Exception(
-                    'Should we allow null campaigns...for example some sort of data backfill opperation?'
-                );
-            }
-        }
     }
-
-    /**
-     * @param Lead $lead
-     *
-     * @return mixed
-     */
-    abstract public function doEnhancement(Lead &$lead);
 
     /**
      * Return null if there is no cost attributed to the integration.
@@ -256,5 +275,20 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function getId()
     {
         return $this->getIntegrationSettings()->getId();
+    }
+
+    /**
+     * @param $lead
+     */
+    public function saveLead($lead)
+    {
+        $event = new ContactLedgerContextEvent(
+            $this->campaign, $this, 'enhanced', $lead
+        );
+        $this->dispatcher->dispatch(
+            'mauticplugin.contactledger.context_create',
+            $event
+        );
+        $this->leadModel->saveEntity($lead);
     }
 }
