@@ -190,6 +190,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @param Lead  $lead
      * @param array $config
+     *
+     * @return bool
      */
     public function pushLead(Lead &$lead, array $config = [])
     {
@@ -209,6 +211,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         }
         $event = new MauticEnhancerEvent($this, $lead, $this->getCampaign());
         $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $event);
+
+        // Always return true to prevent campaign actions from being halted, even if an enhancer fails.
+        return true;
     }
 
     /**
