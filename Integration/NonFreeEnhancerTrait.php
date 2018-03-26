@@ -16,8 +16,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
  */
 trait NonFreeEnhancerTrait
 {
-
-    /** @var integer */
+    /** @var int */
     protected $cost_per_enhancement;
 
     /**
