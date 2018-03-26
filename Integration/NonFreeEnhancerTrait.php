@@ -16,6 +16,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
  */
 trait NonFreeEnhancerTrait
 {
+    /** @var int */
     protected $cost_per_enhancement;
 
     /**
@@ -25,7 +26,7 @@ trait NonFreeEnhancerTrait
     {
         if (!isset($this->cost_per_enhancement)) {
             $settings                   = $this->getIntegrationSettings()->getFeatureSettings();
-            $this->cost_per_enhancement = $settings['cost_per_enhancement'];
+            $this->cost_per_enhancement = !empty($settings['cost_per_enhancement']) ? $settings['cost_per_enhancement'] : 0;
         }
 
         return $this->cost_per_enhancement;

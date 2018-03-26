@@ -12,7 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use DateTime;
-use Exception;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
@@ -100,9 +99,9 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        //field name can be dynamic, with the field name picked up througn the config
-        // see the random plugin
-        try {
+        if (!empty($lead)) {
+            // Field name can be dynamic, with the field name picked up through the config
+            // see the random plugin.
             $dob = $lead->getFieldValue('afb_dob');
             if (isset($dob)) {
                 $today = new DateTime();
@@ -112,7 +111,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                     $this->saveLead($lead);
                 }
             }
-        } catch (Exception $e) {
         }
     }
 }

@@ -217,53 +217,55 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function doEnhancement(Lead &$lead)
     {
-        if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
-            return;
-        }
-
-        $phone = $lead->getPhone();
-        if (10 === strlen($phone)) {
-            $phone = '1'.$phone;
-        }
-        if (11 !== strlen($phone)) {
-            return false;
-        }
-
-        $keys = $this->getKeys();
-
-        $params = [
-            'key' => $keys['apikey'],
-            'tn'  => $phone,
-        ];
-
-        $settings = $this->getIntegrationSettings()->getFeatureSettings();
-        foreach ($settings as $param => $value) {
-            if ('ani' === $param) {
-                //the value of ani should be a phone number
-                //but this service is currently unused
-                continue;
-            } elseif ('output' === $param) {
-                $params['output'] = $value;
-            } elseif (in_array($param, ['extended', 'dnc'])) {
-                $params[$param] = ($value ? 'true' : 'false');
+        if (!empty($lead)) {
+            if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
+                return;
             }
+
+            $phone = $lead->getPhone();
+            if (10 === strlen($phone)) {
+                $phone = '1'.$phone;
+            }
+            if (11 !== strlen($phone)) {
+                return false;
+            }
+
+            $keys = $this->getKeys();
+
+            $params = [
+                'key' => $keys['apikey'],
+                'tn'  => $phone,
+            ];
+
+            $settings = $this->getIntegrationSettings()->getFeatureSettings();
+            foreach ($settings as $param => $value) {
+                if ('ani' === $param) {
+                    //the value of ani should be a phone number
+                    //but this service is currently unused
+                    continue;
+                } elseif ('output' === $param) {
+                    $params['output'] = $value;
+                } elseif (in_array($param, ['extended', 'dnc'])) {
+                    $params[$param] = ($value ? 'true' : 'false');
+                }
+            }
+
+            $response = $this->makeRequest(
+                $keys['server'],
+                ['append_to_query' => $params],
+                'GET',
+                ['ignore_event_dispatch' => 1]
+            );
+
+            $this->applyCost($lead);
+
+            foreach ($response as $label => $value) {
+                $alias   = 'alcazar_'.strtolower($label);
+                $default = $lead->getFieldValue($alias);
+                $lead->addUpdatedField($alias, $value, $default);
+            }
+
+            $this->saveLead($lead);
         }
-
-        $response = $this->makeRequest(
-            $keys['server'],
-            ['append_to_query' => $params],
-            'GET',
-            ['ignore_event_dispatch' => 1]
-        );
-
-        $this->applyCost($lead);
-
-        foreach ($response as $label => $value) {
-            $alias   = 'alcazar_'.strtolower($label);
-            $default = $lead->getFieldValue($alias);
-            $lead->addUpdatedField($alias, $value, $default);
-        }
-
-        $this->saveLead($lead);
     }
 }

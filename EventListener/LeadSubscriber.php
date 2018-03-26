@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\EventListener;
 use Mautic\CoreBundle\EventListener\CommonSubscriber;
 use Mautic\LeadBundle\Event\LeadEvent;
 use Mautic\LeadBundle\LeadEvents;
+use Mautic\PluginBundle\Exception\ApiErrorException;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 
 /**
@@ -48,6 +49,8 @@ class LeadSubscriber extends CommonSubscriber
      * Runs enhancements before the Lead is persisted.
      *
      * @param LeadEvent $event
+     *
+     * @throws ApiErrorException
      */
     public function doAutoRunEnhancements(LeadEvent $event)
     {
@@ -60,8 +63,20 @@ class LeadSubscriber extends CommonSubscriber
                 if ($integration->getIntegrationSettings()->getIsPublished()) {
                     $keys = $integration->getKeys();
                     if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
-                        $lead = $event->getLead();
-                        $integration->doEnhancement($lead);
+                        try {
+                            $lead = $event->getLead();
+                            $integration->doEnhancement($lead);
+                        } catch (\Exception $exception) {
+                            $e = new ApiErrorException(
+                                'There was an issue using enhancer: '.$integration->getName(),
+                                0,
+                                $exception
+                            );
+                            if (!empty($lead)) {
+                                $e->setContact($lead);
+                            }
+                            throw $e;
+                        }
                     }
                 }
             }
@@ -70,6 +85,8 @@ class LeadSubscriber extends CommonSubscriber
 
     /**
      * @param LeadEvent $event
+     *
+     * @throws ApiErrorException
      */
     public function doPostSaveEnhancements(LeadEvent $event)
     {
@@ -81,7 +98,20 @@ class LeadSubscriber extends CommonSubscriber
             if ($integration->isConfigured() && $integration->getIntegrationSettings()->getIsPublished()) {
                 $keys = $integration->getKeys();
                 if ($keys['autorun_enabled']) {
-                    $integration->doEnhancement($event->getLead());
+                    try {
+                        $lead = $event->getLead();
+                        $integration->doEnhancement($lead);
+                    } catch (\Exception $exception) {
+                        $e = new ApiErrorException(
+                            'There was an issue using enhancer: '.$integration->getName(),
+                            0,
+                            $exception
+                        );
+                        if (!empty($lead)) {
+                            $e->setContact($lead);
+                        }
+                        throw $e;
+                    }
                 }
             }
         }
