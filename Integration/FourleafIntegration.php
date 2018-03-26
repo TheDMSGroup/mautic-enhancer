@@ -87,42 +87,44 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function doEnhancement(Lead &$lead)
     {
-        $algo  = $lead->getFieldValue('fourleaf_algo');
-        $email = $lead->getEmail();
+        if (!empty($lead)) {
+            $algo  = $lead->getFieldValue('fourleaf_algo');
+            $email = $lead->getEmail();
 
-        if ($algo || !$email) {
-            return;
-        }
-
-        $keys = $this->getDecryptedApiKeys();
-
-        // @todo - Update to use Guzzle.
-        $options = [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL            => $keys['url'].$lead->getEmail(),
-            CURLOPT_HTTPHEADER     => [
-                "x-fourleaf-id: $keys[id]",
-                "x-fourleaf-key: $keys[key]",
-            ],
-        ];
-
-        $ch = curl_init();
-        curl_setopt_array($ch, $options);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $response = json_decode($response, true);
-
-        $this->applyCost($lead);
-
-        foreach ($response as $key => $value) {
-            if ('md5' === $key) {
-                continue;
+            if ($algo || !$email) {
+                return;
             }
-            $alias   = 'fourleaf_'.str_replace('user_', '', $key);
-            $default = $lead->getFieldValue($alias);
-            $lead->addUpdatedField($alias, $value, $default);
+
+            $keys = $this->getDecryptedApiKeys();
+
+            // @todo - Update to use Guzzle.
+            $options = [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_URL            => $keys['url'].$lead->getEmail(),
+                CURLOPT_HTTPHEADER     => [
+                    "x-fourleaf-id: $keys[id]",
+                    "x-fourleaf-key: $keys[key]",
+                ],
+            ];
+
+            $ch = curl_init();
+            curl_setopt_array($ch, $options);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            $response = json_decode($response, true);
+
+            $this->applyCost($lead);
+
+            foreach ($response as $key => $value) {
+                if ('md5' === $key) {
+                    continue;
+                }
+                $alias   = 'fourleaf_'.str_replace('user_', '', $key);
+                $default = $lead->getFieldValue($alias);
+                $lead->addUpdatedField($alias, $value, $default);
+            }
+            $this->saveLead($lead);
         }
-        $this->saveLead($lead);
     }
 }
