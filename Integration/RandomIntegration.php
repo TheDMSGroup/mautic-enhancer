@@ -95,10 +95,12 @@ class RandomIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        $settings = $this->getIntegrationSettings()->getFeatureSettings();
+        if (!empty($lead)) {
+            $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
-        if (!$lead->getFieldValue($settings['random_field_name'])) {
-            $lead->{$settings['random_field_name']} = rand(1, 101);
+            if (!$lead->getFieldValue($settings['random_field_name'])) {
+                $lead->{$settings['random_field_name']} = rand(1, 101);
+            }
         }
     }
 }

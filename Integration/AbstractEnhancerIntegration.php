@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\Event\ContactLedgerContextEvent;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
@@ -194,7 +195,18 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     {
         $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
         $this->config = $config;
-        $this->doEnhancement($lead);
+        try {
+            $this->doEnhancement($lead);
+        } catch (\Exception $exception) {
+            $this->logIntegrationError(
+                new ApiErrorException(
+                    'There was an issue using enhancer: '.$this->getName(),
+                    0,
+                    $exception
+                ),
+                $lead
+            );
+        }
         $event = new MauticEnhancerEvent($this, $lead, $this->getCampaign());
         $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $event);
     }
