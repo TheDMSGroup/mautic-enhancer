@@ -74,27 +74,27 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             'fourleaf_algo'           => [
                 'label'  => 'Fourleaf Algo',
                 'type'   => 'string',
-                'object' => $object
+                'object' => $object,
             ],
             'fourleaf_low_intel'      => [
                 'label'  => 'Fourleaf Low Intel',
                 'type'   => 'boolean',
-                'object' => $object
+                'object' => $object,
             ],
             'fourleaf_activity_score' => [
                 'label'  => 'Fourleaf Activity Score',
                 'type'   => 'integer',
-                'object' => $object
+                'object' => $object,
             ],
             'fourleaf_hygiene_reason' => [
                 'label'  => 'Fourleaf Hygiene Reason',
                 'type'   => 'string',
-                'object' => $object
+                'object' => $object,
             ],
             'fourleaf_hygiene_score'  => [
                 'label'  => 'Fourleaf Hygiene Score',
                 'type'   => 'integer',
-                'object' => $object
+                'object' => $object,
             ],
         ];
     }
