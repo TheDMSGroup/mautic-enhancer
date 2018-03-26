@@ -99,7 +99,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         static $fields = [];
 
         if (empty($fields)) {
-            // $name = $this->getName();
+            $s = $this->getName();
             $available = $this->getAvailableLeadFields($settings);
             if (empty($available) || !is_array($available)) {
                 return [];
