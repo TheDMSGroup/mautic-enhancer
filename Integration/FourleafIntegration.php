@@ -66,35 +66,26 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     protected function getEnhancerFieldArray()
     {
-        $object = class_exists(
-            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
-        ) ? 'extendedField' : 'lead';
-
         return [
             'fourleaf_algo'           => [
                 'label'  => 'Fourleaf Algo',
                 'type'   => 'string',
-                'object' => $object,
             ],
             'fourleaf_low_intel'      => [
                 'label'  => 'Fourleaf Low Intel',
                 'type'   => 'boolean',
-                'object' => $object,
             ],
             'fourleaf_activity_score' => [
                 'label'  => 'Fourleaf Activity Score',
                 'type'   => 'integer',
-                'object' => $object,
             ],
             'fourleaf_hygiene_reason' => [
                 'label'  => 'Fourleaf Hygiene Reason',
                 'type'   => 'string',
-                'object' => $object,
             ],
             'fourleaf_hygiene_score'  => [
                 'label'  => 'Fourleaf Hygiene Score',
                 'type'   => 'integer',
-                'object' => $object,
             ],
         ];
     }

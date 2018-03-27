@@ -103,15 +103,23 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     protected function getEnhancerFieldArray()
     {
-        $object = class_exists(
-            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
-        ) ? 'extendedField' : 'lead';
-
         return [
-            'email_valid'     => ['label' => 'emailIsValid', 'type' => 'boolean', 'object' => $object],
-            'workphone_valid' => ['label' => 'work_phoneIsValid', 'type' => 'boolean', 'object' => $object],
-            'cellphone_valid' => ['label' => 'cell_phoneIsValid', 'type' => 'boolean', 'object' => $object],
-            'homephone_valid' => ['label' => 'home_phoneIsValid', 'type' => 'boolean', 'object' => $object],
+            'email_valid'     => [
+                'label' => 'Xverify&quot;d Email',
+                'type'  => 'boolean',
+            ],
+            'workphone_valid' => [
+                'label' => 'Xverify&quot;d Work Phone',
+                'type'  => 'boolean',
+            ],
+            'cellphone_valid' => [
+                'label' => 'Xverify&quot;d Mobile Phone',
+                'type'  => 'boolean',
+            ],
+            'homephone_valid' => [
+                'label' => 'Xverify&quot;d Home Phone',
+                'type'  => 'boolean',
+            ],
         ];
     }
 
