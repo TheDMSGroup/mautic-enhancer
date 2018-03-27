@@ -35,7 +35,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @return string
      */
-    private static function getObjectName() {
+    private static function getObjectName()
+    {
         if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
             return 'extendedField';
         }

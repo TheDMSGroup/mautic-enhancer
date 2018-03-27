@@ -106,19 +106,19 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
         return [
             'email_valid'     => [
                 'label' => 'Xverify&quot;d Email',
-                'type' => 'boolean'
+                'type'  => 'boolean',
             ],
             'workphone_valid' => [
                 'label' => 'Xverify&quot;d Work Phone',
-                'type' => 'boolean'
+                'type'  => 'boolean',
             ],
             'cellphone_valid' => [
                 'label' => 'Xverify&quot;d Mobile Phone',
-                'type' => 'boolean'
+                'type'  => 'boolean',
             ],
             'homephone_valid' => [
                 'label' => 'Xverify&quot;d Home Phone',
-                'type' => 'boolean'
+                'type'  => 'boolean',
             ],
         ];
     }
