@@ -33,6 +33,17 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     protected $campaign;
 
     /**
+     * @return string
+     */
+    private static function getObjectName() {
+        if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
+            return 'extendedField';
+        }
+
+        return 'lead';
+    }
+
+    /**
      * @throws \Doctrine\DBAL\DBALException
      */
     public function buildEnhancerFields()
@@ -55,6 +66,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
                 $new_field->setOrder(++$count);
+                //set extended/lead in one place,
+                $new_field->setObject(self::getObjectName());
 
                 foreach ($properties as $property => $value) {
                     $method = 'set'.implode('', array_map('ucfirst', explode('_', $property)));

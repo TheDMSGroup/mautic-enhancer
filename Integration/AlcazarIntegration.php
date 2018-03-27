@@ -143,21 +143,16 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     protected function getEnhancerFieldArray()
     {
-        $object_name = class_exists(
-            'MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle'
-        ) ? 'extendedField' : 'lead';
-
         $field_list = [
             'alcazar_lrn' => [
                 'label'  => 'LRN',
-                'object' => $object_name,
             ],
         ];
 
         $feature_settings = $this->getIntegrationSettings()->getFeatureSettings();
 
         if ($feature_settings['extended']) {
-            $field_list += $this->getAlcazarExtendedFields($object_name);
+            $field_list += $this->getAlcazarExtendedFields();
         }
 
         return $field_list;
@@ -168,44 +163,35 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
      *
      * @return array[]
      */
-    private function getAlcazarExtendedFields($object_name)
+    private function getAlcazarExtendedFields()
     {
         return [
             'alcazar_spid'         => [
                 'label'  => 'SPID',
-                'object' => $object_name,
             ],
             'alcazar_ocn'          => [
                 'label'  => 'OCN',
-                'object' => $object_name,
             ],
             'alcazar_lata'         => [
                 'label'  => 'LATA',
-                'object' => $object_name,
             ],
             'alcazar_city'         => [
                 'label'  => 'CITY',
-                'object' => $object_name,
             ],
             'alcazar_state'        => [
                 'label'  => 'STATE',
-                'object' => $object_name,
             ],
             'alcazar_lec'          => [
                 'label'  => 'LEC',
-                'object' => $object_name,
             ],
             'alcazar_linetype'     => [
                 'label'  => 'LINETYPE',
-                'object' => $object_name,
             ],
             'alcazar_dnc'          => [
                 'label'  => 'DNC',
-                'object' => $object_name,
             ],
             'alcazar_jurisdiction' => [
                 'label'  => 'JURISDICTION',
-                'object' => $object_name,
             ],
         ];
     }
