@@ -15,5 +15,5 @@ final class MauticEnhancerEvents
      *
      * @var string
      */
-    const ENHANCER_COMPLETED = 'mauticplugin.mautic_enhancer.enhancer_complete';
+    const ENHANCER_COMPLETED = 'mautic.mautic_enhancer.enhancer_complete';
 }

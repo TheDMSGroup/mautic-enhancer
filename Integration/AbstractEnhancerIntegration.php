@@ -317,7 +317,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             $this->campaign, $this, 'enhanced', $lead
         );
         $this->dispatcher->dispatch(
-            'mauticplugin.contactledger.context_create',
+            'mautic.contactledger.context_create',
             $event
         );
         $this->leadModel->saveEntity($lead);
