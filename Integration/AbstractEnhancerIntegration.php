@@ -281,7 +281,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function applyCost($lead)
     {
         $costPerEnhancement = $this->getCostPerEnhancement();
-        if (null !== $costPerEnhancement) {
+        if ($costPerEnhancement) {
             $attribution = $lead->getFieldValue('attribution');
             // $lead->attribution -= $costPerEnhancement;
             $lead->addUpdatedField(
