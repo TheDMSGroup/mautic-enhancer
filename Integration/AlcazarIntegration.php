@@ -159,8 +159,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     }
 
     /**
-     * @param string $object_name
-     *
      * @return array[]
      */
     private function getAlcazarExtendedFields()
@@ -245,10 +243,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
             $this->applyCost($lead);
 
+            $allowedAliases = $this->getAlcazarExtendedFields();
             foreach ($response as $label => $value) {
                 $alias   = 'alcazar_'.strtolower($label);
-                $default = $lead->getFieldValue($alias);
-                $lead->addUpdatedField($alias, $value, $default);
+                if (isset($allowedAliases[$alias])) {
+                    $default = $lead->getFieldValue($alias);
+                    $lead->addUpdatedField($alias, $value, $default);
+                }
             }
 
             $this->saveLead($lead);
