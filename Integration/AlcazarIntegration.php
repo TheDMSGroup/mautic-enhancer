@@ -165,31 +165,31 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     {
         return [
             'alcazar_spid'         => [
-                'label'  => 'SPID',
+                'label'  => 'Alcazar SPID',
             ],
             'alcazar_ocn'          => [
-                'label'  => 'OCN',
+                'label'  => 'Alcazar OCN',
             ],
             'alcazar_lata'         => [
-                'label'  => 'LATA',
+                'label'  => 'Alcazar LATA',
             ],
             'alcazar_city'         => [
-                'label'  => 'CITY',
+                'label'  => 'Alcazar City',
             ],
             'alcazar_state'        => [
-                'label'  => 'STATE',
+                'label'  => 'Alcazar State',
             ],
             'alcazar_lec'          => [
-                'label'  => 'LEC',
+                'label'  => 'Alcazar LEC',
             ],
             'alcazar_linetype'     => [
-                'label'  => 'LINETYPE',
+                'label'  => 'Alcazar Line Type',
             ],
             'alcazar_dnc'          => [
-                'label'  => 'DNC',
+                'label'  => 'Alcazar DNC',
             ],
             'alcazar_jurisdiction' => [
-                'label'  => 'JURISDICTION',
+                'label'  => 'Alcazar Jurisdiction',
             ],
         ];
     }
