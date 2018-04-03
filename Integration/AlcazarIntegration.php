@@ -145,7 +145,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     {
         $field_list = [
             'alcazar_lrn' => [
-                'label'  => 'LRN',
+                'label' => 'LRN',
             ],
         ];
 
@@ -165,31 +165,31 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     {
         return [
             'alcazar_spid'         => [
-                'label'  => 'Alcazar SPID',
+                'label' => 'Alcazar SPID',
             ],
             'alcazar_ocn'          => [
-                'label'  => 'Alcazar OCN',
+                'label' => 'Alcazar OCN',
             ],
             'alcazar_lata'         => [
-                'label'  => 'Alcazar LATA',
+                'label' => 'Alcazar LATA',
             ],
             'alcazar_city'         => [
-                'label'  => 'Alcazar City',
+                'label' => 'Alcazar City',
             ],
             'alcazar_state'        => [
-                'label'  => 'Alcazar State',
+                'label' => 'Alcazar State',
             ],
             'alcazar_lec'          => [
-                'label'  => 'Alcazar LEC',
+                'label' => 'Alcazar LEC',
             ],
             'alcazar_linetype'     => [
-                'label'  => 'Alcazar Line Type',
+                'label' => 'Alcazar Line Type',
             ],
             'alcazar_dnc'          => [
-                'label'  => 'Alcazar DNC',
+                'label' => 'Alcazar DNC',
             ],
             'alcazar_jurisdiction' => [
-                'label'  => 'Alcazar Jurisdiction',
+                'label' => 'Alcazar Jurisdiction',
             ],
         ];
     }
@@ -207,11 +207,12 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             }
 
             $phone = $lead->getPhone();
+            $phone = preg_replace('/[^0-9]/', '', $phone);
             if (10 === strlen($phone)) {
                 $phone = '1'.$phone;
             }
             if (11 !== strlen($phone)) {
-                return false;
+                return;
             }
 
             $keys = $this->getKeys();
