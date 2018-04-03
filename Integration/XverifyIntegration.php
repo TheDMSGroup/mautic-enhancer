@@ -148,7 +148,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 $response      = $status = $service = $fieldKey = null;
                 $fieldToUpdate = $integrationFieldName.'_valid'; //which validation field will we update?
                 try {
-                    $fieldValue = $lead->$mauticFieldName;
+                    $fieldValue = $lead->getFieldValue($mauticFieldName);
                     if (!empty($fieldValue)) {
                         switch ($integrationFieldName) {
                             case 'cellphone':
@@ -157,7 +157,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 // phone API call
                                 $service  = 'phone';
                                 $fieldKey = 'phone';
-                                if (is_null($lead->$fieldToUpdate)) { // only if we havent checked already
+                                if (is_null($lead->getFieldValue($fieldToUpdate))) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                                     $this->applyCost($lead);
                                     $persist = true;
@@ -175,7 +175,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 // email API call
                                 $service  = 'emails';
                                 $fieldKey = 'email';
-                                if (is_null($lead->$fieldToUpdate)) { // only if we havent checked already
+                                if (is_null($lead->getFieldValue($fieldToUpdate))) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                                     $this->applyCost($lead);
                                     $persist = true;
@@ -206,14 +206,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
             if ($persist) {
                 $this->saveLead($lead);
-            } // TODO why wont custom fields persist to DB?
-
-            // This would be a duplicate event now.
-            // if ($this->dispatcher->hasListeners(MauticEnhancerEvents::ENHANCER_COMPLETED)) {
-            //     $isNew    = !$lead->getId();
-            //     $complete = new MauticEnhancerEvent($this, $lead, $isNew);
-            //     $this->dispatcher->dispatch(MauticEnhancerEvents::ENHANCER_COMPLETED, $complete);
-            // }
+            }
         }
     }
 
