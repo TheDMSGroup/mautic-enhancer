@@ -45,6 +45,11 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
         ],
+        'commands' => [
+            'mautic.enhancer.command.zipcodeimport' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Command\InstallZipCodeDataCommand::class,
+            ],
+        ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
