@@ -30,8 +30,21 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
 
     public function doEnhancement(Lead &$lead)
     {
+        if (!($lead->getCity() && $lead->getState()) && $lead->getZipcode()) {
+            /** @var \MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStateZipRepository $repo */
+            $repo = $this->em->getRepository('\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStateZip');
 
-        $zipcode = $lead->getZipcode();
+            $cityStateZip = $repo->findOneBy(['zip_code' => $lead->getZipcode()]);
+            if ($cityStateZip) {
+                if (!$lead->getCity()) {
+                    $lead->addUpdatedField('city', $cityStateZip->getCity());
+                }
+                if (!$lead->getState()) {
+                    $lead->addUpdatedField('state', $cityStateZip->getState());
+                }
+            }
+        }
+
     }
 
     public function getAuthenticationType()
@@ -47,21 +60,14 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        $builder
-            ->add(
-                'resource',
-                'text',
+        if ('features' === $formArea) {
+            $builder->add(
+                'autorun_enabled',
+                'hidden',
                 [
-                    'data' => $data['resource']
-                ]
-            )
-            ->add(
-                'import',
-                'yesno_button_group',
-                [
-                    'data' => $data['import']
+                    'data' => true,
                 ]
             );
-
+        }
     }
 }

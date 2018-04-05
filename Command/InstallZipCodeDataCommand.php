@@ -9,7 +9,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
-use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerZipCityState;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZip;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,7 +48,7 @@ class InstallZipCodeDataCommand extends ModeratedCommand
                 //skips non-us, PR, and military bases
                 continue;
             }
-            $zipCityState = new PluginsEnhancerZipCityState();
+            $zipCityState = new PluginsEnhancerCityStateZip();
             $zipCityState
                 ->setZipcode($data[1])
                 ->setState($data[2])
