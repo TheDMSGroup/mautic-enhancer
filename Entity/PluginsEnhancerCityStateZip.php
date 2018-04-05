@@ -21,13 +21,13 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable('enhancer_citystatezip')
+        $builder->setTable('plugin_enhancer_citystatezip')
             ->setCustomRepositoryClass(
                 'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZipRepository'
             );
 
         $builder->addId();
-        $builder->addDateAdded();
+
 
         $builder->createField('zipCode', 'string')
             ->columnName('zip_code')
@@ -80,6 +80,11 @@ class PluginsEnhancerCityStateZip extends CommonEntity
         return $this;
     }
 
+
+    /**
+     * @param string $dateAdded
+     */
+
     /**
      * @return string
      */
@@ -102,11 +107,6 @@ class PluginsEnhancerCityStateZip extends CommonEntity
      * @var int
      */
     protected $id;
-
-    /**
-     * @var string
-     */
-    protected $dateAdded;
 
     /**
      * @var string
