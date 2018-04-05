@@ -3,13 +3,12 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 4/3/18
- * Time: 4:39 PM
+ * Time: 4:39 PM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 class CityStateFromZipIntegration extends AbstractEnhancerIntegration
 {
@@ -44,14 +43,12 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
                 }
             }
         }
-
     }
 
     public function getAuthenticationType()
     {
         return 'none';
     }
-
 
     /**
      * @param \Symfony\Component\Form\FormBuilderInterface $builder

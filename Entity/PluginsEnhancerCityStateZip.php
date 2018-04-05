@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 4/4/18
- * Time: 11:24 AM
+ * Time: 11:24 AM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Entity;
@@ -27,7 +27,6 @@ class PluginsEnhancerCityStateZip extends CommonEntity
             );
 
         $builder->addId();
-
 
         $builder->createField('zipCode', 'string')
             ->columnName('zip_code')
@@ -58,6 +57,7 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     public function setZipCode($zipCode)
     {
         $this->zipCode = $zipCode;
+
         return $this;
     }
 
@@ -77,9 +77,9 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     public function setCity($city)
     {
         $this->city = $city;
+
         return $this;
     }
-
 
     /**
      * @param string $dateAdded
@@ -95,11 +95,13 @@ class PluginsEnhancerCityStateZip extends CommonEntity
 
     /**
      * @param string $state
+     *
      * @return PluginsEnhancerCityStateZip
      */
     public function setState($state)
     {
         $this->state = $state;
+
         return $this;
     }
 
@@ -122,5 +124,4 @@ class PluginsEnhancerCityStateZip extends CommonEntity
      * @var string
      */
     protected $state;
-
 }
