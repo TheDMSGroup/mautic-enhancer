@@ -143,7 +143,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     {
         $field_list = [
             'alcazar_lrn' => [
-                'label' => 'LRN',
+                'label' => 'Alcazar LRN',
             ],
         ];
 
@@ -242,7 +242,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
             $this->applyCost($lead);
 
-            $allowedAliases = $this->getAlcazarExtendedFields();
+            $allowedAliases = $this->getEnhancerFieldArray();
             foreach ($response as $label => $value) {
                 $alias = 'alcazar_'.strtolower($label);
                 if (isset($allowedAliases[$alias])) {
