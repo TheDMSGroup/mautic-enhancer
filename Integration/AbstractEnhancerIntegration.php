@@ -33,18 +33,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     protected $campaign;
 
     /**
-     * @return string
-     */
-    private static function getObjectName()
-    {
-        if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
-            return 'extendedField';
-        }
-
-        return 'lead';
-    }
-
-    /**
      * @throws \Doctrine\DBAL\DBALException
      */
     public function buildEnhancerFields()
@@ -57,10 +45,11 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             $feature_settings = $integration->getFeatureSettings();
             $created          = isset($feature_settings['installed']) ? $feature_settings['installed'] : [];
             $creating         = $this->getEnhancerFieldArray();
+            $fieldList        = $this->fieldModel->getFieldList(false);
 
             foreach ($creating as $alias => $properties) {
-                if (in_array($alias, $created)) {
-                    //do not build an existing column
+                if (in_array($alias, $created) && in_array($alias, $fieldList)) {
+                    // The field already exists.
                     continue;
                 }
 
@@ -81,7 +70,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 }
 
                 $this->fieldModel->saveEntity($new_field);
-                $created[] = $alias;
+                if (!in_array($alias, $created)) {
+                    $created[] = $alias;
+                }
             }
 
             $feature_settings['installed'] = $created;
@@ -93,6 +84,18 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      * @returns array[]
      */
     abstract protected function getEnhancerFieldArray();
+
+    /**
+     * @return string
+     */
+    private static function getObjectName()
+    {
+        if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
+            return 'extendedField';
+        }
+
+        return 'lead';
+    }
 
     /**
      * @return string
