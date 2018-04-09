@@ -18,9 +18,7 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    /*
-     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
-     */
+    /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
     use NonFreeEnhancerTrait {
         appendToForm as appendNonFreeFields;
     }
@@ -246,7 +244,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
 
             $allowedAliases = $this->getAlcazarExtendedFields();
             foreach ($response as $label => $value) {
-                $alias   = 'alcazar_'.strtolower($label);
+                $alias = 'alcazar_'.strtolower($label);
                 if (isset($allowedAliases[$alias])) {
                     $default = $lead->getFieldValue($alias);
                     $lead->addUpdatedField($alias, $value, $default);

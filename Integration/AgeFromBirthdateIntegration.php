@@ -50,12 +50,12 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     {
         return [
             'afb_age' => [
-                'label'  => 'Age',
-                'type'   => 'number',
+                'label' => 'Age',
+                'type'  => 'number',
             ],
             'afb_dob' => [
-                'label'  => 'Date of Birth',
-                'type'   => 'date',
+                'label' => 'Date of Birth',
+                'type'  => 'date',
             ],
         ];
     }

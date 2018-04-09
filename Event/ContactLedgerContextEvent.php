@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic Community
+ * @author      Mautic, Inc
  *
  * @link        http://mautic.org
  *
