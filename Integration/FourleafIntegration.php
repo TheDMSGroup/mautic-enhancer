@@ -67,7 +67,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
         return [
             'fourleaf_algo'           => [
                 'label' => 'Fourleaf Algo',
-                'type'  => 'string',
+                'type'  => 'text',
             ],
             'fourleaf_low_intel'      => [
                 'label' => 'Fourleaf Low Intel',
@@ -75,15 +75,15 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             ],
             'fourleaf_activity_score' => [
                 'label' => 'Fourleaf Activity Score',
-                'type'  => 'integer',
+                'type'  => 'number',
             ],
             'fourleaf_hygiene_reason' => [
                 'label' => 'Fourleaf Hygiene Reason',
-                'type'  => 'string',
+                'type'  => 'text',
             ],
             'fourleaf_hygiene_score'  => [
                 'label' => 'Fourleaf Hygiene Score',
-                'type'  => 'integer',
+                'type'  => 'number',
             ],
         ];
     }

@@ -89,10 +89,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     public function getAvailableLeadFields($settings = [])
     {
         return [
-            'email'     => ['type' => 'string'],
-            'homephone' => ['type' => 'string'],
-            'cellphone' => ['type' => 'string'],
-            'workphone' => ['type' => 'string'],
+            'email'     => ['type' => 'text'],
+            'homephone' => ['type' => 'text'],
+            'cellphone' => ['type' => 'text'],
+            'workphone' => ['type' => 'text'],
         ];
     }
 
