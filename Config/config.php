@@ -44,6 +44,9 @@ return [
             'mautic.enhancer.integration.xverify'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
+            'mautic.enhancer.integration.citystatefromzip'          => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromZipIntegration::class
+            ],
         ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [

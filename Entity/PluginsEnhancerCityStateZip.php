@@ -14,32 +14,31 @@ use Mautic\CoreBundle\Entity\CommonEntity;
 
 class PluginsEnhancerCityStateZip extends CommonEntity
 {
+
     /**
-     * @param ClassMetadata $metadata
+     * @var int
      */
-    public static function loadMetadata(ClassMetadata $metadata)
-    {
-        $builder = new ClassMetadataBuilder($metadata);
+    protected $id;
 
-        $builder->setTable('plugin_enhancer_citystatezip')
-            ->setCustomRepositoryClass(
-                'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZipRepository'
-            );
+    /**
+     * @var string
+     */
+    protected $zipCode;
 
-        $builder->addId();
+    /**
+     * @var string
+     */
+    protected $city;
 
-        $builder->createField('zipCode', 'string')
-            ->columnName('zip_code')
-            ->build();
+    /**
+     * @var string
+     */
+    protected $state;
 
-        $builder->createField('city', 'string')
-            ->nullable()
-            ->build();
-
-        $builder->createField('state', 'string')
-            ->nullable()
-            ->build();
-    }
+    /**
+     * @var string
+     */
+    protected $country;
 
     /**
      * @return string
@@ -106,22 +105,52 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     }
 
     /**
-     * @var int
+     * @return string
      */
-    protected $id;
+    public function getCountry()
+    {
+        return $this->country;
+    }
 
     /**
-     * @var string
+     * @param string $country
+     *
+     * @return PluginsEnhancerCityStateZip
      */
-    protected $zipCode;
+    public function setCountry($country)
+    {
+        $this->country = $country;
+
+        return $this;
+    }
 
     /**
-     * @var string
+     * @param ClassMetadata $metadata
      */
-    protected $city;
+    public static function loadMetadata(ClassMetadata $metadata)
+    {
+        $builder = new ClassMetadataBuilder($metadata);
 
-    /**
-     * @var string
-     */
-    protected $state;
+        $builder->setTable('plugin_enhancer_citystatezip')
+            ->setCustomRepositoryClass(
+                'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZipRepository'
+            );
+
+        $builder->addId();
+
+        $builder->createField('zipCode', 'string')
+            ->columnName('zip_code')
+            ->build();
+
+        $builder->createField('city', 'string')
+            ->nullable()
+            ->build();
+
+        $builder->createField('state', 'string')
+            ->nullable()
+            ->build();
+
+        $builder->createField('country', 'string')
+            ->build();
+    }
 }

@@ -27,8 +27,11 @@ class InstallZipCodeDataCommand extends ModeratedCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $filePath =
+        $fileBaseName = 'allCountries';
         $em       = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $filename = $input->getArgument('filename');
+
+
         if (!file_exists($filename)) {
             // determine required stream interfaces?
         }

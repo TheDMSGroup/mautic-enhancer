@@ -8,10 +8,21 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\ORM\Tools\SchemaTool;
+use Mautic\CoreBundle\Doctrine\Helper\TableSchemaHelper;
+use Mautic\CoreBundle\Helper\CoreParametersHelper;
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZip;
 
 class CityStateFromZipIntegration extends AbstractEnhancerIntegration
 {
+    /**
+     * @var CoreParametersHelper
+     */
+    protected $parametersHelper;
+
+
     public function getName()
     {
         return 'CityStateFromZip';
@@ -24,16 +35,38 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
 
     protected function getEnhancerFieldArray()
     {
+        //make sure the entity table is built
+        //doing this here because this is essentially the integrations install method
+        $schemaManager = $this->em->getConnection()->getSchemaManager();
+
+        $metadata = $this->em->getClassMetadata($this->getEntityName());
+        $table = $metadata->tableGeneratorDefinition();
+        $schemaManager->createTable($table);
+
         return [];
     }
+
+    /**
+     * @return string
+     */
+    public function getEntityName()
+    {
+        return PluginsEnhancerCityStateZip::class;
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZipRepository
+     */
+    public function getRepository()
+    {
+        return $this->em->getRepository($this->getEntityName());
+    }
+
 
     public function doEnhancement(Lead &$lead)
     {
         if (!($lead->getCity() && $lead->getState()) && $lead->getZipcode()) {
-            /** @var \MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStateZipRepository $repo */
-            $repo = $this->em->getRepository('\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStateZip');
-
-            $cityStateZip = $repo->findOneBy(['zip_code' => $lead->getZipcode()]);
+            $cityStateZip = $this->getRepository()->findOneBy(['zip_code' => $lead->getZipcode()]);
             if ($cityStateZip) {
                 if (!$lead->getCity()) {
                     $lead->addUpdatedField('city', $cityStateZip->getCity());
@@ -45,6 +78,9 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
         }
     }
 
+    /**
+     * @return string
+     */
     public function getAuthenticationType()
     {
         return 'none';
@@ -52,8 +88,8 @@ class CityStateFromZipIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param \Symfony\Component\Form\FormBuilderInterface $builder
-     * @param array                                        $data
-     * @param string                                       $formArea
+     * @param array $data
+     * @param string $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
