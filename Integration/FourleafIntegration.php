@@ -18,9 +18,7 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    /*
-     * @var NonFreeEnhancerInterface
-     */
+    /* @var NonFreeEnhancerInterface */
     use NonFreeEnhancerTrait;
 
     /**
@@ -68,24 +66,24 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     {
         return [
             'fourleaf_algo'           => [
-                'label'  => 'Fourleaf Algo',
-                'type'   => 'string',
+                'label' => 'Fourleaf Algo',
+                'type'  => 'string',
             ],
             'fourleaf_low_intel'      => [
-                'label'  => 'Fourleaf Low Intel',
-                'type'   => 'boolean',
+                'label' => 'Fourleaf Low Intel',
+                'type'  => 'boolean',
             ],
             'fourleaf_activity_score' => [
-                'label'  => 'Fourleaf Activity Score',
-                'type'   => 'integer',
+                'label' => 'Fourleaf Activity Score',
+                'type'  => 'integer',
             ],
             'fourleaf_hygiene_reason' => [
-                'label'  => 'Fourleaf Hygiene Reason',
-                'type'   => 'string',
+                'label' => 'Fourleaf Hygiene Reason',
+                'type'  => 'string',
             ],
             'fourleaf_hygiene_score'  => [
-                'label'  => 'Fourleaf Hygiene Score',
-                'type'   => 'integer',
+                'label' => 'Fourleaf Hygiene Score',
+                'type'  => 'integer',
             ],
         ];
     }
@@ -128,7 +126,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
             $allowedAliases = $this->getEnhancerFieldArray();
             foreach ($response as $key => $value) {
-                $alias   = 'fourleaf_'.str_replace('user_', '', $key);
+                $alias = 'fourleaf_'.str_replace('user_', '', $key);
                 if (isset($allowedAliases[$alias])) {
                     $default = $lead->getFieldValue($alias);
                     $lead->addUpdatedField($alias, $value, $default);

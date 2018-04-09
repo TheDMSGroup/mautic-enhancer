@@ -18,9 +18,7 @@ use Mautic\PluginBundle\Helper\IntegrationHelper;
  */
 class EnhancerHelper
 {
-    /**
-     * @var IntegrationHelper
-     */
+    /** @var IntegrationHelper */
     protected $integrationHelper;
 
     /**
