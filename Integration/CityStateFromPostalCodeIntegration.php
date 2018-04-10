@@ -65,22 +65,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return string
-     */
-    public function getEntityName()
-    {
-        return PluginsEnhancerCityStatePostalCode::class;
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCodeRepository
-     */
-    public function getRepository()
-    {
-        return $this->em->getRepository($this->getEntityName());
-    }
-
-    /**
      * @param Lead $lead
      * @return void
      */

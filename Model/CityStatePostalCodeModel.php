@@ -11,6 +11,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Model;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\OptimisticLockException;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCode;
 
 class CityStatePostalCodeModel extends AbstractCommonModel
 {
@@ -19,27 +20,28 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     const REFERENCE_NAME  = 'allCountries.zip';
 
     /**
+     * @return string
+     */
+    public function getEntityName()
+    {
+        return PluginsEnhancerCityStatePostalCode::class;
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCodeRepository
+     */
+    public function getRepository()
+    {
+        return $this->em->getRepository($this->getEntityName());
+    }
+
+    /**
      */
     public function createReferenceTable()
     {
-        $sql = <<<EOSQL
-CREATE TABLE plugin_enhancer_citystatezip (
-  id            INT AUTO_INCREMENT NOT NULL, 
-  postal_code   VARCHAR(255) NOT NULL, 
-  city          VARCHAR(255) DEFAULT NULL, 
-  stateProvince VARCHAR(255) DEFAULT NULL, 
-  country       VARCHAR(255) DEFAULT NULL, 
-  PRIMARY KEY(id),
-  INDEX idx_postal_code (postal_code),
-  INDEX idx_country (country, postal_code)
-) 
-DEFAULT CHARACTER SET utf8 
-COLLATE utf8_unicode_ci 
-ENGINE = InnoDB
-EOSQL;
         try {
-            $this->em->getConnection()->exec($sql);
-        } catch (DBALException $e) {
+            $this->getRepository()->createReferenceTable();
+        } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
         }
     }
@@ -62,7 +64,7 @@ EOSQL;
                 while (!feof($fp)) {
                     $data = explode("\t", trim(fgets($fp)));
                     list($country, $postalCode, $city, $statProvince) = array_slice($data, 0, 4);
-                    $record = $this->getEntity();
+                    $record = $this->getRepository()->getEntity();
                     $record
                         ->setCountry($country)
                         ->setPostalCode($postalCode)
@@ -83,6 +85,9 @@ EOSQL;
         }
    }
 
+    /**
+     * @return bool|resource
+     */
     public function fetchAllCountriesZip()
     {
         try {
@@ -105,7 +110,7 @@ EOSQL;
             return $zip->getStream($zip->getNameIndex(0));
         }
 
-        $this->logger->error('unable to locate data file in archive');
+        $this->logger->error('Unable to locate data file in archive');
         return false;
     }
 }
