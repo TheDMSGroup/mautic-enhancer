@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\CoreBundle\Entity\CommonEntity;
 
-class PluginsEnhancerCityStateZip extends CommonEntity
+class PluginsEnhancerCityStatePostalCode extends CommonEntity
 {
 
     /**
@@ -23,7 +23,7 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     /**
      * @var string
      */
-    protected $zipCode;
+    protected $postalCode;
 
     /**
      * @var string
@@ -33,7 +33,7 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     /**
      * @var string
      */
-    protected $state;
+    protected $stateProvince;
 
     /**
      * @var string
@@ -43,19 +43,19 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     /**
      * @return string
      */
-    public function getZipCode()
+    public function getPostalCode()
     {
-        return $this->zipCode;
+        return $this->postalCode;
     }
 
     /**
-     * @param string $zipCode
+     * @param string $postalCode
      *
-     * @return PluginsEnhancerCityStateZip
+     * @return PluginsEnhancerCityStatePostalCode
      */
-    public function setZipCode($zipCode)
+    public function setPostalCode($postalCode)
     {
-        $this->zipCode = $zipCode;
+        $this->postalCode = $postalCode;
 
         return $this;
     }
@@ -71,7 +71,7 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     /**
      * @param string $city
      *
-     * @return PluginsEnhancerCityStateZip
+     * @return PluginsEnhancerCityStatePostalCode
      */
     public function setCity($city)
     {
@@ -81,25 +81,21 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     }
 
     /**
-     * @param string $dateAdded
-     */
-
-    /**
      * @return string
      */
-    public function getState()
+    public function getStateProvince()
     {
-        return $this->state;
+        return $this->stateProvince;
     }
 
     /**
-     * @param string $state
+     * @param string $stateProvince
      *
-     * @return PluginsEnhancerCityStateZip
+     * @return PluginsEnhancerCityStatePostalCode
      */
-    public function setState($state)
+    public function setStateProvince($stateProvince)
     {
-        $this->state = $state;
+        $this->stateProvince = $stateProvince;
 
         return $this;
     }
@@ -115,7 +111,7 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     /**
      * @param string $country
      *
-     * @return PluginsEnhancerCityStateZip
+     * @return PluginsEnhancerCityStatePostalCode
      */
     public function setCountry($country)
     {
@@ -131,22 +127,23 @@ class PluginsEnhancerCityStateZip extends CommonEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable('plugin_enhancer_citystatezip')
+        $builder->setTable('plugin_enhancer_city_state_postal_code')
             ->setCustomRepositoryClass(
-                'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStateZipRepository'
+                'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCodeRepository'
             );
 
         $builder->addId();
 
-        $builder->createField('zipCode', 'string')
-            ->columnName('zip_code')
+        $builder->createField('postalCode', 'string')
+            ->columnName('postal_code')
             ->build();
 
         $builder->createField('city', 'string')
             ->nullable()
             ->build();
 
-        $builder->createField('state', 'string')
+        $builder->createField('stateProvince', 'string')
+            ->columnName('state_province')
             ->nullable()
             ->build();
 

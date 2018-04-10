@@ -27,7 +27,11 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
             ],
         ],
-
+        'models' => [
+            'mautic.enhancer.model.citystatepostalcode' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
+            ]
+        ],
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
@@ -45,7 +49,10 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
             'mautic.enhancer.integration.citystatefromzip'          => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromZipIntegration::class
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromPostalCodeIntegration::class,
+                'arguments' => [
+                    '@mautic.enhancer.model.citystatepostalcode'
+                ]
             ],
         ],
         'other'        => [

@@ -10,6 +10,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Entity;
 
 use Mautic\CoreBundle\Entity\CommonRepository;
 
-class PluginsEnhancerCityStateZipRepository extends CommonRepository
+class PluginsEnhancerCityStatePostalCodeRepository extends CommonRepository
 {
+
 }
