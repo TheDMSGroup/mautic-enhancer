@@ -48,11 +48,8 @@ return [
             'mautic.enhancer.integration.xverify'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
-            'mautic.enhancer.integration.citystatefromzip'          => [
+            'mautic.enhancer.integration.citystatefrompostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromPostalCodeIntegration::class,
-                'arguments' => [
-                    '@mautic.enhancer.model.citystatepostalcode'
-                ]
             ],
         ],
         'other'        => [

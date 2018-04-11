@@ -23,6 +23,9 @@ class EnhancerHelper
      */
     protected $integrationHelper;
 
+
+    protected $serviceContainer;
+
     /**
      * @param IntegrationHelper $helper
      */

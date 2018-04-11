@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\CoreBundle\Entity\CommonEntity;
 
-class PluginsEnhancerCityStatePostalCode extends CommonEntity
+class PluginEnhancerCityStatePostalCode extends CommonEntity
 {
 
     /**
@@ -43,6 +43,14 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @return string
      */
+    static public function getSQLTableName()
+    {
+        return 'plugin_enhancer_city_state_postal_code';
+    }
+
+    /**
+     * @return string
+     */
     public function getPostalCode()
     {
         return $this->postalCode;
@@ -51,7 +59,7 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param string $postalCode
      *
-     * @return PluginsEnhancerCityStatePostalCode
+     * @return PluginEnhancerCityStatePostalCode
      */
     public function setPostalCode($postalCode)
     {
@@ -71,7 +79,7 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param string $city
      *
-     * @return PluginsEnhancerCityStatePostalCode
+     * @return PluginEnhancerCityStatePostalCode
      */
     public function setCity($city)
     {
@@ -91,7 +99,7 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param string $stateProvince
      *
-     * @return PluginsEnhancerCityStatePostalCode
+     * @return PluginEnhancerCityStatePostalCode
      */
     public function setStateProvince($stateProvince)
     {
@@ -111,7 +119,7 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param string $country
      *
-     * @return PluginsEnhancerCityStatePostalCode
+     * @return PluginEnhancerCityStatePostalCode
      */
     public function setCountry($country)
     {
@@ -123,13 +131,13 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param ClassMetadata $metadata
      */
-    public static function loadMetadata(ClassMetadata $metadata)
+    static public function loadMetadata(ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable('plugin_enhancer_city_state_postal_code')
+        $builder->setTable(self::getSQLTableName())
             ->setCustomRepositoryClass(
-                'MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCodeRepository'
+                PluginEnhancerCityStatePostalCodeRepository::class
             );
 
         $builder->addId();
@@ -149,5 +157,8 @@ class PluginsEnhancerCityStatePostalCode extends CommonEntity
 
         $builder->createField('country', 'string')
             ->build();
+
+        $builder->addIndex(['postal_code'], 'idx_postal_code')
+            ->addIndex(['country', 'postal_code'], 'idx_country');
     }
 }

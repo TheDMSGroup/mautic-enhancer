@@ -114,71 +114,71 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         static $fields = [];
 
         if (empty($fields)) {
-            $s         = $this->getName();
+            $name         = $this->getName();
             $available = $this->getAvailableLeadFields($settings);
             if (empty($available) || !is_array($available)) {
                 return [];
             }
 
             foreach ($available as $field => $details) {
-                $label = (!empty($details['label'])) ? $details['label'] : false;
-                $fn    = $this->matchFieldName($field);
-                // @todo - Maybe we should define $f, $p, $s?
+                $label = empty($details['label']) ? false : $details['label'];
+                $matchedFieldName    = $this->matchFieldName($field);
+
                 switch ($details['type']) {
                     case 'string':
                     case 'boolean':
-                        $fields[$fn] = (!$label)
+                        $fields[$matchedFieldName] = (!$label)
                             ? $this->translator->transConditional(
-                                "mautic.integration.common.{$fn}",
-                                "mautic.integration.{$s}.{$fn}.label"
+                                "mautic.integration.common.{$matchedFieldName}",
+                                "mautic.integration.{$name}.{$matchedFieldName}.label"
                             )
                             : $label;
                         break;
                     case 'object':
                         if (isset($details['fields'])) {
-                            foreach ($details['fields'] as $f) {
-                                $fn          = $this->matchFieldName($field, $f);
-                                $fields[$fn] = (!$label)
+                            foreach ($details['fields'] as $property) {
+                                $matchedFieldName          = $this->matchFieldName($field, $property);
+                                $fields[$matchedFieldName] = (!$label)
                                     ? $this->translator->transConditional(
-                                        "mautic.integration.common.{$fn}",
-                                        "mautic.integration.{$s}.{$fn}.label"
+                                        "mautic.integration.common.{$matchedFieldName}",
+                                        "mautic.integration.{$name}.{$matchedFieldName}.label"
                                     )
                                     : $label;
                             }
                         } else {
                             $fields[$field] = (!$label)
                                 ? $this->translator->transConditional(
-                                    "mautic.integration.common.{$fn}",
-                                    "mautic.integration.{$s}.{$fn}.label"
+                                    "mautic.integration.common.{$matchedFieldName}",
+                                    "mautic.integration.{$name}.{$matchedFieldName}.label"
                                 )
                                 : $label;
                         }
                         break;
                     case 'array_object':
                         if ('urls' == $field || 'url' == $field) {
-                            foreach ($details['fields'] as $f) {
-                                $fields["{$p}Urls"] = (!$label)
+                            foreach ($details['fields'] as $property) {
+                                $fields["{$property}Urls"] = (!$label)
                                     ? $this->translator->transConditional(
-                                        "mautic.integration.common.{$f}Urls",
-                                        "mautic.integration.{$s}.{$f}Urls"
+                                        "mautic.integration.common.{$property}Urls",
+                                        "mautic.integration.{$name}.{$property}Urls"
                                     )
                                     : $label;
                             }
                         } elseif (isset($details['fields'])) {
-                            foreach ($details['fields'] as $f) {
-                                $fn          = $this->matchFieldName($field, $f);
-                                $fields[$fn] = (!$label)
+                            foreach ($details['fields'] as $property) {
+                                $matchedFieldName          = $this->matchFieldName($field, $property);
+                                $fields[$matchedFieldName] = (!$label)
                                     ? $this->translator->transConditional(
-                                        "mautic.integration.common.{$fn}",
-                                        "mautic.integration.{$s}.{$fn}.label"
+                                        "mautic.integration.common.{$matchedFieldName}",
+                                        "mautic.integration.{$name}.{$matchedFieldName}.label"
                                     )
                                     : $label;
                             }
                         } else {
-                            $fields[$fn] = (!$label)
+                            $fields[$matchedFieldName] = (!$label)
                                 ? $this->translator->transConditional(
-                                    "mautic.integration.common.{$fn}",
-                                    "mautic.integration.{$s}.{$fn}.label"
+                                    "mautic.integration.common.{$matchedFieldName}",
+                                    "mautic.integration.{$name}.{$matchedFieldName}.label"
                                 )
                                 : $label;
                         }
@@ -252,11 +252,15 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         $config['campaignId']
                     );
                 } else {
+
                     // Otherwise we must obtain it from the unit of work.
+                    /** @var \Doctrine\ORM\UnitOfWork $identityMap */
                     $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
                     if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
+
                         /** @var \Mautic\LeadBundle\Entity\LeadEventLog $leadEventLog */
                         foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
+
                             $properties = $leadEventLog->getEvent()->getProperties();
                             if (
                                 $properties['_token'] === $config['_token']

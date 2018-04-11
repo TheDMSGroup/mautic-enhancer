@@ -8,11 +8,12 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Model;
 
-use Doctrine\DBAL\DBALException;
-use Doctrine\ORM\OptimisticLockException;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
-use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCode;
 
+/**
+ * Class CityStatePostalCodeModel
+ * @package MauticPlugin\MauticEnhancerBundle\Model
+ */
 class CityStatePostalCodeModel extends AbstractCommonModel
 {
     const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
@@ -24,11 +25,11 @@ class CityStatePostalCodeModel extends AbstractCommonModel
      */
     public function getEntityName()
     {
-        return PluginsEnhancerCityStatePostalCode::class;
+        return '\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode';
     }
 
     /**
-     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCodeRepository
+     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCodeRepository
      */
     public function getRepository()
     {
@@ -36,54 +37,26 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     }
 
     /**
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function createReferenceTable()
+    public function verifyReferenceTable()
     {
-        try {
-            $this->getRepository()->createReferenceTable();
-        } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
-        }
+        return $this->getRepository()->verifyReferenceTable();
     }
 
     /**
+     * @return bool
      */
-    public function fillReferenceTable()
+    public function updateReferenceTable()
     {
         try {
-            $sql = 'TRUNCATE plugin_enhancer_city_state_postal_code';
-            $this->em->getConnection()->exec($sql);
-        } catch (DBALException $e) {
-            $this->createReferenceTable();
+            $this->getRepository()->updateReferenceTable($this);
+            return true;
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage());
+            return false;
         }
-
-        if (false !== ($fp = $this->fetchAllCountriesZip())) {
-            $batchSize = 500;
-            $count = 0;
-            try {
-                while (!feof($fp)) {
-                    $data = explode("\t", trim(fgets($fp)));
-                    list($country, $postalCode, $city, $statProvince) = array_slice($data, 0, 4);
-                    $record = $this->getRepository()->getEntity();
-                    $record
-                        ->setCountry($country)
-                        ->setPostalCode($postalCode)
-                        ->setCity($city)
-                        ->setStateProvince($statProvince);
-                    $this->em->persist($record);
-                    $count += 1;
-                    if (0 === ($count % $batchSize)) {
-                        $this->em->flush();
-                        $this->em->clear();
-                    }
-                }
-                $this->em->flush();
-                $this->em->clear();
-            } catch (OptimisticLockException $e) {
-                $this->logger->error($e->getMessage());
-            }
-        }
-   }
+    }
 
     /**
      * @return bool|resource
@@ -93,9 +66,7 @@ class CityStatePostalCodeModel extends AbstractCommonModel
         try {
             file_put_contents(
                 self::REFERENCE_LOCAL . self::REFERENCE_NAME,
-                file_get_contents(
-                    self::REFERENCE_REMOTE . self::REFERENCE_NAME
-                )
+                file_get_contents(self::REFERENCE_REMOTE . self::REFERENCE_NAME)
             );
         } catch (\Exception $e) {
             $this->logger->error('Unable to download data file: '.$e->getMessage());

@@ -33,9 +33,11 @@ class PluginSubscriber extends CommonSubscriber
 
     /**
      * @param PluginIntegrationEvent $event
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function buildEnhancerFields(PluginIntegrationEvent $event)
     {
+        /** @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $integration */
         $integration = $event->getIntegration();
         if (in_array($integration->getName(), EnhancerHelper::IntegrationNames())) {
             $integration->buildEnhancerFields();

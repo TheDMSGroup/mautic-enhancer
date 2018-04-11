@@ -8,28 +8,12 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\CoreBundle\Factory\MauticFactory;
-use Mautic\CoreBundle\Helper\CoreParametersHelper;
+use Doctrine\DBAL\DBALException;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Entity\PluginsEnhancerCityStatePostalCode;
 use MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel;
 
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
-    /**
-     * @var CityStatePostalCodeModel
-     */
-    protected $cityStatePostalCodeModel;
-
-    /**
-     * CityStateFromPostalCodeIntegration constructor.
-     * @param CityStatePostalCodeModel $model
-     */
-    public function __construct(CityStatePostalCodeModel $model)
-    {
-        $this->cityStatePostalCodeModel = $model;
-    }
-
     /**
      * @return string
      */
@@ -47,20 +31,30 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
+     * @return \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     */
+    protected function getCSPCModel()
+    {
+        return $this->factory->getModel('enhancer.citystatepostalcode');
+    }
+    /**
      * @return array
-     * @throws \Doctrine\DBAL\DBALException
      */
     protected function getEnhancerFieldArray()
     {
+        // hi-jacking build routine to create reference table
+        // this will ensure the table is installed
         try {
-            $sql = 'SELECT * FROM plugin_enhancer_city_state_postal_code WHERE 1 LIMIT 1';
-            $this->em->getConnection()->exec($sql);
-        } catch (TableNotFoundException $e) {
-            $this->cityStatePostalCodeModel->createReferenceTable();
+            $this->getCSPCModel()->verifyReferenceTable();
         } catch (DBALException $e) {
-            //?
+            $this->logger->error($e->getMessage());
+            $this->settings->setIsPublished(false);
+            $this->session->getFlashBag()->add(
+                'notice',
+                $this->translator->trans('mautic.enhancer.integration.citystatefromzip.failure')
+            );
         }
-
+        //but at least no enhancer specific fields?
         return [];
     }
 
@@ -71,13 +65,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         if (!($lead->getCity() && $lead->getState()) && $lead->getZipcode()) {
-            $cityStatePostalCode = $this->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
+            $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
             if ($cityStatePostalCode) {
                 if (!$lead->getCity()) {
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
                 }
                 if (!$lead->getState()) {
-                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getStateProvince());
+                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getState());
                 }
             }
         }
@@ -106,6 +100,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                     'data' => true,
                 ]
             );
+        }
+    }
+
+    public function getFormNotes($section)
+    {
+        if ('custom' === $section) {
+            return $this->translator->trans('mautic.enhancer.integration.citystatefromzip.custom_note');
         }
     }
 }
