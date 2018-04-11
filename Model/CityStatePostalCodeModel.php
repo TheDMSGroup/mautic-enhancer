@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 4/10/18
- * Time: 9:00 AM
+ * Time: 9:00 AM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Model;
@@ -11,7 +11,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Model;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 
 /**
- * Class CityStatePostalCodeModel
+ * Class CityStatePostalCodeModel.
  */
 class CityStatePostalCodeModel extends AbstractCommonModel
 {
@@ -78,12 +78,13 @@ class CityStatePostalCodeModel extends AbstractCommonModel
         $zip = new \ZipArchive();
         if (
             true === $zip->open(self::REFERENCE_LOCAL.self::REFERENCE_NAME) &&
-            1    === $zip->numFiles
+            1 === $zip->numFiles
         ) {
             return $zip->getStream($zip->getNameIndex(0));
         }
 
         $this->logger->error('Unable to locate data file in archive');
+
         return false;
     }
 }

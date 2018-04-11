@@ -14,7 +14,6 @@ use Mautic\CoreBundle\Entity\CommonEntity;
 
 class PluginEnhancerCityStatePostalCode extends CommonEntity
 {
-
     /**
      * @var int
      */

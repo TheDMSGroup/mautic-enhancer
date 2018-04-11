@@ -255,15 +255,12 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         $config['campaignId']
                     );
                 } else {
-
                     // Otherwise we must obtain it from the unit of work.
                     /** @var \Doctrine\ORM\UnitOfWork $identityMap */
                     $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
                     if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
-
                         /** @var \Mautic\LeadBundle\Entity\LeadEventLog $leadEventLog */
                         foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
-
                             $properties = $leadEventLog->getEvent()->getProperties();
                             if (
                                 $properties['_token'] === $config['_token']

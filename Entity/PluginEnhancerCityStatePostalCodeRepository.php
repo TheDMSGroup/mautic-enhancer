@@ -45,16 +45,16 @@ EOSQL;
      */
     public function verifyReferenceTable()
     {
-       try {
+        try {
             $sql     = 'SELECT COUNT(*) FROM plugin_enhancer_city_state_postal_code WHERE 1';
             $results = $this->getEntityManager()->getConnection()->fetchArray($sql);
 
             return $results[0][0];
-       } catch (DBALException $e) {
+        } catch (DBALException $e) {
             $this->createReferenceTable();
 
             return 0;
-       }
+        }
     }
 
     /**
@@ -104,5 +104,4 @@ EOSQL;
             $em->clear();
         }
     }
-
 }

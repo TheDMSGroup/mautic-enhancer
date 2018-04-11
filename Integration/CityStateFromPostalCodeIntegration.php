@@ -60,8 +60,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param Lead $lead
-     *
-     * @return void
      */
     public function doEnhancement(Lead &$lead)
     {

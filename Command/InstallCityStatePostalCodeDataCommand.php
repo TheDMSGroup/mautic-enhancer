@@ -23,7 +23,7 @@ class InstallCityStatePostalCodeDataCommand extends ModeratedCommand
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      *
      * @return bool
@@ -34,11 +34,13 @@ class InstallCityStatePostalCodeDataCommand extends ModeratedCommand
             $model = $this->getContainer()->get('mautic.enhancer.model.citystatepostalcode');
             if ($model->updateReferenceTable()) {
                 $output->writeln('Reference data successfully loaded. CityStateFromPostalCode is ready for use.');
+
                 return true;
             }
         } catch (\Exception $e) {
         }
         $output->writeln('Failed to load reference table. CityStateFromPostalCode is not ready.');
+
         return false;
     }
 }
