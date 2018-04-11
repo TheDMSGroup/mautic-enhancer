@@ -43,7 +43,7 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @return string
      */
-    static public function getSQLTableName()
+    public static function getSQLTableName()
     {
         return 'plugin_enhancer_city_state_postal_code';
     }
@@ -131,7 +131,7 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
     /**
      * @param ClassMetadata $metadata
      */
-    static public function loadMetadata(ClassMetadata $metadata)
+    public static function loadMetadata(ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
 

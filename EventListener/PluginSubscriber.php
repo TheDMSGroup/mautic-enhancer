@@ -33,6 +33,7 @@ class PluginSubscriber extends CommonSubscriber
 
     /**
      * @param PluginIntegrationEvent $event
+     *
      * @throws \Doctrine\DBAL\DBALException
      */
     public function buildEnhancerFields(PluginIntegrationEvent $event)

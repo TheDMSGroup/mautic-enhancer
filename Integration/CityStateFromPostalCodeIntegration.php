@@ -10,7 +10,6 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Doctrine\DBAL\DBALException;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel;
 
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
@@ -37,6 +36,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     {
         return $this->factory->getModel('enhancer.citystatepostalcode');
     }
+
     /**
      * @return array
      */
@@ -60,6 +60,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param Lead $lead
+     *
      * @return void
      */
     public function doEnhancement(Lead &$lead)
@@ -87,8 +88,8 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param \Symfony\Component\Form\FormBuilderInterface $builder
-     * @param array $data
-     * @param string $formArea
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {

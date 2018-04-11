@@ -117,15 +117,15 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         static $fields = [];
 
         if (empty($fields)) {
-            $name         = $this->getName();
+            $name      = $this->getName();
             $available = $this->getAvailableLeadFields($settings);
             if (empty($available) || !is_array($available)) {
                 return [];
             }
 
             foreach ($available as $field => $details) {
-                $label = empty($details['label']) ? false : $details['label'];
-                $matchedFieldName    = $this->matchFieldName($field);
+                $label            = empty($details['label']) ? false : $details['label'];
+                $matchedFieldName = $this->matchFieldName($field);
 
                 switch ($details['type']) {
                     case 'string':

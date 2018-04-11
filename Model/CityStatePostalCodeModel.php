@@ -12,13 +12,12 @@ use Mautic\CoreBundle\Model\AbstractCommonModel;
 
 /**
  * Class CityStatePostalCodeModel
- * @package MauticPlugin\MauticEnhancerBundle\Model
  */
 class CityStatePostalCodeModel extends AbstractCommonModel
 {
     const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
-    const REFERENCE_LOCAL = '/tmp/';
-    const REFERENCE_NAME  = 'allCountries.zip';
+    const REFERENCE_LOCAL  = '/tmp/';
+    const REFERENCE_NAME   = 'allCountries.zip';
 
     /**
      * @return string
@@ -51,9 +50,11 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     {
         try {
             $this->getRepository()->updateReferenceTable($this);
+
             return true;
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
+
             return false;
         }
     }
@@ -65,11 +66,12 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     {
         try {
             file_put_contents(
-                self::REFERENCE_LOCAL . self::REFERENCE_NAME,
-                file_get_contents(self::REFERENCE_REMOTE . self::REFERENCE_NAME)
+                self::REFERENCE_LOCAL.self::REFERENCE_NAME,
+                file_get_contents(self::REFERENCE_REMOTE.self::REFERENCE_NAME)
             );
         } catch (\Exception $e) {
             $this->logger->error('Unable to download data file: '.$e->getMessage());
+
             return false;
         }
 

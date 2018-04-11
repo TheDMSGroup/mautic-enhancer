@@ -46,11 +46,13 @@ EOSQL;
     public function verifyReferenceTable()
     {
        try {
-            $sql = 'SELECT COUNT(*) FROM plugin_enhancer_city_state_postal_code WHERE 1';
+            $sql     = 'SELECT COUNT(*) FROM plugin_enhancer_city_state_postal_code WHERE 1';
             $results = $this->getEntityManager()->getConnection()->fetchArray($sql);
+
             return $results[0][0];
        } catch (DBALException $e) {
             $this->createReferenceTable();
+
             return 0;
        }
     }
@@ -79,13 +81,13 @@ EOSQL;
         $this->emptyReferenceTable();
 
         if (false !== ($fp = $model->fetchAllCountriesZip())) {
-            $em = $this->getEntityManager();
+            $em        = $this->getEntityManager();
             $batchSize = 500;
-            $count = 0;
+            $count     = 0;
             while (!feof($fp)) {
-                $data = explode("\t", trim(fgets($fp)));
+                $data                                             = explode("\t", trim(fgets($fp)));
                 list($country, $postalCode, $city, $statProvince) = array_slice($data, 0, 4);
-                $record = new PluginEnhancerCityStatePostalCode();
+                $record                                           = new PluginEnhancerCityStatePostalCode();
                 $record
                     ->setCountry($country)
                     ->setPostalCode($postalCode)

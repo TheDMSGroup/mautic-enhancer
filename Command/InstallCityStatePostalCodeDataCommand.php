@@ -25,6 +25,7 @@ class InstallCityStatePostalCodeDataCommand extends ModeratedCommand
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
+     *
      * @return bool
      */
     protected function execute(InputInterface $input, OutputInterface $output)

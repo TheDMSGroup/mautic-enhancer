@@ -30,7 +30,7 @@ return [
         'models' => [
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
-            ]
+            ],
         ],
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate' => [
