@@ -23,9 +23,7 @@ use Mautic\LeadBundle\Entity\Lead;
  */
 class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
 {
-    /*
-     * @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait
-     */
+    /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
     use NonFreeEnhancerTrait;
 
     /**
@@ -91,10 +89,10 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     public function getAvailableLeadFields($settings = [])
     {
         return [
-            'email'     => ['type' => 'string'],
-            'homephone' => ['type' => 'string'],
-            'cellphone' => ['type' => 'string'],
-            'workphone' => ['type' => 'string'],
+            'email'     => ['type' => 'text'],
+            'homephone' => ['type' => 'text'],
+            'cellphone' => ['type' => 'text'],
+            'workphone' => ['type' => 'text'],
         ];
     }
 
@@ -157,7 +155,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 // phone API call
                                 $service  = 'phone';
                                 $fieldKey = 'phone';
-                                if (is_null($lead->getFieldValue($fieldToUpdate))) { // only if we havent checked already
+                                if (is_null(
+                                    $lead->getFieldValue($fieldToUpdate)
+                                )) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                                     $this->applyCost($lead);
                                     $persist = true;
@@ -175,7 +175,9 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                 // email API call
                                 $service  = 'emails';
                                 $fieldKey = 'email';
-                                if (is_null($lead->getFieldValue($fieldToUpdate))) { // only if we havent checked already
+                                if (is_null(
+                                    $lead->getFieldValue($fieldToUpdate)
+                                )) { // only if we havent checked already
                                     $response = $this->makeCall($service, $params, $fieldKey, $fieldValue);
                                     $this->applyCost($lead);
                                     $persist = true;

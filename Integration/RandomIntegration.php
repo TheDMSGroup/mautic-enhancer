@@ -80,8 +80,8 @@ class RandomIntegration extends AbstractEnhancerIntegration
 
         return [
             $settings['random_field_name'] => [
-                'label'  => 'Random Value',
-                'type'   => 'number',
+                'label' => 'Random Value',
+                'type'  => 'number',
             ],
         ];
     }

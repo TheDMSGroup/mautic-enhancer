@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Mautic, Inc
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+
 namespace MauticPlugin\MauticEnhancerBundle\Event;
 
 use Mautic\CampaignBundle\Entity\Campaign;
@@ -12,19 +21,13 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class MauticEnhancerEvent extends Event
 {
-    /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration
-     */
+    /** @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration */
     protected $enhancer;
 
-    /**
-     * @var \Mautic\LeadBundle\Entity\Lead
-     */
+    /** @var \Mautic\LeadBundle\Entity\Lead */
     protected $lead;
 
-    /**
-     * @var \Mautic\CampaignBundle\Entity\Campaign
-     */
+    /** @var \Mautic\CampaignBundle\Entity\Campaign */
     protected $campaign;
 
     /**
