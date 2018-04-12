@@ -78,7 +78,6 @@ EOSQL;
      */
     public function updateReferenceTable(CityStatePostalCodeModel $model)
     {
-
         if (false !== ($fp = $model->fetchAllCountriesZip())) {
             $this->emptyReferenceTable();
             $em        = $this->getEntityManager();
