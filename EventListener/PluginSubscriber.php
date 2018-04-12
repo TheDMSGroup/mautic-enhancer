@@ -27,15 +27,18 @@ class PluginSubscriber extends CommonSubscriber
     public static function getSubscribedEvents()
     {
         return [
-            PluginEvents::PLUGIN_ON_INTEGRATION_CONFIG_SAVE => ['buildCustomFields', 0],
+            PluginEvents::PLUGIN_ON_INTEGRATION_CONFIG_SAVE => ['buildEnhancerFields', 0],
         ];
     }
 
     /**
      * @param PluginIntegrationEvent $event
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function buildCustomFields(PluginIntegrationEvent $event)
+    public function buildEnhancerFields(PluginIntegrationEvent $event)
     {
+        /** @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration $integration */
         $integration = $event->getIntegration();
         if (in_array($integration->getName(), EnhancerHelper::IntegrationNames())) {
             $integration->buildEnhancerFields();

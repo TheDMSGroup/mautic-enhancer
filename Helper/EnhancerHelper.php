@@ -18,7 +18,9 @@ use Mautic\PluginBundle\Helper\IntegrationHelper;
  */
 class EnhancerHelper
 {
-    /** @var IntegrationHelper */
+    /**
+     * @var IntegrationHelper
+     */
     protected $integrationHelper;
 
     /**
@@ -60,6 +62,6 @@ class EnhancerHelper
      */
     final public static function IntegrationNames()
     {
-        return ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify'];
+        return ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify', 'CityStateFromPostalCode'];
     }
 }
