@@ -89,14 +89,14 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        $year         = intval($lead->getFieldValue('dob_year'));
-        $month        = intval($lead->getFieldValue('dob_month'));
-        $day          = intval($lead->getFieldValue('dob_day'));
+        $year  = intval($lead->getFieldValue('dob_year'));
+        $month = intval($lead->getFieldValue('dob_month'));
+        $day   = intval($lead->getFieldValue('dob_day'));
 
         if ($year && $month && $day) {
             $birthdate = sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day);
-            $dob = new DateTime($birthdate);
-            $today = new DateTime();
+            $dob       = new DateTime($birthdate);
+            $today     = new DateTime();
             $lead->addUpdatedField('afb_age', $today->diff($dob)->y, $lead->getFieldValue('afb_age'));
             $this->saveLead($lead);
         }
