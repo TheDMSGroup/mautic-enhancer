@@ -10,7 +10,7 @@
  */
 
 return [
-    'name'        => 'Mautic Data Enhancers',
+    'name'        => 'Enhancers',
     'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, and xVerify.',
     'version'     => '1.0.0',
     'author'      => 'Nicholai Bush',
