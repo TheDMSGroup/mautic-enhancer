@@ -30,7 +30,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     * @return AbstractEnhancerIntegration|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
     protected function getCSPCModel()
     {
@@ -64,12 +64,17 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         if (!($lead->getCity() && $lead->getState()) && $lead->getZipcode()) {
+            $stop = 'here';
+            /** @var \MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
             if ($cityStatePostalCode) {
-                if (!$lead->getCity()) {
+                if (!$lead->getCity() && $cityStatePostalCode->getCity()) {
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
                 }
-                if (!$lead->getState()) {
+                if (!$lead->getState() && $cityStatePostalCode->getState()) {
+                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getState());
+                }
+                if (!$lead->getCountry() && $cityStatePostalCode->getCountry()) {
                     $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getState());
                 }
             }
