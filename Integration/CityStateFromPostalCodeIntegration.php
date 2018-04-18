@@ -66,7 +66,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         if ($lead->getZipcode() and (empty($lead->getCity()) or empty($lead->getState()))) {
             $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
             if (false !== $cityStatePostalCode) {
-
                 if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {
                     $this->logger->info('found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
@@ -113,6 +112,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param $section
+     *
      * @return string|void
      */
     public function getFormNotes($section)
