@@ -30,7 +30,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return  AbstractEnhancerIntegration|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     * @return AbstractEnhancerIntegration|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
     protected function getCSPCModel()
     {
