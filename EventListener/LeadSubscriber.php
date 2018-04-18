@@ -55,16 +55,20 @@ class LeadSubscriber extends CommonSubscriber
     public function doAutoRunEnhancements(LeadEvent $event)
     {
         if (!$event->getLead()->getId()) {
+            $lead = $event->getLead();
             /**
              * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
              */
             $integrations = $this->enhancerHelper->getEnhancerIntegrations();
             foreach ($integrations as $integration) {
-                if ($integration->getIntegrationSettings()->getIsPublished()) {
-                    $keys = $integration->getKeys();
-                    if (isset($keys['autorun_enabled']) && $keys['autorun_enabled']) {
+
+                $settings = $integration->getIntegrationSettings();
+                if ($settings->getIsPublished()) {
+
+                    $features = $settings->getFeatureSettings();
+                    if (isset($features['autorun_enabled']) && $features['autorun_enabled']) {
                         try {
-                            $lead = $event->getLead();
+                            $stop = 'here instead';
                             $integration->doEnhancement($lead);
                         } catch (\Exception $exception) {
                             $e = new ApiErrorException(
@@ -81,6 +85,7 @@ class LeadSubscriber extends CommonSubscriber
                 }
             }
         }
+        $this->logger->addInfo('AutoEnhancement of lead '.$lead->getId().'complete');
     }
 
     /**
