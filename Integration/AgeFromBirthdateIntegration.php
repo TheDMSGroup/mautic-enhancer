@@ -53,10 +53,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 'label' => 'Age',
                 'type'  => 'number',
             ],
-            'afb_dob' => [
-                'label' => 'Date of Birth',
-                'type'  => 'date',
-            ],
         ];
     }
 
@@ -93,18 +89,16 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        if (!empty($lead)) {
-            // Field name can be dynamic, with the field name picked up through the config
-            // see the random plugin.
-            $dob = $lead->getFieldValue('afb_dob');
-            if (isset($dob)) {
-                $today = new DateTime();
-                $age   = $today->diff($dob)->format('%y');
-                if ($lead->getFieldValue('afb_age') !== $age) {
-                    $lead->addUpdatedField('afb_age', $age, $lead->getFieldValue('afb_age'));
-                    $this->saveLead($lead);
-                }
-            }
+        $year  = intval($lead->getFieldValue('dob_year'));
+        $month = intval($lead->getFieldValue('dob_month'));
+        $day   = intval($lead->getFieldValue('dob_day'));
+
+        if ($year && $month && $day) {
+            $birthdate = sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day);
+            $dob       = new DateTime($birthdate);
+            $today     = new DateTime();
+            $lead->addUpdatedField('afb_age', $today->diff($dob)->y, $lead->getFieldValue('afb_age'));
+            $this->saveLead($lead);
         }
     }
 }
