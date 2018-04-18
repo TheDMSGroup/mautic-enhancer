@@ -97,7 +97,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             $birthdate = sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day);
             $dob       = new DateTime($birthdate);
             $today     = new DateTime();
-            $lead->addUpdatedField('afb_age', $today->diff($dob)->y, $lead->getFieldValue('afb_age'));
+            $lead->addUpdatedField('afb_age', $today->diff($dob)->y);
             $this->saveLead($lead);
         }
     }
