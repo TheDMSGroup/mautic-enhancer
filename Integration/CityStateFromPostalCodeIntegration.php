@@ -30,7 +30,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     * @return \Mautic\CoreBundle\Model\AbstractCommonModel|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
     protected function getCSPCModel()
     {
@@ -63,14 +63,23 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        if (!($lead->getCity() && $lead->getState()) && $lead->getZipcode()) {
+        if ($lead->getZipcode() and (empty($lead->getCity()) or empty($lead->getState()))) {
             $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
-            if ($cityStatePostalCode) {
-                if (!$lead->getCity()) {
+            if (false !== $cityStatePostalCode) {
+
+                if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {
+                    $this->logger->info('found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
                 }
-                if (!$lead->getState()) {
-                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getState());
+
+                if (empty($lead->getState()) and !empty($cityStatePostalCode->getStateProvince())) {
+                    $this->logger->info('found state/province for lead '.$lead->getId());
+                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getStateProvince());
+                }
+
+                if (empty($lead->getCountry()) and !empty($cityStatePostalCode->getCountry())) {
+                    $this->logger->info('found state/province for lead '.$lead->getId());
+                    $lead->addUpdatedField('country', $cityStatePostalCode->getCountry());
                 }
             }
         }
@@ -102,6 +111,10 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         }
     }
 
+    /**
+     * @param $section
+     * @return string|void
+     */
     public function getFormNotes($section)
     {
         if ('custom' === $section) {
