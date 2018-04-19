@@ -85,7 +85,7 @@ EOSQL;
             $count     = 0;
             while (!feof($fp)) {
                 $data                                               = explode("\t", trim(fgets($fp)));
-                list($country, $postalCode, $city, $stateProvince) = array_slice($data, 0, 4);
+                list($country, $postalCode, $city, $stateProvince)  = array_slice($data, 0, 4);
                 $record                                             = new PluginEnhancerCityStatePostalCode();
                 $record
                     ->setCountry($country)
