@@ -66,6 +66,7 @@ class LeadSubscriber extends CommonSubscriber
                     $features = $settings->getFeatureSettings();
                     if (isset($features['autorun_enabled']) && $features['autorun_enabled']) {
                         try {
+                            $stop = 'here';
                             $integration->doEnhancement($lead);
                         } catch (\Exception $exception) {
                             $e = new ApiErrorException(

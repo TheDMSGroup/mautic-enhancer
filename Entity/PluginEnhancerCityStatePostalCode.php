@@ -156,8 +156,5 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
 
         $builder->createField('country', 'string')
             ->build();
-
-        $builder->addIndex(['postal_code'], 'idx_postal_code')
-            ->addIndex(['country', 'postal_code'], 'idx_country');
     }
 }
