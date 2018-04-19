@@ -84,14 +84,14 @@ EOSQL;
             $batchSize = 500;
             $count     = 0;
             while (!feof($fp)) {
-                $data                                             = explode("\t", trim(fgets($fp)));
-                list($country, $postalCode, $city, $statProvince) = array_slice($data, 0, 4);
-                $record                                           = new PluginEnhancerCityStatePostalCode();
+                $data                                               = explode("\t", trim(fgets($fp)));
+                list($country, $postalCode, $city, $stateProvince) = array_slice($data, 0, 4);
+                $record                                             = new PluginEnhancerCityStatePostalCode();
                 $record
                     ->setCountry($country)
                     ->setPostalCode($postalCode)
                     ->setCity($city)
-                    ->setStateProvince($statProvince);
+                    ->setStateProvince($stateProvince);
                 $em->persist($record);
                 $count += 1;
                 if (0 === ($count % $batchSize)) {

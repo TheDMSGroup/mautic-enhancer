@@ -73,7 +73,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
                 if (empty($lead->getState()) and !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->info('found state/province for lead '.$lead->getId());
-                    $lead->addUpdatedField('stateProvince', $cityStatePostalCode->getStateProvince());
+                    $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince());
                 }
 
                 if (empty($lead->getCountry()) and !empty($cityStatePostalCode->getCountry())) {
