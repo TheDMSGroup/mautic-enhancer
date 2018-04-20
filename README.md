@@ -14,6 +14,7 @@ A bundle of contact data enhancers.
 
 - Random - Stores random number for use in A/B splits
 - Age from Birthdate - Stores age based on a birthdate field
+- City & State from Postal Code - Backfills blank city/state fields when the postal(zip) is filled.
 
 ## Installation & Usage
 
