@@ -10,7 +10,6 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Doctrine\DBAL\DBALException;
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\MauticEnhancerBundle;
 
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
@@ -43,6 +42,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         if (!isset($this->cspcModel)) {
             $this->cspcModel = $this->factory->getModel('enhancer.citystatepostalcode');
         }
+
         return $this->cspcModel;
     }
 
@@ -75,11 +75,10 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         $stop='here';
 
         if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
-
             $country = $lead->getCountry();
             if (empty($country)) {
                 $ipDetails = $this->factory->getIpAddress()->getIpDetails();
-                $country = isset($ipDetails['country']) ? $ipDetails['country'] : 'US';
+                $country   = isset($ipDetails['country']) ? $ipDetails['country'] : 'US';
             }
 
             //Mautic uses proper names, everything else use abbreviations
@@ -88,7 +87,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             }
 
             $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy([
-                'postalCode' => $lead->getZipcode(), 'country' => $country
+                'postalCode' => $lead->getZipcode(), 'country' => $country,
             ]);
 
             if (false !== $cityStatePostalCode) {
