@@ -73,7 +73,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
-
             $country = $lead->getCountry();
 
             if (empty($country)) {
