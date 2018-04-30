@@ -73,12 +73,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
+
             $country = $lead->getCountry();
+
             if (empty($country)) {
                 $ipDetails = $this->factory->getIpAddress()->getIpDetails();
                 $country   = isset($ipDetails['country']) ? $ipDetails['country'] : 'US';
             }
-
             //Mautic uses proper names, everything else use abbreviations
             if ('United States' === $country) {
                 $country = 'US';
