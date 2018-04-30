@@ -72,8 +72,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        $stop='here';
-
         if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
             $country = $lead->getCountry();
             if (empty($country)) {
@@ -90,7 +88,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 'postalCode' => $lead->getZipcode(), 'country' => $country,
             ]);
 
-            if (false !== $cityStatePostalCode) {
+            if (null !== $cityStatePostalCode) {
                 if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {
                     $this->logger->info('found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
