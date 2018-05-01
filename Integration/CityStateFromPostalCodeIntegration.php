@@ -14,6 +14,11 @@ use Mautic\LeadBundle\Entity\Lead;
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
     /**
+     * @var \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     */
+    protected $cspcModel;
+
+    /**
      * @return string
      */
     public function getName()
@@ -34,7 +39,11 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      */
     protected function getCSPCModel()
     {
-        return $this->factory->getModel('enhancer.citystatepostalcode');
+        if (!isset($this->cspcModel)) {
+            $this->cspcModel = $this->factory->getModel('enhancer.citystatepostalcode');
+        }
+
+        return $this->cspcModel;
     }
 
     /**
@@ -63,9 +72,23 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        if ($lead->getZipcode() and (empty($lead->getCity()) or empty($lead->getState()))) {
-            $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy(['postalCode' => $lead->getZipcode()]);
-            if (false !== $cityStatePostalCode) {
+        if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
+            $country = $lead->getCountry();
+
+            if (empty($country)) {
+                $ipDetails = $this->factory->getIpAddress()->getIpDetails();
+                $country   = isset($ipDetails['country']) ? $ipDetails['country'] : 'US';
+            }
+            //Mautic uses proper names, everything else use abbreviations
+            if ('United States' === $country) {
+                $country = 'US';
+            }
+
+            $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy([
+                'postalCode' => $lead->getZipcode(), 'country' => $country,
+            ]);
+
+            if (null !== $cityStatePostalCode) {
                 if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {
                     $this->logger->info('found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
@@ -74,11 +97,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 if (empty($lead->getState()) and !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->info('found state/province for lead '.$lead->getId());
                     $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince());
-                }
-
-                if (empty($lead->getCountry()) and !empty($cityStatePostalCode->getCountry())) {
-                    $this->logger->info('found state/province for lead '.$lead->getId());
-                    $lead->addUpdatedField('country', $cityStatePostalCode->getCountry());
                 }
             }
         }
