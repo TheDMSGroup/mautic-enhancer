@@ -40,7 +40,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         $integration = $this->getIntegrationSettings();
 
         if ($integration->getIsPublished()) {
-            $last_field = null;
             foreach ($this->getEnhancerFieldArray() as $alias => $properties) {
                 if (null !== $this->fieldModel->getEntityByAlias($alias)) {
                     // The field already exists
@@ -65,10 +64,11 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 }
 
                 $this->fieldModel->saveEntity($new_field);
-                $last_field = $new_field;
             }
         }
-        $this->fieldModel->reorderFieldsByEntity($last_field);
+        if (isset($new_field)) {
+            $this->fieldModel->reorderFieldsByEntity($new_field);
+        }
     }
 
     /**
