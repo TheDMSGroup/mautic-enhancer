@@ -39,27 +39,21 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     {
         $integration = $this->getIntegrationSettings();
 
-        $count = count($this->fieldModel->getLeadFields());
-
         if ($integration->getIsPublished()) {
-            $feature_settings = $integration->getFeatureSettings();
-            $created          = isset($feature_settings['installed']) ? $feature_settings['installed'] : [];
-            $creating         = $this->getEnhancerFieldArray();
-            $fieldList        = $this->fieldModel->getFieldList(false);
-
-            foreach ($creating as $alias => $properties) {
-                if (in_array($alias, $created) && in_array($alias, $fieldList)) {
-                    // The field already exists.
+            foreach ($this->getEnhancerFieldArray() as $alias => $properties) {
+                if (null !== $this->fieldModel->getEntityByAlias($alias)) {
+                    // The field already exists
                     continue;
                 }
 
                 $new_field = $this->fieldModel->getEntity();
                 $new_field->setAlias($alias);
-                $new_field->setOrder(++$count);
-                //set extended/lead in one place,
-                $new_field->setObject(self::getObjectName());
+
+                //setting extendedField/lead in one place,
+                $new_field->setObject($this->getFieldObject());
 
                 foreach ($properties as $property => $value) {
+                    //convert snake case to cammel case
                     $method = 'set'.implode('', array_map('ucfirst', explode('_', $property)));
 
                     try {
@@ -70,13 +64,10 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 }
 
                 $this->fieldModel->saveEntity($new_field);
-                if (!in_array($alias, $created)) {
-                    $created[] = $alias;
-                }
             }
-
-            $feature_settings['installed'] = $created;
-            $integration->setFeatureSettings($feature_settings);
+        }
+        if (isset($new_field)) {
+            $this->fieldModel->reorderFieldsByEntity($new_field);
         }
     }
 
@@ -88,7 +79,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @return string
      */
-    private static function getObjectName()
+    private function getFieldObject()
     {
         if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
             return 'extendedField';
