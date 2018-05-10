@@ -20,19 +20,15 @@ class PluginEnhancerCityStatePostalCodeRepository extends CommonRepository
     public function createReferenceTable()
     {
         $sql = <<<EOSQL
-CREATE TABLE plugin_enhancer_city_state_postal_code (
-  id INT AUTO_INCREMENT NOT NULL, 
-  postal_code VARCHAR(255) NOT NULL, 
-  city VARCHAR(255) DEFAULT NULL, 
-  state_province VARCHAR(255) DEFAULT NULL, 
-  country VARCHAR(255) NOT NULL, 
-  INDEX idx_postal_code (postal_code), 
-  INDEX idx_country (country, postal_code), 
-  PRIMARY KEY(id)
-) 
-DEFAULT CHARACTER SET utf8 
-COLLATE utf8_unicode_ci 
-ENGINE = InnoDB
+CREATE TABLE `plugin_enhancer_city_state_postal_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `postal_code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `city` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `state_province` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `country` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `id_country_postal_code` (`id`,`country`,`postal_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 EOSQL;
 
         $this->getEntityManager()->getConnection()->exec($sql);
