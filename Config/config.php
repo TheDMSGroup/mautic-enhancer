@@ -31,6 +31,9 @@ return [
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
             ],
+            'mautic.enhancer.model.genderdictionary' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Model\GenderDictionaryModel::class,
+            ],
         ],
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate' => [
