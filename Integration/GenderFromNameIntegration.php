@@ -50,12 +50,7 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
             );
         }
 
-        return [
-            'gfn_gender' => [
-                'label' => 'Gender',
-                'type'  => 'string',
-            ],
-        ];
+        return [];
     }
 
     /**
@@ -65,10 +60,10 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        if (empty($lead->getFieldValue('gfn_gender'))) {
+        if (!$lead->getFieldValue('gender')) {
             $gender = $this->getIntegrationModel()->getGender($lead->getFirstname());
             if ($gender) {
-                $lead->addUpdatedField('gfn_gender', $gender);
+                $lead->addUpdatedField('gender', $gender);
             }
         }
     }
