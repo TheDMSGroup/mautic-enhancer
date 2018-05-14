@@ -62,6 +62,14 @@ class EnhancerHelper
      */
     final public static function IntegrationNames()
     {
-        return ['AgeFromBirthdate', 'Alcazar', 'Random', 'Fourleaf', 'Xverify', 'CityStateFromPostalCode'];
+        return [
+            'AgeFromBirthdate',
+            'Alcazar',
+            'Random',
+            'Fourleaf',
+            'Xverify',
+            'CityStateFromPostalCode',
+            'GenderFromName'
+        ];
     }
 }
