@@ -2,14 +2,14 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Entity;
 
-use Mautic\CoreBundle\Entity\CommonEntity;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
+use Mautic\CoreBundle\Entity\CommonEntity;
 
-class PluginEnhancerGenderDictionary extends CommonEntity
+class PluginEnhancerGenderName extends CommonEntity
 {
     /* Table name */
-    const TABLE_NAME = 'plugin_enhancer_gender_dictionary';
+    const TABLE_NAME = 'plugin_enhancer_gender_names';
 
     /** @var int */
     protected $id;
@@ -23,15 +23,20 @@ class PluginEnhancerGenderDictionary extends CommonEntity
     /** @var float */
     protected $probability;
 
+    /** @var int */
+    protected $count;
+
+    /**
+     * @param ClassMetadata $metadata
+     */
     public static function loadMetadata(ClassMetadata $metadata)
     {
         $builder = new ClassMetadataBuilder($metadata);
 
         $builder->setTable(self::TABLE_NAME)
-            ->setCustomRepositoryClass('MauticPlugin\MauticEnhancerBundle\Entity\MauticPluginGenderDictionaryRepository');
+            ->setCustomRepositoryClass('MauticPlugin\MauticEnhancerBundle\Entity\MauticPluginGenderNameRepository');
 
-        $builder->addIdColumns();
-
+        $builder->addId();
 
         $builder->createField('name', 'string')
             ->build();
@@ -45,7 +50,10 @@ class PluginEnhancerGenderDictionary extends CommonEntity
             ->scale(4)
             ->build();
 
-        $builder->addIndex(['name'], 'idx_name');
+        $builder->createField('count', 'integer')
+            ->build();
+
+        $builder->addIndex(['name', 'probability', 'gender'], 'idx_probable_gender');
     }
 
     /**
@@ -66,10 +74,14 @@ class PluginEnhancerGenderDictionary extends CommonEntity
 
     /**
      * @param string $name
+     *
+     * @return $this
      */
-    public function setName(string $name): void
+    public function setName(string $name)
     {
         $this->name = $name;
+
+        return $this;
     }
 
     /**
@@ -82,10 +94,14 @@ class PluginEnhancerGenderDictionary extends CommonEntity
 
     /**
      * @param string $gender
+     *
+     * @return $this
      */
-    public function setGender(string $gender): void
+    public function setGender(string $gender)
     {
         $this->gender = $gender;
+
+        return $this;
     }
 
     /**
@@ -98,9 +114,33 @@ class PluginEnhancerGenderDictionary extends CommonEntity
 
     /**
      * @param float $probability
+     *
+     * @return $this
      */
-    public function setProbability(float $probability): void
+    public function setProbability(float $probability)
     {
         $this->probability = $probability;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    /**
+     * @param int $count
+     *
+     * @return $this
+     */
+    public function setCount(int $count)
+    {
+        $this->count = $count;
+
+        return $this;
     }
 }
