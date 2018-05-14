@@ -8,7 +8,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Entity;
 
-use Doctrine\DBAL\DBALException;
 use Mautic\CoreBundle\Entity\CommonRepository;
 use MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel;
 
@@ -19,9 +18,6 @@ class PluginEnhancerGenderNameRepository extends CommonRepository
         return MAUTIC_TABLE_PREFIX.PluginEnhancerGenderName::TABLE_NAME;
     }
 
-    /**
-     * @throws DBALException
-     */
     public function createReferenceTable()
     {
         $table_name = $this->getTableName();
@@ -34,20 +30,18 @@ CREATE TABLE `$table_name` (
   `probability` float(7,4) NOT NULL,
   `count` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `idx_probable_gender` (`name`, `probability`, `gender`)
+  UNIQUE KEY `key_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 EOSQL;
         try {
             $this->getEntityManager()->getConnection()->exec($sql);
-        } catch (DBALException $e) {
+        } catch (\Exception $e) {
             exit('Failed to create '.$table_name.': '.$e->getMessage());
         }
     }
 
     /**
      * @return int
-     *
-     * @throws DBALException
      */
     public function verifyReferenceTable()
     {
@@ -56,22 +50,19 @@ EOSQL;
             $results = $this->getEntityManager()->getConnection()->fetchArray($sql);
 
             return $results[0][0];
-        } catch (DBALException $e) {
+        } catch (\Exception $e) {
             $this->createReferenceTable();
 
             return 0;
         }
     }
 
-    /**
-     * @throws DBALException
-     */
     public function emptyReferenceTable()
     {
         try {
-            $sql = 'TRUNCATE plugin_enhancer_city_state_postal_code';
+            $sql = 'TRUNCATE '.$this->getTableName();
             $this->getEntityManager()->getConnection()->exec($sql);
-        } catch (DBALException $e) {
+        } catch (\Exception $e) {
             $this->createReferenceTable();
         }
     }
@@ -79,7 +70,6 @@ EOSQL;
     /**
      * @param GenderNameModel $model
      *
-     * @throws DBALException
      * @throws \Doctrine\ORM\OptimisticLockException
      */
     public function updateReferenceTable(GenderNameModel $model)
@@ -88,19 +78,24 @@ EOSQL;
         $em        = $this->getEntityManager();
 
         $preppedData = $model->prepareGenderNameData();
+        $batchSize   = 200;
         $count       = 0;
 
+        echo 'Inserting data'.PHP_EOL;
         foreach ($preppedData as $datum) {
-            $entry = new PluginEnhancerGenderName();
-            $entry->setName($datum['name']);
-
-            $em->persist($entry);
-            if (100 < ++$count) {
+            $record = new PluginEnhancerGenderName();
+            $record
+                ->setName($datum['name'])
+                ->setGender($datum['gender'])
+                ->setProbability($datum['probability'])
+                ->setCount($datum['count']);
+            $em->persist($record);
+            $count += 1;
+            if (0 === ($count % $batchSize)) {
                 $em->flush();
-                $count = 0;
+                $em->clear();
             }
         }
-
         $em->flush();
         $em->clear();
     }

@@ -8,7 +8,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Doctrine\DBAL\DBALException;
 use Mautic\LeadBundle\Entity\Lead;
 
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
@@ -16,7 +15,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     /**
      * @var \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
-    protected $cspcModel;
+    protected $integrationModel;
 
     /**
      * @return string
@@ -37,13 +36,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     /**
      * @return \Mautic\CoreBundle\Model\AbstractCommonModel|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
-    protected function getCSPCModel()
+    protected function getIntegrationModel()
     {
-        if (!isset($this->cspcModel)) {
-            $this->cspcModel = $this->factory->getModel('enhancer.citystatepostalcode');
+        if (!isset($this->integrationModel)) {
+            $this->integrationModel = $this->factory->getModel('enhancer.citystatepostalcode');
         }
 
-        return $this->cspcModel;
+        return $this->integrationModel;
     }
 
     /**
@@ -54,8 +53,8 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         // hi-jacking build routine to create reference table
         // this will ensure the table is installed
         try {
-            $this->getCSPCModel()->verifyReferenceTable();
-        } catch (DBALException $e) {
+            $this->getIntegrationModel()->verifyReferenceTable();
+        } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
             $this->settings->setIsPublished(false);
             $this->session->getFlashBag()->add(
@@ -69,6 +68,8 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
     /**
      * @param Lead $lead
+     *
+     * @return mixed|void
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -84,7 +85,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 $country = 'US';
             }
 
-            $cityStatePostalCode = $this->getCSPCModel()->getRepository()->findOneBy([
+            $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy([
                 'postalCode' => $lead->getZipcode(), 'country' => $country,
             ]);
 

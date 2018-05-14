@@ -30,16 +30,18 @@ class InstallGenderNamesDataCommand extends ModeratedCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $details = '.';
         try {
             $model = $this->getContainer()->get('mautic.enhancer.model.gendername');
             if ($model->updateReferenceTable()) {
-                $output->writeln('Reference data successfully loaded. GenderFromName is ready for use.');
+                $output->writeln('Reference data successfully loaded. GenderFromName is ready for use');
 
                 return true;
             }
         } catch (\Exception $e) {
+            $details = ', '.$e->getMessage().PHP_EOL;
         }
-        $output->writeln('Failed to load reference table. GenderFromName is not ready.');
+        $output->writeln('Failed to load reference table'.$details.' GenderFromName is not ready');
 
         return false;
     }

@@ -33,8 +33,8 @@ class PluginEnhancerGenderName extends CommonEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable(self::TABLE_NAME)
-            ->setCustomRepositoryClass('MauticPlugin\MauticEnhancerBundle\Entity\MauticPluginGenderNameRepository');
+        $builder->setTable(MAUTIC_TABLE_PREFIX.self::TABLE_NAME)
+            ->setCustomRepositoryClass(PluginEnhancerGenderNameRepository::class);
 
         $builder->addId();
 
@@ -53,7 +53,7 @@ class PluginEnhancerGenderName extends CommonEntity
         $builder->createField('count', 'integer')
             ->build();
 
-        $builder->addIndex(['name', 'probability', 'gender'], 'idx_probable_gender');
+        $builder->addUniqueConstraint(['name'], 'key_name');
     }
 
     /**

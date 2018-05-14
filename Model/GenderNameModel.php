@@ -9,6 +9,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Model;
 
 use Mautic\CoreBundle\Model\AbstractCommonModel;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerGenderName;
 
 class GenderNameModel extends AbstractCommonModel
 {
@@ -30,6 +31,43 @@ class GenderNameModel extends AbstractCommonModel
     public function getRepository()
     {
         return $this->em->getRepository($this->getEntityName());
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null|string
+     *
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function getGender($name)
+    {
+        /** @var PluginEnhancerGenderName $record */
+        $record = $this->getRepository()->findOneBy(['name' => strtoupper($name)]);
+        if (null !== $record) {
+            return $record->getGender();
+        } else {
+            $url = 'https://api.genderize.io/?name='.strtolower($name);
+            $ch  = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $result = json_decode(curl_exec($ch), true);
+            if (isset($result['gender'])) {
+                $gender     = 'female' === $result['gender'] ? 'F' : 'M';
+                $genderName = new PluginEnhancerGenderName();
+                $genderName
+                    ->setName($name)
+                    ->setGender($gender)
+                    ->setProbability($result['probability'])
+                    ->setCount($result['count']);
+                try {
+                    $this->getRepository()->saveEntity($genderName, true);
+                } catch (\Exception $e) {
+                    $this->logger->error($e->getMessage());
+                }
+            }
+
+            return null;
+        }
     }
 
     /**
@@ -63,10 +101,11 @@ class GenderNameModel extends AbstractCommonModel
             'M' => [],
         ];
 
-        if ($this->fetchNamesZip() &&
-            ($workingDir = $this->cleanWorkingDir()) &&
+        if (($workingDir = $this->cleanWorkingDir()) &&
+            $this->fetchNamesZip() &&
             $this->extractNamesZip($workingDir)
         ) {
+            echo 'Processing files'.PHP_EOL;
             foreach (glob($workingDir.'*.txt') as $dataFile) {
                 $fp = fopen($dataFile, 'r');
                 while ($dataLine = fgetcsv($fp)) {
@@ -82,25 +121,28 @@ class GenderNameModel extends AbstractCommonModel
                 unlink($dataFile);
             }
 
+            echo 'Preparing data'.PHP_EOL;
             $dataPrepped = [];
-
-            $unisex = array_intersect(
+            $unisex      = array_intersect(
                 array_keys($dataWorking['F']),
                 array_keys($dataWorking['M'])
             );
-            foreach ($dataWorking['F'] as $fName) {
+            foreach ($dataWorking['F'] as $fName => $count) {
                 if (in_array($fName, $unisex)) {
-                    $total         = $dataWorking['F'][$fName] + $dataWorking['M'][$fName];
-                    $dataPrepped[] = ['gender' => 'F', 'name' => $fName, 'probability' => $dataWorking['F'][$fName] / $total, 'count' => $total];
-                    $dataPrepped[] = ['gender' => 'M', 'name' => $fName, 'probability' => $dataWorking['M'][$fName] / $total, 'count' => $total];
+                    $total         = $count + $dataWorking['M'][$fName];
+                    if ($count > $dataWorking['M'][$fName]) {
+                        $dataPrepped[] = ['gender' => 'F', 'name' => $fName, 'probability' => ($count / $total), 'count' => $total];
+                    } else {
+                        $dataPrepped[] = ['gender' => 'M', 'name' => $fName, 'probability' => ($dataWorking['M'][$fName] / $total), 'count' => $total];
+                    }
                     unset($dataWorking['M'][$fName]);
                 } else {
-                    $dataPrepped[] = ['gender' => 'F', 'name' => $fName, 'probability' => 1.0, 'count' => $dataWorking['F'][$fName]];
+                    $dataPrepped[] = ['gender' => 'F', 'name' => $fName, 'probability' => 1.00, 'count' => $count];
                 }
             }
             unset($dataWorking['F']);
-            foreach ($dataWorking['M'] as $mName) {
-                $dataPrepped[] = ['gender' => 'M', 'name' => $mName, 'probability' => 1.0, 'count' => $dataWorking['M'][$mName]];
+            foreach ($dataWorking['M'] as $mName => $count) {
+                $dataPrepped[] = ['gender' => 'M', 'name' => $mName, 'probability' => 1.00, 'count' => $count];
             }
             unset($dataWorking);
 
@@ -113,6 +155,7 @@ class GenderNameModel extends AbstractCommonModel
      */
     protected function fetchNamesZip()
     {
+        echo 'Downloading data file'.PHP_EOL;
         try {
             file_put_contents(
                 self::REFERENCE_LOCAL.self::REFERENCE_FILENAME,
@@ -133,6 +176,7 @@ class GenderNameModel extends AbstractCommonModel
      */
     protected function cleanWorkingDir()
     {
+        echo 'Cleaning working dir'.PHP_EOL;
         $workingDir = self::REFERENCE_LOCAL.'genderNames/';
         if (!(is_dir($workingDir) || mkdir($workingDir))) {
             $this->logger->error('Unable co create working dir at '.$workingDir);
@@ -142,7 +186,7 @@ class GenderNameModel extends AbstractCommonModel
             $files = array_diff(scandir($workingDir), ['.', '..']);
             foreach ($files as $file) {
                 try {
-                    unlink($file);
+                    unlink($workingDir.$file);
                     $this->logger->warning('Unexpected file '.$file.' found and removed from '.$workingDir);
                 } catch (\Exception $e) {
                     $this->logger->error($e->getMessage());
@@ -164,6 +208,7 @@ class GenderNameModel extends AbstractCommonModel
      */
     protected function extractNamesZip($workingDir)
     {
+        echo 'Extracting files'.PHP_EOL;
         try {
             $genderNames = new \ZipArchive();
             $opened      = $genderNames->open(self::REFERENCE_LOCAL.self::REFERENCE_FILENAME);
@@ -174,6 +219,7 @@ class GenderNameModel extends AbstractCommonModel
             } elseif (!$genderNames->close()) {
                 $this->logger->warning('Unable to close archive');
             } else {
+                $this->logger->info('Archive extracted to '.$workingDir);
                 unset($genderNames);
 
                 return true;

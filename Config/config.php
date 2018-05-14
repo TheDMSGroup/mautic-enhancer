@@ -54,6 +54,9 @@ return [
             'mautic.enhancer.integration.citystatefrompostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromPostalCodeIntegration::class,
             ],
+            'mautic.enhancer.integration.genderfromname' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\GenderFromNameIntegration::class,
+            ],
         ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [
