@@ -69,7 +69,7 @@ class EnhancerHelper
             'Fourleaf',
             'Xverify',
             'CityStateFromPostalCode',
-            'GenderFromName'
+            'GenderFromName',
         ];
     }
 }

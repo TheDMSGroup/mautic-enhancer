@@ -42,27 +42,31 @@ class GenderNameModel extends AbstractCommonModel
      */
     public function getGender($name)
     {
-        /** @var PluginEnhancerGenderName $record */
-        $record = $this->getRepository()->findOneBy(['name' => strtoupper($name)]);
-        if (null !== $record) {
+        if ($record = $this->getRepository()->findOneBy(['name' => strtoupper($name)])) {
             return $record->getGender();
         } else {
-            $url = 'https://api.genderize.io/?name='.strtolower($name);
+            $url = 'https://api.genderize.io/?name='.urlencode($name);
             $ch  = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $result = json_decode(curl_exec($ch), true);
-            if (isset($result['gender'])) {
-                $gender     = 'female' === $result['gender'] ? 'F' : 'M';
-                $genderName = new PluginEnhancerGenderName();
-                $genderName
-                    ->setName($name)
-                    ->setGender($gender)
-                    ->setProbability($result['probability'])
-                    ->setCount($result['count']);
-                try {
-                    $this->getRepository()->saveEntity($genderName, true);
-                } catch (\Exception $e) {
-                    $this->logger->error($e->getMessage());
+            $result = curl_exec($ch);
+            if (false !== $result) {
+                $result = json_decode($result, true);
+                if (isset($result['gender'])) {
+                    $gender = 'female' === $result['gender'] ? 'F' : 'M';
+                    //add it to our reference table
+                    $genderName = new PluginEnhancerGenderName();
+                    $genderName
+                        ->setName(strtoupper($name))
+                        ->setGender($gender)
+                        ->setProbability($result['probability'])
+                        ->setCount($result['count']);
+                    try {
+                        $this->getRepository()->saveEntity($genderName, true);
+                    } catch (\Exception $e) {
+                        $this->logger->error($e->getMessage());
+                    }
+
+                    return $gender;
                 }
             }
 

@@ -60,7 +60,7 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        if (!$lead->getFieldValue('gender')) {
+        if (!$lead->getFieldValue('gender') or $this->replaceCurrent) {
             $gender = $this->getIntegrationModel()->getGender($lead->getFirstname());
             if ($gender) {
                 $lead->addUpdatedField('gender', $gender);
