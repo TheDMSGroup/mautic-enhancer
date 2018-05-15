@@ -32,6 +32,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /** @var \Mautic\CampaignBundle\Entity\Campaign */
     protected $campaign;
 
+    /** @var bool */
+    protected $replaceCurrent = false;
+
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
@@ -204,7 +207,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function pushLead(Lead &$lead, array $config = [])
     {
         $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
-        $this->config = $config;
+        $this->config         = $config;
+        $this->replaceCurrent = true;
         try {
             $this->doEnhancement($lead);
         } catch (\Exception $exception) {

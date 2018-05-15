@@ -31,6 +31,9 @@ return [
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
             ],
+            'mautic.enhancer.model.gendername' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel::class,
+            ],
         ],
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate' => [
@@ -50,6 +53,9 @@ return [
             ],
             'mautic.enhancer.integration.citystatefrompostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromPostalCodeIntegration::class,
+            ],
+            'mautic.enhancer.integration.genderfromname' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\GenderFromNameIntegration::class,
             ],
         ],
         'other'        => [

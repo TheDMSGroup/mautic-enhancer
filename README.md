@@ -15,6 +15,7 @@ A bundle of contact data enhancers.
 - Random - Stores random number for use in A/B splits
 - Age from Birthdate - Stores age based on a birthdate field
 - City & State from Postal Code - Backfills blank city/state fields when the postal(zip) is filled. IP Address data can be used to enhance the data.
+- Choose Gender From Name - Selects the most probble gender based on a contacts first name.
 
 ## Installation & Usage
 
@@ -24,3 +25,4 @@ If you have success/issues with other versions please report.
 1. Install by running `composer require thedmsgroup/mautic-enhancer-bundle` or by unpacking this repository's contents into a folder named `/plugins/MauticEnhancerBundle`
 2. Go to `/s/plugins` and click `Install/Upgrade Plugins`.
 3. Publish and configure the integrations as you wish.
+4. For *City & State From Postal Code* and *Gender From Name*, use the console commands (mautic:integration:enhancer:installcspcdata and mautic:integration:enhancer:installgendernames, respectively) to build the reference tables.
