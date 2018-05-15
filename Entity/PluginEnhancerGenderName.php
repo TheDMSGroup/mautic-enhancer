@@ -59,7 +59,7 @@ class PluginEnhancerGenderName extends CommonEntity
     /**
      * @return int
      */
-    public function getId(): int
+    public function getId()
     {
         return $this->id;
     }
@@ -67,7 +67,7 @@ class PluginEnhancerGenderName extends CommonEntity
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName()
     {
         return $this->name;
     }
@@ -87,7 +87,7 @@ class PluginEnhancerGenderName extends CommonEntity
     /**
      * @return string
      */
-    public function getGender(): string
+    public function getGender()
     {
         return $this->gender;
     }
@@ -107,7 +107,7 @@ class PluginEnhancerGenderName extends CommonEntity
     /**
      * @return float
      */
-    public function getProbability(): float
+    public function getProbability()
     {
         return $this->probability;
     }
@@ -127,7 +127,7 @@ class PluginEnhancerGenderName extends CommonEntity
     /**
      * @return int
      */
-    public function getCount(): int
+    public function getCount()
     {
         return $this->count;
     }
