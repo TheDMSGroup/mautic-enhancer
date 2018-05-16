@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 5/16/18
- * Time: 11:51 AM
+ * Time: 11:51 AM.
  */
 
 namespace MauticEnhancerBundle\Integration;
@@ -31,15 +31,15 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
         return [
             'ptp_areacode' => [
                 'label' => 'Area Code',
-                'type' => 'text',
+                'type'  => 'text',
             ],
             'ptp_prefix' => [
                 'label' => 'Prefix',
-                'type' => 'text',
+                'type'  => 'text',
             ],
             'ptp_line_number' => [
                 'label' => 'Line Number',
-                'type' => 'text',
+                'type'  => 'text',
             ],
         ];
     }
@@ -87,5 +87,4 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     {
         return 'none';
     }
-
 }
