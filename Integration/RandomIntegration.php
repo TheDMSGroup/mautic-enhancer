@@ -52,7 +52,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea && !isset($data['random_field_name'])) {
             $builder->add(
                 'random_field_name',
-                'text',
+                \Symfony\Component\Form\Extension\Core\Type\TextType::class,
                 [
                     'label' => $this->translator->trans('mautic.plugin.random.field_name.label'),
                     'attr'  => [
@@ -63,7 +63,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
             )
             ->add(
                 'autorun_enabled',
-                'hidden',
+                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
                 [
                     'data' => true,
                 ]
@@ -89,7 +89,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -100,5 +100,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
                 $lead->addUpdatedField($settings['random_field_name'], rand(1, 100));
             }
         }
+
+        return true;
     }
 }

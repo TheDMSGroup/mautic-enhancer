@@ -56,16 +56,24 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
-        if (!$lead->getFieldValue('gender') or $this->replaceCurrent) {
-            $gender = $this->getIntegrationModel()->getGender($lead->getFirstname());
+        $gender = $lead->getFieldValue('gender');
+        if (!$gender or $this->replaceCurrent) {
+            try {
+                $gender = $this->getIntegrationModel()->getGender($lead->getFirstname());
+            } catch (\Exception $e) {
+                return false;
+            }
+
             if ($gender) {
                 $lead->addUpdatedField('gender', $gender);
             }
         }
+
+        return true;
     }
 
     /**
@@ -86,7 +94,7 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                'hidden',
+                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
                 [
                     'data' => true,
                 ]
