@@ -57,6 +57,9 @@ return [
             'mautic.enhancer.integration.genderfromname' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\GenderFromNameIntegration::class,
             ],
+            'mautic.enhancer.integration.phonetoparts' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\PhoneToPartsIntegration::class,
+            ],
         ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [
