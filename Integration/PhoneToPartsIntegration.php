@@ -6,10 +6,9 @@
  * Time: 11:51 AM.
  */
 
-namespace MauticEnhancerBundle\Integration;
+namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 class PhoneToPartsIntegration extends AbstractEnhancerIntegration
 {
@@ -31,15 +30,12 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
         return [
             'ptp_areacode' => [
                 'label' => 'Area Code',
-                'type'  => 'text',
             ],
             'ptp_prefix' => [
                 'label' => 'Prefix',
-                'type'  => 'text',
             ],
             'ptp_line_number' => [
                 'label' => 'Line Number',
-                'type'  => 'text',
             ],
         ];
     }
@@ -47,7 +43,7 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return mixed
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -57,6 +53,8 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
             $lead->addUpdatedField('ptp_prefix', substr($phone, 3, 3));
             $lead->addUpdatedField('ptp_line_number', substr($phone, 6, 4));
         }
+
+        return true;
     }
 
     /**
@@ -69,7 +67,7 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                'hidden',
+                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
                 [
                     'data' => true,
                 ]

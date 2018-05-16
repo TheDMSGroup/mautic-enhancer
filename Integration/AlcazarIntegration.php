@@ -69,7 +69,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $builder
                 ->add(
                     'output',
-                    'choice',
+                    \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class,
                     [
                         'choices'     => [
                             'json' => 'JSON',
@@ -89,7 +89,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 )
                 ->add(
                     'extended',
-                    'yesno_button_group',
+                    \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                     [
                         'label'       => $this->translator->trans('mautic.integration.alcazar.extended.label'),
                         'data'        => !isset($data['extended']) ? false : $data['extended'],
@@ -104,7 +104,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 )
                 ->add(
                     'ani',
-                    'yesno_button_group',
+                    \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                     [
                         'label'       => $this->translator->trans('mautic.integration.alcazar.ani.label'),
                         'data'        => !isset($data['ani']) ? false : $data['ani'],
@@ -119,7 +119,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 )
                 ->add(
                     'dnc',
-                    'yesno_button_group',
+                    \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                     [
                         'label'       => $this->translator->trans('mautic.integration.alcazar.dnc.label'),
                         'data'        => !isset($data['dnc']) ? false : $data['dnc'],
@@ -195,13 +195,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * @param Lead $lead
      *
-     * @return bool|mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
         if (!empty($lead)) {
             if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
-                return;
+                return true;
             }
 
             $phone = $lead->getPhone();
@@ -210,7 +210,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 $phone = '1'.$phone;
             }
             if (11 !== strlen($phone)) {
-                return;
+                return false;
             }
 
             $keys = $this->getKeys();
@@ -233,12 +233,18 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 }
             }
 
-            $response = $this->makeRequest(
-                $keys['server'],
-                ['append_to_query' => $params],
-                'GET',
-                ['ignore_event_dispatch' => 1]
-            );
+            try {
+                $response = $this->makeRequest(
+                    $keys['server'],
+                    ['append_to_query' => $params],
+                    'GET',
+                    ['ignore_event_dispatch' => 1]
+                );
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+
+                return false;
+            }
 
             $this->applyCost($lead);
 
@@ -252,6 +258,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
             }
 
             $this->saveLead($lead);
+
+            return true;
         }
     }
 }

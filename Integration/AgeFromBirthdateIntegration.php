@@ -66,7 +66,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                'yesno_button_group',
+                \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                 [
                     'label'       => $this->translator->trans('mautic.integration.autorun.label'),
                     'data'        => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
@@ -85,7 +85,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -103,5 +103,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
 
             $lead->addUpdatedField('afb_age', intval($age));
         }
+
+        return true;
     }
 }
