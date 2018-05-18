@@ -82,7 +82,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     abstract protected function getEnhancerFieldArray();
 
     /**
-     * @return string
+     * @return stringcd work
      */
     private function getLeadObject()
     {
