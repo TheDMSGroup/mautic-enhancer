@@ -134,7 +134,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     /**
      * @param $section
      *
-     * @return string|void
+     * @return mixed
      */
     public function getFormNotes($section)
     {

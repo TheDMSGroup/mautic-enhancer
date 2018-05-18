@@ -61,15 +61,16 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         $gender = $lead->getFieldValue('gender');
-        if (!$gender or $this->replaceCurrent) {
+        if (!$gender or $this->isPush) {
             try {
-                $gender = $this->getIntegrationModel()->getGender($lead->getFirstname());
+                $oldGender = $gender;
+                $gender    = $this->getIntegrationModel()->getGender($lead->getFirstname());
             } catch (\Exception $e) {
                 return false;
             }
 
             if ($gender) {
-                $lead->addUpdatedField('gender', $gender);
+                $lead->addUpdatedField('gender', $gender, $oldGender);
             }
         }
 
@@ -105,7 +106,7 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
     /**
      * @param $section
      *
-     * @return string|void
+     * @return mixed
      */
     public function getFormNotes($section)
     {

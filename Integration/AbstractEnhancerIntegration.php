@@ -55,7 +55,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 $new_field = new LeadField();
                 $new_field->setAlias($alias);
                 //setting extendedField/lead in one place,
-                $new_field->setObject($this->getLeadObject());
+                $new_field->setObject($this->getLeadFieldObject());
 
                 foreach ($properties as $property => $value) {
                     //convert snake case to cammel case
@@ -82,9 +82,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     abstract protected function getEnhancerFieldArray();
 
     /**
-     * @return stringcd work
+     * @return string
      */
-    private function getLeadObject()
+    private function getLeadFieldObject()
     {
         if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
             return 'extendedField';
