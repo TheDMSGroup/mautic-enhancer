@@ -11,7 +11,9 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Doctrine\ORM\OptimisticLockException;
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Entity\LeadField;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\Event\ContactLedgerContextEvent;
@@ -33,27 +35,27 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     protected $campaign;
 
     /** @var bool */
-    protected $replaceCurrent = false;
+    protected $isPush = false;
 
-    /**
-     * @throws \Doctrine\DBAL\DBALException
-     */
     public function buildEnhancerFields()
     {
+        $new_field   = null;
         $integration = $this->getIntegrationSettings();
+
+        $existing = $this->fieldModel->getFieldList(false);
+        $existing = array_keys($existing);
 
         if ($integration->getIsPublished()) {
             foreach ($this->getEnhancerFieldArray() as $alias => $properties) {
-                if (null !== $this->fieldModel->getEntityByAlias($alias)) {
+                if (in_array($alias, $existing)) {
                     // The field already exists
                     continue;
                 }
 
-                $new_field = $this->fieldModel->getEntity();
+                $new_field = new LeadField();
                 $new_field->setAlias($alias);
-
                 //setting extendedField/lead in one place,
-                $new_field->setObject($this->getFieldObject());
+                $new_field->setObject($this->getLeadFieldObject());
 
                 foreach ($properties as $property => $value) {
                     //convert snake case to cammel case
@@ -65,12 +67,12 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         error_log('Failed with "'.$e->getMessage().'"');
                     }
                 }
-
-                $this->fieldModel->saveEntity($new_field);
+                try {
+                    $this->em->flush($new_field);
+                } catch (OptimisticLockException $e) {
+                    $this->logger->warning($e->getMessage());
+                }
             }
-        }
-        if (isset($new_field)) {
-            $this->fieldModel->reorderFieldsByEntity($new_field);
         }
     }
 
@@ -82,7 +84,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /**
      * @return string
      */
-    private function getFieldObject()
+    private function getLeadFieldObject()
     {
         if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
             return 'extendedField';
@@ -208,7 +210,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     {
         $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
         $this->config         = $config;
-        $this->replaceCurrent = true;
+        $this->isPush         = true;
+
         try {
             $this->doEnhancement($lead);
         } catch (\Exception $exception) {

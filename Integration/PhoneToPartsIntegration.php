@@ -28,7 +28,7 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     protected function getEnhancerFieldArray()
     {
         return [
-            'ptp_areacode' => [
+            'ptp_area_code' => [
                 'label' => 'Area Code',
             ],
             'ptp_prefix' => [
@@ -48,6 +48,11 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         $phone = preg_replace('/\D+/', '', $lead->getPhone());
+
+        if ((11 === strlen($phone)) && (0 === strpos($phone, '1'))) {
+            $phone = substr($phone, 1);
+        }
+
         if (10 === strlen($phone)) {
             $lead->addUpdatedField('ptp_area_code', substr($phone, 0, 3));
             $lead->addUpdatedField('ptp_prefix', substr($phone, 3, 3));
