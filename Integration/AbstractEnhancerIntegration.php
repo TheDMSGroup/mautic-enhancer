@@ -68,6 +68,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                     }
                 }
                 try {
+                    $this->em->persist($new_field);
                     $this->em->flush($new_field);
                 } catch (OptimisticLockException $e) {
                     $this->logger->warning($e->getMessage());
