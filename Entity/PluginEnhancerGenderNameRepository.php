@@ -90,7 +90,7 @@ EOSQL;
                 ->setProbability($datum['probability'])
                 ->setCount($datum['count']);
             $em->persist($record);
-            $count += 1;
+            ++$count;
             if (0 === ($count % $batchSize)) {
                 $em->flush();
                 $em->clear();

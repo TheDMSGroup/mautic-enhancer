@@ -89,7 +89,7 @@ EOSQL;
                     ->setCity($city)
                     ->setStateProvince($stateProvince);
                 $em->persist($record);
-                $count += 1;
+                ++$count;
                 if (0 === ($count % $batchSize)) {
                     $em->flush();
                     $em->clear();

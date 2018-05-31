@@ -61,7 +61,7 @@ class LeadSubscriber extends CommonSubscriber
              */
             $integrations = $this->enhancerHelper->getEnhancerIntegrations();
             foreach ($integrations as $integration) {
-                $settings =$integration->getIntegrationSettings();
+                $settings = $integration->getIntegrationSettings();
                 if ($settings->getIsPublished()) {
                     $features = $settings->getFeatureSettings();
                     if (isset($features['autorun_enabled']) && $features['autorun_enabled']) {
