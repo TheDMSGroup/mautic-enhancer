@@ -54,7 +54,7 @@ class LeadSubscriber extends CommonSubscriber
      */
     public function doAutoRunEnhancements(LeadEvent $event)
     {
-        if (!$event->getLead()->getId()) {
+        if ($event->getLead()->getDateIdentified()) {
             $lead = $event->getLead();
             /**
              * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
@@ -66,7 +66,6 @@ class LeadSubscriber extends CommonSubscriber
                     $features = $settings->getFeatureSettings();
                     if (isset($features['autorun_enabled']) && $features['autorun_enabled']) {
                         try {
-                            $stop = 'here';
                             $integration->doEnhancement($lead);
                         } catch (\Exception $exception) {
                             $e = new ApiErrorException(
