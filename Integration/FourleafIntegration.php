@@ -122,17 +122,19 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
             $response = json_decode($response, true);
 
-            $this->applyCost($lead);
+            if ($response) {
+                $this->applyCost($lead);
 
-            $allowedAliases = $this->getEnhancerFieldArray();
-            foreach ($response as $key => $value) {
-                $alias = 'fourleaf_'.str_replace('user_', '', $key);
-                if (isset($allowedAliases[$alias])) {
-                    $default = $lead->getFieldValue($alias);
-                    $lead->addUpdatedField($alias, $value, $default);
+                $allowedAliases = $this->getEnhancerFieldArray();
+                foreach ($response as $key => $value) {
+                    $alias = 'fourleaf_'.str_replace('user_', '', $key);
+                    if (isset($allowedAliases[$alias])) {
+                        $default = $lead->getFieldValue($alias);
+                        $lead->addUpdatedField($alias, $value, $default);
+                    }
                 }
+                $this->saveLead($lead);
             }
-            $this->saveLead($lead);
         }
     }
 }
