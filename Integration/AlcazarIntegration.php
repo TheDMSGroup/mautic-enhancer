@@ -195,13 +195,13 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * @param Lead $lead
      *
-     * @return bool|mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
         if (!empty($lead)) {
             if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
-                return;
+                return true;
             }
 
             $phone = $lead->getPhone();
@@ -210,7 +210,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 $phone = '1'.$phone;
             }
             if (11 !== strlen($phone)) {
-                return;
+                return false;
             }
 
             $keys = $this->getKeys();
@@ -233,12 +233,18 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 }
             }
 
-            $response = $this->makeRequest(
-                $keys['server'],
-                ['append_to_query' => $params],
-                'GET',
-                ['ignore_event_dispatch' => 1]
-            );
+            try {
+                $response = $this->makeRequest(
+                    $keys['server'],
+                    ['append_to_query' => $params],
+                    'GET',
+                    ['ignore_event_dispatch' => 1]
+                );
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+
+                return false;
+            }
 
             if ($response) {
                 $this->applyCost($lead);
@@ -253,7 +259,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 }
 
                 $this->saveLead($lead);
+                return true;
             }
+            return false;
         }
     }
 }

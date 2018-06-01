@@ -69,7 +69,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -101,6 +101,8 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 }
             }
         }
+
+        return true;
     }
 
     /**
@@ -121,7 +123,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                'hidden',
+                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
                 [
                     'data' => true,
                 ]
@@ -132,7 +134,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     /**
      * @param $section
      *
-     * @return string|void
+     * @return mixed
      */
     public function getFormNotes($section)
     {

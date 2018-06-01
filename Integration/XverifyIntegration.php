@@ -124,9 +124,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
-     *
-     * @throws \Exception
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -143,7 +141,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $persist = false;
 
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
-                $response      = $status = $service = $fieldKey = null;
                 $fieldToUpdate = $integrationFieldName.'_valid'; //which validation field will we update?
                 try {
                     $fieldValue = $lead->getFieldValue($mauticFieldName);
@@ -202,7 +199,8 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         // We don't want to potentially lose track of a cost.
                         $this->saveLead($lead);
                     }
-                    throw $e;
+
+                    return false;
                 }
             }
 
@@ -210,6 +208,8 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 $this->saveLead($lead);
             }
         }
+
+        return true;
     }
 
     /**

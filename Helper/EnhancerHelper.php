@@ -70,6 +70,7 @@ class EnhancerHelper
             'Xverify',
             'CityStateFromPostalCode',
             'GenderFromName',
+            'PhoneToParts',
         ];
     }
 }

@@ -91,7 +91,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     /**
      * @param Lead $lead
      *
-     * @return mixed|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -100,7 +100,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             $email = $lead->getEmail();
 
             if ($algo || !$email) {
-                return;
+                return true;
             }
 
             $keys = $this->getDecryptedApiKeys();
@@ -115,10 +115,16 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                 ],
             ];
 
-            $ch = curl_init();
-            curl_setopt_array($ch, $options);
-            $response = curl_exec($ch);
-            curl_close($ch);
+            try {
+                $ch = curl_init();
+                curl_setopt_array($ch, $options);
+                $response = curl_exec($ch);
+                curl_close($ch);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+
+                return false;
+            }
 
             $response = json_decode($response, true);
 
@@ -134,7 +140,10 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                     }
                 }
                 $this->saveLead($lead);
+
+                return true;
             }
+            return false;
         }
     }
 }
