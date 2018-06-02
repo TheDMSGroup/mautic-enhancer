@@ -259,8 +259,10 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 }
 
                 $this->saveLead($lead);
+
                 return true;
             }
+
             return false;
         }
     }
