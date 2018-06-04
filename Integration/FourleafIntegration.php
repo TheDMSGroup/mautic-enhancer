@@ -136,7 +136,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                     $alias = 'fourleaf_'.str_replace('user_', '', $key);
                     if (isset($allowedAliases[$alias])) {
                         $default = $lead->getFieldValue($alias);
-                        $lead->addUpdatedField($alias, $value, $default);
+                        $lead->addUpdatedField($alias, (string) $value, $default);
                     }
                 }
                 $this->saveLead($lead);
