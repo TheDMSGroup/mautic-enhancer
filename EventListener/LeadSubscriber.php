@@ -54,8 +54,8 @@ class LeadSubscriber extends CommonSubscriber
      */
     public function doAutoRunEnhancements(LeadEvent $event)
     {
-        if ($event->getLead()->getDateIdentified()) {
-            $lead = $event->getLead();
+        $lead = $event->getLead();
+        if ($lead && ($lead->getDateIdentified() !== null || !$lead->isAnonymous())) {
             /**
              * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
              */
