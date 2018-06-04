@@ -195,6 +195,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     }
                 } catch (\Exception $e) {
                     $this->logIntegrationError($e);
+
                     return false;
                 }
             }

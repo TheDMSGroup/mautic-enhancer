@@ -143,6 +143,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                 }
             }
         }
+
         return $persist;
     }
 }

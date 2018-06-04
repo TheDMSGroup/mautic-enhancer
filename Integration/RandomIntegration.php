@@ -98,9 +98,11 @@ class RandomIntegration extends AbstractEnhancerIntegration
 
             if (!$lead->getFieldValue($settings['random_field_name'])) {
                 $lead->addUpdatedField($settings['random_field_name'], (string) rand(1, 100));
+
                 return true;
             }
         }
+
         return false;
     }
 }
