@@ -71,10 +71,11 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
 
             if ($gender) {
                 $lead->addUpdatedField('gender', $gender, $oldGender);
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     /**

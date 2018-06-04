@@ -214,7 +214,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         $this->isPush         = true;
 
         try {
-            $this->doEnhancement($lead);
+            if ($this->doEnhancement($lead)) {
+                $this->saveLead($lead);
+            }
         } catch (\Exception $exception) {
             $this->logIntegrationError(
                 new ApiErrorException(

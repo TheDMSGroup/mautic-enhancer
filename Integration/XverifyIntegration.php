@@ -128,6 +128,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function doEnhancement(Lead &$lead)
     {
+        $persist = false;
         if (!empty($lead)) {
             $settings            = $this->getIntegrationSettings()->getFeatureSettings();
             $contactFieldMapping = $settings['leadFields'];
@@ -138,7 +139,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 'domain' => $keys['server'],
                 'type'   => 'json',
             ];
-            $persist = false;
 
             foreach ($contactFieldMapping as $integrationFieldName => $mauticFieldName) {
                 $fieldToUpdate = $integrationFieldName.'_valid'; //which validation field will we update?
@@ -195,21 +195,12 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     }
                 } catch (\Exception $e) {
                     $this->logIntegrationError($e);
-                    if ($persist) {
-                        // We don't want to potentially lose track of a cost.
-                        $this->saveLead($lead);
-                    }
-
                     return false;
                 }
             }
-
-            if ($persist) {
-                $this->saveLead($lead);
-            }
         }
 
-        return true;
+        return $persist;
     }
 
     /**

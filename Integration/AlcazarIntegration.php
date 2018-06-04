@@ -201,7 +201,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     {
         if (!empty($lead)) {
             if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {
-                return true;
+                return false;
             }
 
             $phone = $lead->getPhone();
@@ -257,8 +257,6 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                         $lead->addUpdatedField($alias, (string) $value, $default);
                     }
                 }
-
-                $this->saveLead($lead);
 
                 return true;
             }
