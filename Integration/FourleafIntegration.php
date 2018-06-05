@@ -95,12 +95,13 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
      */
     public function doEnhancement(Lead &$lead)
     {
+        $persist = false;
         if (!empty($lead)) {
             $algo  = $lead->getFieldValue('fourleaf_algo');
             $email = $lead->getEmail();
 
             if ($algo || !$email) {
-                return true;
+                return false;
             }
 
             $keys = $this->getDecryptedApiKeys();
@@ -139,12 +140,10 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                         $lead->addUpdatedField($alias, (string) $value, $default);
                     }
                 }
-                $this->saveLead($lead);
-
-                return true;
+                $persist = true;
             }
-
-            return false;
         }
+
+        return $persist;
     }
 }

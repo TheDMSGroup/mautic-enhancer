@@ -57,9 +57,11 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
             $lead->addUpdatedField('ptp_area_code', substr($phone, 0, 3));
             $lead->addUpdatedField('ptp_prefix', substr($phone, 3, 3));
             $lead->addUpdatedField('ptp_line_number', substr($phone, 6, 4));
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
