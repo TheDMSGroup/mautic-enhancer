@@ -60,6 +60,9 @@ return [
             'mautic.enhancer.integration.phonetoparts' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\PhoneToPartsIntegration::class,
             ],
+            'mautic.enhancer.integration.correctaddress' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\ExpirianCorrectAddressIntegration::class,
+            ],
         ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [

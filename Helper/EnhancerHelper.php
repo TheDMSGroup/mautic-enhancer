@@ -71,6 +71,7 @@ class EnhancerHelper
             'CityStateFromPostalCode',
             'GenderFromName',
             'PhoneToParts',
+            'CorrectAddress'
         ];
     }
 }
