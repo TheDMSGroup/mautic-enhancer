@@ -8,8 +8,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
-use League\Flysystem\Filesystem;
-use League\Flysystem\Sftp\SftpAdapter;
+use League\Flysystem\Filesystem as LeagueFilesystem;
+use League\Flysystem\Sftp\SftpAdapter as LeagueSftpAdapter;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration as CAI;
@@ -42,14 +42,15 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
 
-            $client = new Filesystem(new SftpAdapter([
+            $adapter = new LeagueSftpAdapter([
                 'host'            => $settings[CAI::CA_REMOTE_HOST],
                 'port'            => $settings[CAI::CA_REMOTE_PORT],
                 'root'            => $settings[CAI::CA_REMOTE_PATH],
                 'username'        => $keys[CAI::CA_REMOTE_USER],
                 'password'        => $keys[CAI::CA_REMOTE_PSWD],
                 'hostFingerprint' => $keys[CAI::CA_REMOTE_FNGR],
-            ]));
+            ]);
+            $client = new LeagueFilesystem($adapter);
             echo 'Created SFTP client'.PHP_EOL;
 
             //copy the remote archive locally
