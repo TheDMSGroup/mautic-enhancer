@@ -61,7 +61,7 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\PhoneToPartsIntegration::class,
             ],
             'mautic.enhancer.integration.correctaddress' => [
-                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\ExpirianCorrectAddressIntegration::class,
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration::class,
             ],
         ],
         'other'        => [
