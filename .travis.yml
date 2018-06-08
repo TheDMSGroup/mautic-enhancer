@@ -48,6 +48,7 @@ install:
   
   # Install plugin dependencies (if any).
   - composer require wikimedia/composer-merge-plugin
+  - composer require leauge/flysystem:1.0 league/flysystem-sftp:1.0
   - composer config extra.merge-plugin.include plugins/$MAUTIC_PLUGIN/composer.json
 
 script:
