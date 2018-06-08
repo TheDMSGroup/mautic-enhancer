@@ -56,8 +56,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
 
             //copy the remote archive locally
             $tempfile = tempnam(sys_get_temp_dir(), 'ca_');
-            //$client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
-            copy('/home/nbush/exec/CorrectAddressData.zip',$tempfile);
+            $client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
             echo 'Copied data archive to '.$tempfile.' on local filesystem.'.PHP_EOL;
 
             //extract the new files
