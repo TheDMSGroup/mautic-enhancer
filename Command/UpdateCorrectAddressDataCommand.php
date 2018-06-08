@@ -60,7 +60,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             echo 'Copied data archive to '.$tempfile.' on local filesystem.'.PHP_EOL;
 
             //extract the new files
-            $buffer = '/tmp'.$settings[CAI::CA_CORRECTA_DATA];
+            $buffer    = '/tmp'.$settings[CAI::CA_CORRECTA_DATA];
             $extractor = new ZipArchive();
             $extractor->open($tempfile, ZipArchive::CHECKCONS);
             $extractor->extractTo($buffer);
@@ -93,14 +93,13 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
         if (file_exists($dirName)) {
             if (is_dir($dirName)) {
                 $root = new \RecursiveDirectoryIterator($dirName, \RecursiveDirectoryIterator::SKIP_DOTS);
-                $ls = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::CHILD_FIRST);
+                $ls   = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::CHILD_FIRST);
 
                 foreach ($ls as $file) {
                     $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
                 }
                 rmdir($dirName);
-            }
-            else {
+            } else {
                 unlink($dirName);
             }
         }
