@@ -8,13 +8,14 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
-use League\Flysystem\Filesystem as LeagueFilesystem;
-use League\Flysystem\Sftp\SftpAdapter as LeagueSftpAdapter;
+use League\Flysystem\Filesystem;
+use League\Flysystem\Sftp\SftpAdapter;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration as CAI;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use ZipArchive;
 
 class UpdateCorrectAddressDataCommand extends ModeratedCommand
 {
@@ -34,7 +35,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            echo 'Starting Expirian data update';
+            echo 'Starting Expirian data update.'.PHP_EOL;
 
             /** @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $correctAddress */
             $enhancerHelper = new EnhancerHelper($this->getContainer()->get('mautic.helper.integration'));
@@ -42,7 +43,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
 
-            $adapter = new LeagueSftpAdapter([
+            $sftpAdapter = new SftpAdapter([
                 'host'            => $settings[CAI::CA_REMOTE_HOST],
                 'port'            => $settings[CAI::CA_REMOTE_PORT],
                 'root'            => $settings[CAI::CA_REMOTE_PATH],
@@ -50,55 +51,61 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
                 'password'        => $keys[CAI::CA_REMOTE_PSWD],
                 'hostFingerprint' => $keys[CAI::CA_REMOTE_FNGR],
             ]);
-            $client = new LeagueFilesystem($adapter);
+            $client = new Filesystem($sftpAdapter);
             echo 'Created SFTP client'.PHP_EOL;
 
             //copy the remote archive locally
             $tempfile = tempnam(sys_get_temp_dir(), 'ca_');
-            $client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
-            echo 'Copied data archive to '.$tempfile.' on local filesystem'.PHP_EOL;
+            //$client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
+            copy('/home/nbush/exec/CorrectAddressData.zip',$tempfile);
+            echo 'Copied data archive to '.$tempfile.' on local filesystem.'.PHP_EOL;
+
+            //extract the new files
+            $buffer = '/tmp'.$settings[CAI::CA_CORRECTA_DATA];
+            $extractor = new ZipArchive();
+            $extractor->open($tempfile, ZipArchive::CHECKCONS);
+            $extractor->extractTo($buffer);
+            $extractor->close();
+            unlink($tempfile);
+            echo 'Archive extracted to '.$buffer.'.'.PHP_EOL;
 
             //remove the old files
             $this->cleanDir($settings[CAI::CA_CORRECTA_DATA]);
-            echo $settings[CAI::CA_CORRECTA_DATA].' is ready for writing'.PHP_EOL;
+            echo $settings[CAI::CA_CORRECTA_DATA].' removed.'.PHP_EOL;
 
-            $extractor = new \ZipArchive();
-            $extractor->open($tempfile);
-            $extractor->extractTo($settings[CAI::CA_CORRECTA_DATA]);
-            $extractor->close();
-            unlink($tempfile);
-            echo 'Expirian data update complete'.PHP_EOL;
+            rename($buffer, $settings[CAI::CA_CORRECTA_DATA]);
+            echo 'Expirian data update complete.'.PHP_EOL;
 
             return 0;
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            echo 'Failed to update data: '.$e->getMessage().PHP_EOL.$e->getTraceAsString();
 
             return $e->getCode();
         }
     }
 
     /**
-     * @param $dirName
+     * @param string $dirName
      *
      * @return bool
      */
     protected function cleanDir($dirName)
     {
-        if (!file_exists($dirName) || ('dir' !== filetype($dirName))) {
-            if (file_exists($dirName)) {
+        if (file_exists($dirName)) {
+            if (is_dir($dirName)) {
+                $root = new \RecursiveDirectoryIterator($dirName, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $ls = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::CHILD_FIRST);
+
+                foreach ($ls as $file) {
+                    $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+                }
+                rmdir($dirName);
+            }
+            else {
                 unlink($dirName);
             }
-
-            return mkdir($dirName, 0755, true);
         }
 
-        $root = new \RecursiveDirectoryIterator($dirName, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $ls   = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::CHILD_FIRST);
-
-        foreach ($ls as $file) {
-            $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
-        }
-
-        return is_writable($dirName);
+        return true;
     }
 }
