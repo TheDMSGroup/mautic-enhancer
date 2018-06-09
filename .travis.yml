@@ -43,13 +43,10 @@ before_install:
 
 install:
 
-  # Install core dependencies.
-  - composer install
-  
-  # Install plugin dependencies (if any).
+  # Install core and include any plugin dependencies.
+  - composer config extra.merge-plugin.include "./plugins/**/composer.json"
   - composer require wikimedia/composer-merge-plugin
-  - composer require league/flysystem-sftp:1.0
-  - composer config extra.merge-plugin.include plugins/$MAUTIC_PLUGIN/composer.json
+  - composer update wikimedia/composer-merge-plugin
 
 script:
 
