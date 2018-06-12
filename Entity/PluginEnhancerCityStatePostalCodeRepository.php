@@ -27,7 +27,7 @@ CREATE TABLE `plugin_enhancer_city_state_postal_code` (
   `state_province` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `country` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_country_postal_code` (`id`,`country`,`postal_code`)
+  KEY `country_postal_code` (`country`,`postal_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 EOSQL;
 
