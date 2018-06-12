@@ -254,7 +254,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     $alias = 'alcazar_'.strtolower($label);
                     if (isset($allowedAliases[$alias])) {
                         $default = $lead->getFieldValue($alias);
-                        $lead->addUpdatedField($alias, (string) $value, $default);
+                        $lead->addUpdatedField($alias, $value, $default);
                     }
                 }
 

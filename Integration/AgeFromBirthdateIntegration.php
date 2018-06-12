@@ -102,7 +102,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             $prevAge   = (int) $lead->getFieldValue('afb_age');
             if ($age !== $prevAge) {
                 $this->logger->info("calculated age is $age");
-                $lead->addUpdatedField('afb_age', (string) $age, $prevAge);
+                $lead->addUpdatedField('afb_age', $age, $prevAge);
 
                 return true;
             }
