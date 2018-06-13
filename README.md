@@ -39,7 +39,7 @@ Correct Address is a data enhancer dependent on Expirian's proprietary `qas` sof
  - Remote Host Expirian assingned
  - Remote Path, Archive, and Path should not change
  - Excecuable Path: the absolute path to the location of the CorrectAddress calling program
- - Local Data Path: the absolute path to where the data file is extracted.
+ - Local Data Path: the absolute path to where the data file is extracted
 
 
 
