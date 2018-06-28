@@ -1,5 +1,5 @@
-
 composer.json
+composer.lock
 vendor/
 mautic-enhancer-plugiin.komodoproject
 .idea/

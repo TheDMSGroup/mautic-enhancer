@@ -26,3 +26,20 @@ If you have success/issues with other versions please report.
 2. Go to `/s/plugins` and click `Install/Upgrade Plugins`.
 3. Publish and configure the integrations as you wish.
 4. For *City & State From Postal Code* and *Gender From Name*, use the console commands (mautic:integration:enhancer:installcspcdata and mautic:integration:enhancer:installgendernames, respectively) to build the reference tables.
+
+## Expirian Correct Address
+
+Correct Address is a data enhancer dependent on Expirian's proprietary `qas` software.
+
+![Set up - Enabled/Auth](./Assets/img/CorrectApg1.png)
+ - Host User and Host Password are assigned by Expirian
+ - Fingerprint and be found by loging onto the SFTP sight then looking through the connection properties
+
+![Set up - Features](./Assets/img/CorrectApg2.png)
+ - Remote Host Expirian assingned
+ - Remote Path, Archive, and Path should not change
+ - Excecuable Path: the absolute path to the location of the CorrectAddress calling program
+ - Local Data Path: the absolute path to where the data file is extracted
+
+
+
