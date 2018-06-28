@@ -160,7 +160,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                     $persist = true;
                                     $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
-                                        $lead->addUpdatedField($fieldToUpdate, (string) $status);
+                                        $lead->addUpdatedField($fieldToUpdate, $status);
                                         $this->logger->addDebug(
                                             'XVERIFY: verification values to update: '.$fieldToUpdate.' => '.$status
                                         );
@@ -180,7 +180,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
                                     $persist = true;
                                     $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
-                                        $lead->addUpdatedField($fieldToUpdate, (string) $status, null);
+                                        $lead->addUpdatedField($fieldToUpdate, $status, null);
                                         $persist = true;
                                         $this->logger->addDebug(
                                             'XVERIFY: verification values to update: '.$fieldToUpdate.' => '.$status
