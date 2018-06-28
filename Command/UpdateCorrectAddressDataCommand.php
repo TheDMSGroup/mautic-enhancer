@@ -35,7 +35,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            echo 'Starting Expirian data update.'.PHP_EOL;
+            $output->writeln('<info>Starting Expirian data update.</info>');
 
             /** @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $correctAddress */
             $enhancerHelper = new EnhancerHelper($this->getContainer()->get('mautic.helper.integration'));
@@ -52,12 +52,12 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
                 'hostFingerprint' => $keys[CAI::CA_REMOTE_FNGR],
             ]);
             $client = new Filesystem($sftpAdapter);
-            echo 'Created SFTP client'.PHP_EOL;
+            $output->writeln('<info>Created SFTP client.</info>');
 
             //copy the remote archive locally
             $tempfile = tempnam(sys_get_temp_dir(), 'ca_');
             $client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
-            echo 'Copied data archive to '.$tempfile.' on local filesystem.'.PHP_EOL;
+            $output->writeln('<info>Copied data archive to '.$tempfile.' on local filesystem.</info>');
 
             //extract the new files
             $buffer    = '/tmp'.$settings[CAI::CA_CORRECTA_DATA];
@@ -66,18 +66,20 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $extractor->extractTo($buffer);
             $extractor->close();
             unlink($tempfile);
-            echo 'Archive extracted to '.$buffer.'.'.PHP_EOL;
+            $output->writeln('<info>Archive extracted to '.$buffer.'.</info>');
 
             //remove the old files
             $this->cleanDir($settings[CAI::CA_CORRECTA_DATA]);
-            echo $settings[CAI::CA_CORRECTA_DATA].' removed.'.PHP_EOL;
+            $output->writeln('<info>'.$settings[CAI::CA_CORRECTA_DATA].' removed.</info>');
 
             rename($buffer, $settings[CAI::CA_CORRECTA_DATA]);
-            echo 'Expirian data update complete.'.PHP_EOL;
+            $output->writeln('<info>Expirian data update complete.</info>');
 
             return 0;
         } catch (\Exception $e) {
-            echo 'Failed to update data: '.$e->getMessage().PHP_EOL.$e->getTraceAsString();
+            $output->writeln('<error>Failed to update data: '.$e->getMessage().'</error>');
+            $output->write($e->getTraceAsString());
+            $output->writeln('');
 
             return $e->getCode();
         }
