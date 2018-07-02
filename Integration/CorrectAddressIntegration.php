@@ -15,13 +15,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 class CorrectAddressIntegration extends AbstractEnhancerIntegration
 {
     const CA_REMOTE_HOST = 'host';
-    const CA_REMOTE_PORT = 'port';
     const CA_REMOTE_PATH = 'home';
     const CA_REMOTE_FILE = 'file';
 
     const CA_REMOTE_USER = 'username';
     const CA_REMOTE_PSWD = 'password';
-    const CA_REMOTE_FNGR = 'fingerprint';
 
     const CA_CORRECTA_PATH = 'work_dir';
     const CA_CORRECTA_CMD  = 'cmd';
@@ -65,7 +63,6 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         return [
             self::CA_REMOTE_USER => 'mautic.enhancer.correctaddress.username',
             self::CA_REMOTE_PSWD => 'mautic.enhancer.correctaddress.password',
-            self::CA_REMOTE_FNGR => 'mautic.enhancer.correctaddress.fingerprint',
         ];
     }
 
@@ -96,15 +93,6 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                         'required' => true,
                         'label'    => $translator->trans('mautic.enhancer.correctaddress.data_server'),
                         'data'     => isset($data[self::CA_REMOTE_HOST]) ? $data[self::CA_REMOTE_HOST] : '',
-                    ]
-                )
-                ->add(
-                    self::CA_REMOTE_PORT,
-                    TextType::class,
-                    [
-                        'required' => true,
-                        'label'    => $translator->trans('mautic.enhancer.correctaddress.data_port'),
-                        'data'     => isset($data[self::CA_REMOTE_PORT]) ? $data[self::CA_REMOTE_PORT] : '22',
                     ]
                 )
                 ->add(

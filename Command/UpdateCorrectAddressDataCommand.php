@@ -8,8 +8,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
-use League\Flysystem\Filesystem;
-use League\Flysystem\Sftp\SftpAdapter;
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration as CAI;
@@ -43,34 +41,47 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
 
-            $sftpAdapter = new SftpAdapter([
-                'host'            => $settings[CAI::CA_REMOTE_HOST],
-                'port'            => $settings[CAI::CA_REMOTE_PORT],
-                'root'            => $settings[CAI::CA_REMOTE_PATH],
-                'username'        => $keys[CAI::CA_REMOTE_USER],
-                'password'        => $keys[CAI::CA_REMOTE_PSWD],
-                'hostFingerprint' => $keys[CAI::CA_REMOTE_FNGR],
-            ]);
-            $client = new Filesystem($sftpAdapter);
-            $output->writeln('<info>Created SFTP client.</info>');
 
-            //copy the remote archive locally
-            $tempfile = tempnam(sys_get_temp_dir(), 'ca_');
-            $client->copy($settings[CAI::CA_REMOTE_FILE], $tempfile);
-            $output->writeln('<info>Copied data archive to '.$tempfile.' on local filesystem.</info>');
+            $sconn = ssh2_connect($settings[CAI::CA_REMOTE_HOST]);
+            ssh2_auth_password($sconn, $keys[CAI::CA_REMOTE_USER], $keys[CAI::CA_REMOTE_PSWD]);
+            $sftp = \ssh2_sftp($sconn);
+            $output->writeln('<info>SFTP connection established, downloading data file</info>');
+            $source = 'ssh2.sftp://'.intval($sftp).$settings[CAI::CA_REMOTE_PATH].'/'.$settings[CAI::CA_REMOTE_FILE];
+            $dest = sys_get_temp_dir().'/ca_'.\date('Y-m-d').'.zip';
+
+            $rfp = fopen($source, 'r');
+            $wfp = fopen($dest, 'w');
+
+            $reads = 0;
+            do {
+                if (!fwrite($wfp, fread($rfp, 8388608))) {
+                    break;
+                }
+                ++$reads;
+                if (0 === ($reads % 100)) {
+                    if (0 === ($reads % 10000)) {
+                        $output->writeln('.');
+                    }
+                    else {
+                        $output->write('.');
+                    }
+                }
+
+            } while (true);
+            $output->writeln('<info>Copied data archive to '.$dest.' on local filesystem.</info>');
 
             //extract the new files
-            $buffer    = '/tmp'.$settings[CAI::CA_CORRECTA_DATA];
+            $buffer    = '/tmp/data/eq_correct_address';
             $extractor = new ZipArchive();
-            $extractor->open($tempfile, ZipArchive::CHECKCONS);
+            $extractor->open($dest, ZipArchive::CHECKCONS);
             $extractor->extractTo($buffer);
             $extractor->close();
-            unlink($tempfile);
+            unlink($dest);
             $output->writeln('<info>Archive extracted to '.$buffer.'.</info>');
 
             //remove the old files
             $this->cleanDir($settings[CAI::CA_CORRECTA_DATA]);
-            $output->writeln('<info>'.$settings[CAI::CA_CORRECTA_DATA].' removed.</info>');
+            $output->writeln('<info>'.$settings[CAI::CA_CORRECTA_DATA].' cleaned.</info>');
 
             rename($buffer, $settings[CAI::CA_CORRECTA_DATA]);
             $output->writeln('<info>Expirian data update complete.</info>');
@@ -94,16 +105,20 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
     {
         if (file_exists($dirName)) {
             if (is_dir($dirName)) {
-                $root = new \RecursiveDirectoryIterator($dirName, \RecursiveDirectoryIterator::SKIP_DOTS);
-                $ls   = new \RecursiveIteratorIterator($root, \RecursiveIteratorIterator::CHILD_FIRST);
+                $rm_path = new \RecursiveDirectoryIterator($dirName, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $rm_ls   = new \RecursiveIteratorIterator($rm_path, \RecursiveIteratorIterator::CHILD_FIRST);
 
-                foreach ($ls as $file) {
-                    $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+                foreach ($rm_ls as $rm_file) {
+                    $rm_file->isDir() ? rmdir($rm_file->getRealPath()) : unlink($rm_file->getRealPath());
                 }
                 rmdir($dirName);
             } else {
                 unlink($dirName);
             }
+        }
+        else {
+            mkdir($dirName, 0755, true);
+            rmdir($dirName);
         }
 
         return true;
