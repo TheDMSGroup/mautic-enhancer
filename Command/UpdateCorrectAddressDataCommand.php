@@ -41,13 +41,12 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
 
-
             $sconn = ssh2_connect($settings[CAI::CA_REMOTE_HOST]);
             ssh2_auth_password($sconn, $keys[CAI::CA_REMOTE_USER], $keys[CAI::CA_REMOTE_PSWD]);
             $sftp = \ssh2_sftp($sconn);
             $output->writeln('<info>SFTP connection established, downloading data file</info>');
             $source = 'ssh2.sftp://'.intval($sftp).$settings[CAI::CA_REMOTE_PATH].'/'.$settings[CAI::CA_REMOTE_FILE];
-            $dest = sys_get_temp_dir().'/ca_'.\date('Y-m-d').'.zip';
+            $dest   = sys_get_temp_dir().'/ca_'.\date('Y-m-d').'.zip';
 
             $rfp = fopen($source, 'r');
             $wfp = fopen($dest, 'w');
@@ -61,12 +60,10 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
                 if (0 === ($reads % 100)) {
                     if (0 === ($reads % 10000)) {
                         $output->writeln('.');
-                    }
-                    else {
+                    } else {
                         $output->write('.');
                     }
                 }
-
             } while (true);
             $output->writeln('<info>Copied data archive to '.$dest.' on local filesystem.</info>');
 
@@ -115,8 +112,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             } else {
                 unlink($dirName);
             }
-        }
-        else {
+        } else {
             mkdir($dirName, 0755, true);
             rmdir($dirName);
         }
