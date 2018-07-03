@@ -41,15 +41,22 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
 
-            $sconn = ssh2_connect($settings[CAI::CA_REMOTE_HOST]);
-            ssh2_auth_password($sconn, $keys[CAI::CA_REMOTE_USER], $keys[CAI::CA_REMOTE_PSWD]);
-            $sftp = \ssh2_sftp($sconn);
+            if (function_exists('ssh2_connect')) {
+                $sconn = call_user_func('ssh2_connect', $settings[CAI::CA_REMOTE_HOST]);
+                call_user_func('ssh2_auth_password', $sconn, $keys[CAI::CA_REMOTE_USER], $keys[CAI::CA_REMOTE_PSWD]);
+                $sftp = call_user_func('ssh2_sftp', $sconn);
+            } else {
+                throw new \Exception(
+                    'Required ssh2 extension is not installed',
+                    -1
+                );
+            }
             $output->writeln('<info>SFTP connection established, downloading data file</info>');
+
             $source = 'ssh2.sftp://'.intval($sftp).$settings[CAI::CA_REMOTE_PATH].'/'.$settings[CAI::CA_REMOTE_FILE];
             $dest   = sys_get_temp_dir().'/ca_'.\date('Y-m-d').'.zip';
-
-            $rfp = fopen($source, 'r');
-            $wfp = fopen($dest, 'w');
+            $rfp    = fopen($source, 'r');
+            $wfp    = fopen($dest, 'w');
 
             $reads = 0;
             do {
