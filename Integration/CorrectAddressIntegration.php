@@ -216,7 +216,7 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         $cache->setItem($cacheKey, $corrected);
 
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
-        list($city, $state, $zipcode) = explode(' ', $city_st_zip);
+        list($city, $state, $zipcode)                   = explode(' ', $city_st_zip);
 
         if ('1' <= $code) {
             $address1 = trim($address1);
