@@ -14,7 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
- * Class GenderFromNameIntegration
+ * Class GenderFromNameIntegration.
  */
 class GenderFromNameIntegration extends AbstractEnhancerIntegration
 {

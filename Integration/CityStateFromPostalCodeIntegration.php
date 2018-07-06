@@ -14,7 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
- * Class CityStateFromPostalCodeIntegration
+ * Class CityStateFromPostalCodeIntegration.
  */
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
