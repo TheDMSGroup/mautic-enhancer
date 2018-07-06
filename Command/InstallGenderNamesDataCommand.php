@@ -1,9 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 5/11/18
- * Time: 11:56 AM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
@@ -12,6 +15,9 @@ use Mautic\CoreBundle\Command\ModeratedCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class InstallGenderNamesDataCommand.
+ */
 class InstallGenderNamesDataCommand extends ModeratedCommand
 {
     protected function configure()

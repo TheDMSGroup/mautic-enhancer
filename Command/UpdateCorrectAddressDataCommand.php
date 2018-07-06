@@ -1,20 +1,27 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 5/11/18
- * Time: 11:56 AM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration as CAI;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZipArchive;
 
+/**
+ * Class UpdateCorrectAddressDataCommand.
+ */
 class UpdateCorrectAddressDataCommand extends ModeratedCommand
 {
     protected function configure()
@@ -37,8 +44,10 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
         try {
             $output->writeln('<info>Starting Expirian data update.</info>');
 
+            /** @var IntegrationHelper $integrationHelper */
+            $integrationHelper = $this->getContainer()->get('mautic.helper.integration');
+            $enhancerHelper    = new EnhancerHelper($integrationHelper);
             /** @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $correctAddress */
-            $enhancerHelper = new EnhancerHelper($this->getContainer()->get('mautic.helper.integration'));
             $correctAddress = $enhancerHelper->getIntegration('CorrectAddress');
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
@@ -57,13 +66,13 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
 
             $source = 'ssh2.sftp://'.intval($sftp).$settings[CAI::CA_REMOTE_PATH].'/'.$settings[CAI::CA_REMOTE_FILE];
 
-            $buffer = tempnam(sys_get_temp_dir(), 'ca_'.\date('Y-m-d');
+            $buffer = tempnam(sys_get_temp_dir(), 'ca_'.\date('Y-m-d'));
             if (file_exists($buffer)) {
                 unlink($buffer);
             }
-            $dest   = $buffer.'.zip';
-            $rfp    = fopen($source, 'r');
-            $wfp    = fopen($dest, 'w');
+            $dest = $buffer.'.zip';
+            $rfp  = fopen($source, 'r');
+            $wfp  = fopen($dest, 'w');
 
             $reads = 0;
             do {
@@ -72,11 +81,7 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
                 }
                 ++$reads;
                 if (0 === ($reads % 100)) {
-                    if (0 === ($reads % 10000)) {
-                        $output->writeln('.');
-                    } else {
-                        $output->write('.');
-                    }
+                    $output->write('.');
                 }
             } while (true);
             $output->writeln('<info>Copied data archive to '.$dest.' on local filesystem.</info>');

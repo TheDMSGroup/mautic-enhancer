@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
@@ -23,8 +24,6 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
     const CA_CORRECTA_CMD  = 'cmd';
 
     const CA_CORRECTA_DATA = 'data_dir';
-
-    const CA_CORRECTA_PATH = 'work_dir';
 
     const CA_REMOTE_FILE   = 'file';
 
@@ -184,23 +183,40 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead $lead
      *
-     * @return bool|void
+     * @return bool
      */
     public function doEnhancement(Lead &$lead)
     {
+        $leadAddress1 = trim($lead->getAddress1());
+        $leadAddress2 = trim($lead->getAddress2());
+        $leadZipCode  = trim($lead->getZipcode());
+        $combined     = $leadAddress1.$leadAddress2.$leadZipCode;
+        $hash         = md5($combined);
+        $cacheKey     = 'mautic.enhancer.correctaddress.'.$hash;
+        if (empty($combined)) {
+            // Have too little information to attempt a parse.
+            return false;
+        }
         $address = implode(
             '|',
             [
-                $this->sanitizeAddressData($lead->getAddress1()),
-                $this->sanitizeAddressData($lead->getAddress2()),
-                $this->sanitizeAddressData($lead->getZipcode()),
+                $this->sanitizeAddressData($leadAddress1),
+                $this->sanitizeAddressData($leadAddress2),
+                $this->sanitizeAddressData($leadZipCode),
             ]
         );
 
+        $cache = new ArrayAdapter(60);
+        if ($cache->hasItem($cacheKey)) {
+            return false;
+        }
+
+        // Run the executable to correct the address.
         $corrected = $this->callCorrectA($address);
+        $cache->setItem($cacheKey, $corrected);
 
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
-        list($city, $state, $zipcode)                   = explode(' ', $city_st_zip);
+        list($city, $state, $zipcode) = explode(' ', $city_st_zip);
 
         if ('1' <= $code) {
             $address1 = trim($address1);
@@ -253,24 +269,23 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
     protected function callCorrectA($addressData)
     {
         $return   = false;
-        $settings = $this->getSupportedFeatures();
-
-        $stdio = [
-            ['pipe', 'r'], //stdin
-            ['pipe', 'w'], //stdout
-            ['pipe', 'w'], //stderr
-        ];
+        $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
         if (!file_exists($settings[self::CA_CORRECTA_CMD])) {
             $this->getLogger()->error(
                 'Correct Address Integration: Could not find executable '.$settings[self::CA_CORRECTA_CMD]
             );
         } else {
+            $pipes   = [];
             $process = proc_open(
                 $settings[self::CA_CORRECTA_CMD],
-                $stdio,
+                [
+                    ['pipe', 'r'], // stdin
+                    ['pipe', 'w'], // stdout
+                    ['pipe', 'w'], // stderr
+                ],
                 $pipes,
-                $settings[self::CA_CORRECTA_PATH],
+                dirname($settings[self::CA_CORRECTA_CMD]),
                 ['CA_DATA' => $settings[self::CA_CORRECTA_DATA]]
             );
 
