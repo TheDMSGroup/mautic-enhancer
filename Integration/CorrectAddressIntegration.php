@@ -105,7 +105,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                         'data'     => isset($data[self::CA_REMOTE_HOST]) ? $data[self::CA_REMOTE_HOST] : '',
                         'attr'     => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.correctaddress.data_server.tooltip'),
+                            'tooltip' => $this->translator->trans(
+                                'mautic.enhancer.integration.correctaddress.data_server.tooltip'
+                            ),
                         ],
                     ]
                 )
@@ -118,7 +120,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                         'data'     => isset($data[self::CA_REMOTE_PATH]) ? $data[self::CA_REMOTE_PATH] : '/CorrectAddress/USA',
                         'attr'     => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.correctaddress.data_path.tooltip'),
+                            'tooltip' => $this->translator->trans(
+                                'mautic.enhancer.integration.correctaddress.data_path.tooltip'
+                            ),
                         ],
                     ]
                 )
@@ -131,7 +135,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                         'data'     => isset($data[self::CA_REMOTE_FILE]) ? $data[self::CA_REMOTE_FILE] : 'CorrectAddressData.zip',
                         'attr'     => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.correctaddress.data_file.tooltip'),
+                            'tooltip' => $this->translator->trans(
+                                'mautic.enhancer.integration.correctaddress.data_file.tooltip'
+                            ),
                         ],
                     ]
                 )
@@ -194,14 +200,29 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         $corrected = $this->callCorrectA($address);
 
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
-        list($city, $state, $zipcode)                   = explode(' ', $city_st_zip);
+        list($city, $state, $zipcode) = explode(' ', $city_st_zip);
 
         if ('1' <= $code) {
-            $lead->addUpdatedField('address_1', $address1, $lead->getAddress1());
-            $lead->addUpdatedField('address_2', $address2, $lead->getAddress2());
-            $lead->addUpdatedField('city', $city, $lead->getCity());
-            $lead->addUpdatedField('state', $state, $lead->getState());
-            $lead->addUpdatedField('zipcode', $zipcode, $lead->getZipcode());
+            $address1 = trim($address1);
+            $address2 = trim($address2);
+            $city     = trim($city);
+            $state    = trim($state);
+            $zipcode  = trim($zipcode);
+            if ($address1) {
+                $lead->addUpdatedField('address1', $address1, $lead->getAddress1());
+            }
+            if ($address2) {
+                $lead->addUpdatedField('address2', $address2, $lead->getAddress2());
+            }
+            if ($city) {
+                $lead->addUpdatedField('city', $city, $lead->getCity());
+            }
+            if ($state) {
+                $lead->addUpdatedField('state', $state, $lead->getState());
+            }
+            if ($zipcode) {
+                $lead->addUpdatedField('zipcode', $zipcode, $lead->getZipcode());
+            }
         }
     }
 
