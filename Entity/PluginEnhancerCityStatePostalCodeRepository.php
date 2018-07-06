@@ -15,26 +15,6 @@ use MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel;
 class PluginEnhancerCityStatePostalCodeRepository extends CommonRepository
 {
     /**
-     * @throws DBALException
-     */
-    public function createReferenceTable()
-    {
-        $sql = <<<EOSQL
-CREATE TABLE `plugin_enhancer_city_state_postal_code` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `postal_code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `city` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `state_province` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `country` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `country_postal_code` (`country`,`postal_code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-EOSQL;
-
-        $this->getEntityManager()->getConnection()->exec($sql);
-    }
-
-    /**
      * @return int
      *
      * @throws DBALException
@@ -56,14 +36,21 @@ EOSQL;
     /**
      * @throws DBALException
      */
-    public function emptyReferenceTable()
+    public function createReferenceTable()
     {
-        try {
-            $sql = 'TRUNCATE plugin_enhancer_city_state_postal_code';
-            $this->getEntityManager()->getConnection()->exec($sql);
-        } catch (DBALException $e) {
-            $this->createReferenceTable();
-        }
+        $sql = <<<EOSQL
+CREATE TABLE `plugin_enhancer_city_state_postal_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `postal_code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `city` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `state_province` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `country` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `country_postal_code` (`country`,`postal_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+EOSQL;
+
+        $this->getEntityManager()->getConnection()->exec($sql);
     }
 
     /**
@@ -80,9 +67,9 @@ EOSQL;
             $batchSize = 500;
             $count     = 0;
             while (!feof($fp)) {
-                $data                                               = explode("\t", trim(fgets($fp)));
-                list($country, $postalCode, $city, $stateProvince)  = array_slice($data, 0, 4);
-                $record                                             = new PluginEnhancerCityStatePostalCode();
+                $data                                              = explode("\t", trim(fgets($fp)));
+                list($country, $postalCode, $city, $stateProvince) = array_slice($data, 0, 4);
+                $record                                            = new PluginEnhancerCityStatePostalCode();
                 $record
                     ->setCountry($country)
                     ->setPostalCode($postalCode)
@@ -97,6 +84,19 @@ EOSQL;
             }
             $em->flush();
             $em->clear();
+        }
+    }
+
+    /**
+     * @throws DBALException
+     */
+    public function emptyReferenceTable()
+    {
+        try {
+            $sql = 'TRUNCATE plugin_enhancer_city_state_postal_code';
+            $this->getEntityManager()->getConnection()->exec($sql);
+        } catch (DBALException $e) {
+            $this->createReferenceTable();
         }
     }
 }

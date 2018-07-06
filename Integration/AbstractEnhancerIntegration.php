@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Nicholai Bush <nbush@thedmsgrp.com>
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -218,8 +218,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function pushLead(Lead &$lead, array $config = [])
     {
         $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
-        $this->config         = $config;
-        $this->isPush         = true;
+        $this->config = $config;
+        $this->isPush = true;
 
         try {
             if ($this->doEnhancement($lead)) {
@@ -248,6 +248,21 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      * @return bool
      */
     abstract public function doEnhancement(Lead &$lead);
+
+    /**
+     * @param $lead
+     */
+    public function saveLead($lead)
+    {
+        $event = new ContactLedgerContextEvent(
+            $this->campaign, $this, 'enhanced', $lead
+        );
+        $this->dispatcher->dispatch(
+            'mautic.contactledger.context_create',
+            $event
+        );
+        $this->leadModel->saveEntity($lead);
+    }
 
     /**
      * @return bool|\Doctrine\Common\Proxy\Proxy|\Mautic\CampaignBundle\Entity\Campaign|null|object
@@ -319,20 +334,5 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function getId()
     {
         return $this->getIntegrationSettings()->getId();
-    }
-
-    /**
-     * @param $lead
-     */
-    public function saveLead($lead)
-    {
-        $event = new ContactLedgerContextEvent(
-            $this->campaign, $this, 'enhanced', $lead
-        );
-        $this->dispatcher->dispatch(
-            'mautic.contactledger.context_create',
-            $event
-        );
-        $this->leadModel->saveEntity($lead);
     }
 }

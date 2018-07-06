@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -46,13 +46,13 @@ trait NonFreeEnhancerTrait
                     'cost_per_enhancement',
                     'number',
                     [
-                        'label'      => $this->translator->trans('mautic.integration.cpe.label'),
+                        'label'      => $this->translator->trans('mautic.enhancer.cpe.label'),
                         'data'       => !isset($data['cost_per_enhancement']) ? '0.0000' : $data['cost_per_enhancement'],
                         'required'   => true,
                         'label_attr' => ['class' => 'control-label'],
                         'attr'       => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.integration.cpe.tooltip'),
+                            'tooltip' => $this->translator->trans('mautic.enhancer.cpe.tooltip'),
                         ],
                     ]
                 )

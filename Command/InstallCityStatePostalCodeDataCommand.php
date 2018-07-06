@@ -19,7 +19,9 @@ class InstallCityStatePostalCodeDataCommand extends ModeratedCommand
         $this
             ->setName('mautic:integration:enhancer:installcspcdata')
             ->setDescription('Imports allCountries.txt postal code, city, state, and country')
-            ->setHelp('This command will download and rebuild the CityStateFromPostalCode reference table. It uses the file located at http://download.geonames.org/export/zip/allCountries.zip as its data source.');
+            ->setHelp(
+                'This command will download and rebuild the CityStateFromPostalCode reference table. It uses the file located at http://download.geonames.org/export/zip/allCountries.zip as its data source.'
+            );
     }
 
     /**

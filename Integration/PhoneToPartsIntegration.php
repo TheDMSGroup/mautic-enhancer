@@ -1,22 +1,34 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 5/16/18
- * Time: 11:51 AM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class PhoneToPartsIntegration.
+ */
 class PhoneToPartsIntegration extends AbstractEnhancerIntegration
 {
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'PhoneToParts';
     }
 
+    /**
+     * @return string
+     */
     public function getDisplayName()
     {
         return 'Split Phone Into Parts';
@@ -28,10 +40,10 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     protected function getEnhancerFieldArray()
     {
         return [
-            'ptp_area_code' => [
+            'ptp_area_code'   => [
                 'label' => 'Area Code',
             ],
-            'ptp_prefix' => [
+            'ptp_prefix'      => [
                 'label' => 'Prefix',
             ],
             'ptp_line_number' => [

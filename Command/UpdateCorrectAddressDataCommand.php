@@ -21,7 +21,9 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
     {
         $this->setName('mautic:integration:enhancer:updatecorrectaddress');
         $this->setDescription('Installs the latest data files available from Expirian');
-        $this->setHelp('This command will download and replace the data files used by CorrectAddress. These are proprietary files available from Expirian');
+        $this->setHelp(
+            'This command will download and replace the data files used by CorrectAddress. These are proprietary files available from Expirian'
+        );
     }
 
     /**

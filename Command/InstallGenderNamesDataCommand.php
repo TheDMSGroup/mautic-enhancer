@@ -19,7 +19,9 @@ class InstallGenderNamesDataCommand extends ModeratedCommand
         $this
             ->setName('mautic:integration:enhancer:installgendernames')
             ->setDescription('Imports the SSA historic top 1000 names for genders')
-            ->setHelp('This command will download and rebuild the GenderDictionary reference table. It uses the file located at https://www.ssa.gov/OACT/babynames/names.zip as its data source.');
+            ->setHelp(
+                'This command will download and rebuild the GenderDictionary reference table. It uses the file located at https://www.ssa.gov/OACT/babynames/names.zip as its data source.'
+            );
     }
 
     /**

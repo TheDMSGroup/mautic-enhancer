@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -56,20 +56,20 @@ class RandomIntegration extends AbstractEnhancerIntegration
                 'random_field_name',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('mautic.plugin.random.field_name.label'),
+                    'label' => $this->translator->trans('mautic.enhancer.integration.random.field_name.label'),
                     'attr'  => [
-                        'tooltip' => $this->translator->trans('mautic.plugin.random.field_name.tooltip'),
+                        'tooltip' => $this->translator->trans('mautic.enhancer.integration.random.field_name.tooltip'),
                     ],
                     'data'  => '',
                 ]
             )
-            ->add(
-                'autorun_enabled',
-                HiddenType::class,
-                [
-                    'data' => true,
-                ]
-            );
+                ->add(
+                    'autorun_enabled',
+                    HiddenType::class,
+                    [
+                        'data' => true,
+                    ]
+                );
         }
     }
 

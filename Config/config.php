@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -16,7 +16,7 @@ return [
     'author'      => 'Nicholai Bush',
 
     'services' => [
-        'events' => [
+        'events'       => [
             'mautic.enhancer.eventlistener.lead'   => [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
@@ -27,40 +27,40 @@ return [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
             ],
         ],
-        'models' => [
+        'models'       => [
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
             ],
-            'mautic.enhancer.model.gendername' => [
+            'mautic.enhancer.model.gendername'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel::class,
             ],
         ],
         'integrations' => [
-            'mautic.enhancer.integration.agefrombirthdate' => [
+            'mautic.enhancer.integration.agefrombirthdate'        => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
             ],
-            'mautic.enhancer.integration.alcazar'          => [
+            'mautic.enhancer.integration.alcazar'                 => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
             ],
-            'mautic.enhancer.integration.random'           => [
+            'mautic.enhancer.integration.random'                  => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,
             ],
-            'mautic.enhancer.integration.fourleaf'         => [
+            'mautic.enhancer.integration.fourleaf'                => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration::class,
             ],
-            'mautic.enhancer.integration.xverify'          => [
+            'mautic.enhancer.integration.xverify'                 => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\XverifyIntegration::class,
             ],
             'mautic.enhancer.integration.citystatefrompostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CityStateFromPostalCodeIntegration::class,
             ],
-            'mautic.enhancer.integration.genderfromname' => [
+            'mautic.enhancer.integration.genderfromname'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\GenderFromNameIntegration::class,
             ],
-            'mautic.enhancer.integration.phonetoparts' => [
+            'mautic.enhancer.integration.phonetoparts'            => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\PhoneToPartsIntegration::class,
             ],
-            'mautic.enhancer.integration.correctaddress' => [
+            'mautic.enhancer.integration.correctaddress'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration::class,
             ],
         ],

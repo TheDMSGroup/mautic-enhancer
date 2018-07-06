@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -68,14 +68,14 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 'autorun_enabled',
                 \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                 [
-                    'label'       => $this->translator->trans('mautic.integration.autorun.label'),
+                    'label'       => $this->translator->trans('mautic.enhancer.autorun.label'),
                     'data'        => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
                     'required'    => false,
                     'empty_value' => false,
                     'label_attr'  => ['class' => 'control-label'],
                     'attr'        => [
                         'class'   => 'form-control',
-                        'tooltip' => $this->translator->trans('mautic.integration.autorun.tooltip'),
+                        'tooltip' => $this->translator->trans('mautic.enhancer.autorun.tooltip'),
                     ],
                 ]
             );
