@@ -15,16 +15,18 @@ use Mautic\CoreBundle\Model\AbstractCommonModel;
  */
 class CityStatePostalCodeModel extends AbstractCommonModel
 {
-    const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
     const REFERENCE_LOCAL  = '/tmp/';
+
     const REFERENCE_NAME   = 'allCountries.zip';
 
+    const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
+
     /**
-     * @return string
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function getEntityName()
+    public function verifyReferenceTable()
     {
-        return '\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode';
+        return $this->getRepository()->verifyReferenceTable();
     }
 
     /**
@@ -36,11 +38,11 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     }
 
     /**
-     * @throws \Doctrine\DBAL\DBALException
+     * @return string
      */
-    public function verifyReferenceTable()
+    public function getEntityName()
     {
-        return $this->getRepository()->verifyReferenceTable();
+        return '\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode';
     }
 
     /**

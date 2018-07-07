@@ -13,6 +13,23 @@ use MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel;
 
 class PluginEnhancerGenderNameRepository extends CommonRepository
 {
+    /**
+     * @return int
+     */
+    public function verifyReferenceTable()
+    {
+        try {
+            $sql     = 'SELECT COUNT(*) FROM '.$this->getTableName();
+            $results = $this->getEntityManager()->getConnection()->fetchArray($sql);
+
+            return $results[0][0];
+        } catch (\Exception $e) {
+            $this->createReferenceTable();
+
+            return 0;
+        }
+    }
+
     public function getTableName()
     {
         return MAUTIC_TABLE_PREFIX.PluginEnhancerGenderName::TABLE_NAME;
@@ -41,33 +58,6 @@ EOSQL;
     }
 
     /**
-     * @return int
-     */
-    public function verifyReferenceTable()
-    {
-        try {
-            $sql     = 'SELECT COUNT(*) FROM '.$this->getTableName();
-            $results = $this->getEntityManager()->getConnection()->fetchArray($sql);
-
-            return $results[0][0];
-        } catch (\Exception $e) {
-            $this->createReferenceTable();
-
-            return 0;
-        }
-    }
-
-    public function emptyReferenceTable()
-    {
-        try {
-            $sql = 'TRUNCATE '.$this->getTableName();
-            $this->getEntityManager()->getConnection()->exec($sql);
-        } catch (\Exception $e) {
-            $this->createReferenceTable();
-        }
-    }
-
-    /**
      * @param GenderNameModel $model
      *
      * @throws \Doctrine\ORM\OptimisticLockException
@@ -75,7 +65,7 @@ EOSQL;
     public function updateReferenceTable(GenderNameModel $model)
     {
         $this->emptyReferenceTable();
-        $em        = $this->getEntityManager();
+        $em = $this->getEntityManager();
 
         $preppedData = $model->prepareGenderNameData();
         $batchSize   = 200;
@@ -98,5 +88,15 @@ EOSQL;
         }
         $em->flush();
         $em->clear();
+    }
+
+    public function emptyReferenceTable()
+    {
+        try {
+            $sql = 'TRUNCATE '.$this->getTableName();
+            $this->getEntityManager()->getConnection()->exec($sql);
+        } catch (\Exception $e) {
+            $this->createReferenceTable();
+        }
     }
 }

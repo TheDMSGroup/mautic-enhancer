@@ -1,15 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 4/3/18
- * Time: 4:39 PM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class CityStateFromPostalCodeIntegration.
+ */
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
     /**
@@ -34,18 +40,6 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return \Mautic\CoreBundle\Model\AbstractCommonModel|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
-     */
-    protected function getIntegrationModel()
-    {
-        if (!isset($this->integrationModel)) {
-            $this->integrationModel = $this->factory->getModel('enhancer.citystatepostalcode');
-        }
-
-        return $this->integrationModel;
-    }
-
-    /**
      * @return array
      */
     protected function getEnhancerFieldArray()
@@ -62,8 +56,21 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 $this->translator->trans('mautic.enhancer.integration.citystatefromzip.failure')
             );
         }
+
         //but at least no enhancer specific fields?
         return [];
+    }
+
+    /**
+     * @return \Mautic\CoreBundle\Model\AbstractCommonModel|\MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
+     */
+    protected function getIntegrationModel()
+    {
+        if (!isset($this->integrationModel)) {
+            $this->integrationModel = $this->factory->getModel('enhancer.citystatepostalcode');
+        }
+
+        return $this->integrationModel;
     }
 
     /**
@@ -86,9 +93,12 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 $country = 'US';
             }
 
-            $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy([
-                'postalCode' => $lead->getZipcode(), 'country' => $country,
-            ]);
+            $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
+                [
+                    'postalCode' => $lead->getZipcode(),
+                    'country'    => $country,
+                ]
+            );
 
             if (null !== $cityStatePostalCode) {
                 if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {

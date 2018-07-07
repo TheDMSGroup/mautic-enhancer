@@ -2,9 +2,9 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Nicholai Bush <nbush@thedmsgrp.com>
+ * @author      Digital Media Solutions, LLC
  *
- * @link        https://mautic.org
+ * @link        http://mautic.org
  *
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -45,8 +45,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
     public function getRequiredKeyFields()
     {
         return [
-            'server' => $this->translator->trans('mautic.integration.alcazar.server.label'),
-            'apikey' => $this->translator->trans('mautic.integration.alcazar.apikey.label'),
+            'server' => $this->translator->trans('mautic.enhancer.integration.alcazar.server.label'),
+            'apikey' => $this->translator->trans('mautic.enhancer.integration.alcazar.apikey.label'),
         ];
     }
 
@@ -76,14 +76,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                             'xml'  => 'XML',
                             'text' => 'text',
                         ],
-                        'label'       => $this->translator->trans('mautic.integration.alcazar.output.label'),
+                        'label'       => $this->translator->trans('mautic.enhancer.integration.alcazar.output.label'),
                         'data'        => isset($data['output']) ? $data['output'] : 'text',
                         'required'    => true,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.output.tooltip'),
+                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.alcazar.output.tooltip'),
                         ],
                     ]
                 )
@@ -91,14 +91,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'extended',
                     'yesno_button_group',
                     [
-                        'label'       => $this->translator->trans('mautic.integration.alcazar.extended.label'),
+                        'label'       => $this->translator->trans('mautic.enhancer.integration.alcazar.extended.label'),
                         'data'        => !isset($data['extended']) ? false : $data['extended'],
                         'required'    => true,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.extended.tooltip'),
+                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.alcazar.extended.tooltip'),
                         ],
                     ]
                 )
@@ -106,14 +106,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'ani',
                     'yesno_button_group',
                     [
-                        'label'       => $this->translator->trans('mautic.integration.alcazar.ani.label'),
+                        'label'       => $this->translator->trans('mautic.enhancer.integration.alcazar.ani.label'),
                         'data'        => !isset($data['ani']) ? false : $data['ani'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.ani.tooltip'),
+                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.alcazar.ani.tooltip'),
                         ],
                     ]
                 )
@@ -121,14 +121,14 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                     'dnc',
                     'yesno_button_group',
                     [
-                        'label'       => $this->translator->trans('mautic.integration.alcazar.dnc.label'),
+                        'label'       => $this->translator->trans('mautic.enhancer.integration.alcazar.dnc.label'),
                         'data'        => !isset($data['dnc']) ? false : $data['dnc'],
                         'required'    => false,
                         'empty_value' => false,
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.integration.alcazar.dnc.tooltip'),
+                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.alcazar.dnc.tooltip'),
                         ],
                     ]
                 );

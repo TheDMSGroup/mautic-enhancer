@@ -1,15 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 5/14/18
- * Time: 11:11 AM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class GenderFromNameIntegration.
+ */
 class GenderFromNameIntegration extends AbstractEnhancerIntegration
 {
     /** @var \MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel */
@@ -23,15 +29,6 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
     public function getDisplayName()
     {
         return 'Choose Gender From Name';
-    }
-
-    protected function getIntegrationModel()
-    {
-        if (!isset($this->integrationModel)) {
-            $this->integrationModel = $this->factory->getModel('enhancer.gendername');
-        }
-
-        return $this->integrationModel;
     }
 
     /**
@@ -51,6 +48,15 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
         }
 
         return [];
+    }
+
+    protected function getIntegrationModel()
+    {
+        if (!isset($this->integrationModel)) {
+            $this->integrationModel = $this->factory->getModel('enhancer.gendername');
+        }
+
+        return $this->integrationModel;
     }
 
     /**

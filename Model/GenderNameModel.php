@@ -13,25 +13,11 @@ use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerGenderName;
 
 class GenderNameModel extends AbstractCommonModel
 {
-    const REFERENCE_REMOTE   = 'https://www.ssa.gov/OACT/babynames/';
-    const REFERENCE_LOCAL    = '/tmp/';
     const REFERENCE_FILENAME = 'names.zip';
 
-    /**
-     * @return string
-     */
-    public function getEntityName()
-    {
-        return '\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerGenderName';
-    }
+    const REFERENCE_LOCAL    = '/tmp/';
 
-    /**
-     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCodeRepository
-     */
-    public function getRepository()
-    {
-        return $this->em->getRepository($this->getEntityName());
-    }
+    const REFERENCE_REMOTE   = 'https://www.ssa.gov/OACT/babynames/';
 
     /**
      * @param $name
@@ -72,6 +58,22 @@ class GenderNameModel extends AbstractCommonModel
 
             return null;
         }
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository|\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCodeRepository
+     */
+    public function getRepository()
+    {
+        return $this->em->getRepository($this->getEntityName());
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityName()
+    {
+        return '\MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerGenderName';
     }
 
     /**
@@ -133,11 +135,19 @@ class GenderNameModel extends AbstractCommonModel
             );
             foreach ($dataWorking['F'] as $fName => $count) {
                 if (in_array($fName, $unisex)) {
-                    $total         = $count + $dataWorking['M'][$fName];
+                    $total = $count + $dataWorking['M'][$fName];
                     if ($count > $dataWorking['M'][$fName]) {
-                        $dataPrepped[] = ['gender' => 'F', 'name' => $fName, 'probability' => ($count / $total), 'count' => $total];
+                        $dataPrepped[] = ['gender'      => 'F',
+                                          'name'        => $fName,
+                                          'probability' => ($count / $total),
+                                          'count'       => $total,
+                        ];
                     } else {
-                        $dataPrepped[] = ['gender' => 'M', 'name' => $fName, 'probability' => ($dataWorking['M'][$fName] / $total), 'count' => $total];
+                        $dataPrepped[] = ['gender'      => 'M',
+                                          'name'        => $fName,
+                                          'probability' => ($dataWorking['M'][$fName] / $total),
+                                          'count'       => $total,
+                        ];
                     }
                     unset($dataWorking['M'][$fName]);
                 } else {
@@ -151,27 +161,6 @@ class GenderNameModel extends AbstractCommonModel
             unset($dataWorking);
 
             return $dataPrepped;
-        }
-    }
-
-    /**
-     * @return bool|resource
-     */
-    protected function fetchNamesZip()
-    {
-        echo 'Downloading data file'.PHP_EOL;
-        try {
-            file_put_contents(
-                self::REFERENCE_LOCAL.self::REFERENCE_FILENAME,
-                file_get_contents(self::REFERENCE_REMOTE.self::REFERENCE_FILENAME)
-            );
-            $this->logger->info(self::REFERENCE_FILENAME.' downloaded');
-
-            return true;
-        } catch (\Exception $e) {
-            $this->logger->error('Unable to download data file: '.$e->getMessage());
-
-            return false;
         }
     }
 
@@ -205,6 +194,27 @@ class GenderNameModel extends AbstractCommonModel
         }
 
         return $workingDir;
+    }
+
+    /**
+     * @return bool|resource
+     */
+    protected function fetchNamesZip()
+    {
+        echo 'Downloading data file'.PHP_EOL;
+        try {
+            file_put_contents(
+                self::REFERENCE_LOCAL.self::REFERENCE_FILENAME,
+                file_get_contents(self::REFERENCE_REMOTE.self::REFERENCE_FILENAME)
+            );
+            $this->logger->info(self::REFERENCE_FILENAME.' downloaded');
+
+            return true;
+        } catch (\Exception $e) {
+            $this->logger->error('Unable to download data file: '.$e->getMessage());
+
+            return false;
+        }
     }
 
     /**

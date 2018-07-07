@@ -40,6 +40,45 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
     protected $country;
 
     /**
+     * @param ClassMetadata $metadata
+     */
+    public static function loadMetadata(ClassMetadata $metadata)
+    {
+        $builder = new ClassMetadataBuilder($metadata);
+
+        $builder->setTable(self::getSQLTableName())
+            ->setCustomRepositoryClass(
+                PluginEnhancerCityStatePostalCodeRepository::class
+            );
+
+        $builder->addId();
+
+        $builder->createField('postalCode', 'string')
+            ->columnName('postal_code')
+            ->build();
+
+        $builder->createField('city', 'string')
+            ->nullable()
+            ->build();
+
+        $builder->createField('stateProvince', 'string')
+            ->columnName('state_province')
+            ->nullable()
+            ->build();
+
+        $builder->createField('country', 'string')
+            ->build();
+
+        $builder->addIndex(
+            [
+                'country',
+                'postal_code',
+            ],
+            'country_postal_code'
+        );
+    }
+
+    /**
      * @return string
      */
     public static function getSQLTableName()
@@ -125,44 +164,5 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
         $this->country = $country;
 
         return $this;
-    }
-
-    /**
-     * @param ClassMetadata $metadata
-     */
-    public static function loadMetadata(ClassMetadata $metadata)
-    {
-        $builder = new ClassMetadataBuilder($metadata);
-
-        $builder->setTable(self::getSQLTableName())
-            ->setCustomRepositoryClass(
-                PluginEnhancerCityStatePostalCodeRepository::class
-            );
-
-        $builder->addId();
-
-        $builder->createField('postalCode', 'string')
-            ->columnName('postal_code')
-            ->build();
-
-        $builder->createField('city', 'string')
-            ->nullable()
-            ->build();
-
-        $builder->createField('stateProvince', 'string')
-            ->columnName('state_province')
-            ->nullable()
-            ->build();
-
-        $builder->createField('country', 'string')
-            ->build();
-
-        $builder->addIndex(
-            [
-                'country',
-                'postal_code',
-            ],
-            'country_postal_code'
-        );
     }
 }

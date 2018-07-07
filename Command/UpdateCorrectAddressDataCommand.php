@@ -1,27 +1,36 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 5/11/18
- * Time: 11:56 AM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+use Mautic\PluginBundle\Helper\IntegrationHelper;
 use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
 use MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration as CAI;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use ZipArchive;
 
+/**
+ * Class UpdateCorrectAddressDataCommand.
+ */
 class UpdateCorrectAddressDataCommand extends ModeratedCommand
 {
     protected function configure()
     {
         $this->setName('mautic:integration:enhancer:updatecorrectaddress');
         $this->setDescription('Installs the latest data files available from Expirian');
-        $this->setHelp('This command will download and replace the data files used by CorrectAddress. These are proprietary files available from Expirian');
+        $this->setHelp(
+            'This command will download and replace the data files used by CorrectAddress. These are proprietary files available from Expirian'
+        );
     }
 
     /**
@@ -35,8 +44,10 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
         try {
             $output->writeln('<info>Starting Expirian data update.</info>');
 
+            /** @var IntegrationHelper $integrationHelper */
+            $integrationHelper = $this->getContainer()->get('mautic.helper.integration');
+            $enhancerHelper    = new EnhancerHelper($integrationHelper);
             /** @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $correctAddress */
-            $enhancerHelper = new EnhancerHelper($this->getContainer()->get('mautic.helper.integration'));
             $correctAddress = $enhancerHelper->getIntegration('CorrectAddress');
             $settings       = $correctAddress->getIntegrationSettings()->getFeatureSettings();
             $keys           = $correctAddress->getKeys();
@@ -54,9 +65,14 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
             $output->writeln('<info>SFTP connection established, downloading data file</info>');
 
             $source = 'ssh2.sftp://'.intval($sftp).$settings[CAI::CA_REMOTE_PATH].'/'.$settings[CAI::CA_REMOTE_FILE];
-            $dest   = sys_get_temp_dir().'/ca_'.\date('Y-m-d').'.zip';
-            $rfp    = fopen($source, 'r');
-            $wfp    = fopen($dest, 'w');
+
+            $buffer = tempnam(sys_get_temp_dir(), 'ca_'.\date('Y-m-d'));
+            if (file_exists($buffer)) {
+                unlink($buffer);
+            }
+            $dest = $buffer.'.zip';
+            $rfp  = fopen($source, 'r');
+            $wfp  = fopen($dest, 'w');
 
             $reads = 0;
             do {
@@ -65,32 +81,41 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
                 }
                 ++$reads;
                 if (0 === ($reads % 100)) {
-                    if (0 === ($reads % 10000)) {
-                        $output->writeln('.');
-                    } else {
-                        $output->write('.');
-                    }
+                    $output->write('.');
                 }
             } while (true);
             $output->writeln('<info>Copied data archive to '.$dest.' on local filesystem.</info>');
 
             //extract the new files
-            $buffer    = '/tmp/data/eq_correct_address';
             $extractor = new ZipArchive();
             $extractor->open($dest, ZipArchive::CHECKCONS);
             $extractor->extractTo($buffer);
-            $extractor->close();
-            unlink($dest);
-            $output->writeln('<info>Archive extracted to '.$buffer.'.</info>');
+            if ($extractor->close() && is_dir($buffer)) {
+                unlink($dest);
+                $output->writeln('<info>Archive extracted to '.$buffer.'.</info>');
 
-            //remove the old files
-            $this->cleanDir($settings[CAI::CA_CORRECTA_DATA]);
-            $output->writeln('<info>'.$settings[CAI::CA_CORRECTA_DATA].' cleaned.</info>');
+                if (is_dir($settings[CAI::CA_CORRECTA_DATA].'_bak')) {
+                    $this->cleanDir($settings[CAI::CA_CORRECTA_DATA].'_bak');
+                    $output->writeln('<info>'.$settings[CAI::CA_CORRECTA_DATA].'_bak cleaned.</info>');
+                }
+                rename($settings[CAI::CA_CORRECTA_DATA], $settings[CAI::CA_CORRECTA_DATA].'_bak');
 
-            rename($buffer, $settings[CAI::CA_CORRECTA_DATA]);
-            $output->writeln('<info>Expirian data update complete.</info>');
+                if (rename($buffer, $settings[CAI::CA_CORRECTA_DATA])) {
+                    $output->writeln('<info>Expirian data update complete.</info>');
 
-            return 0;
+                    return 0;
+                } else {
+                    $output->writeln(
+                        '<error>Failed to move '.$buffer.' to '.$settings[CAI::CA_CORRECTA_DATA].'</error>'
+                    );
+
+                    return 1;
+                }
+            } else {
+                $output->writeln('<error>Failed to unzip '.$dest.' to '.$buffer.'</error>');
+
+                return 1;
+            }
         } catch (\Exception $e) {
             $output->writeln('<error>Failed to update data: '.$e->getMessage().'</error>');
             $output->write($e->getTraceAsString());

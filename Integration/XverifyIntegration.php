@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Scott Shipman
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -56,8 +56,8 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
     public function getRequiredKeyFields()
     {
         return [
-            'server' => 'mautic.integration.xverify.server.label',
-            'apikey' => 'mautic.integration.xverify.apikey.label',
+            'server' => 'mautic.enhancer.integration.xverify.server.label',
+            'apikey' => 'mautic.enhancer.integration.xverify.apikey.label',
         ];
     }
 
@@ -68,7 +68,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getClientIdKey()
     {
-        return 'mautic.integration.xverify.server.label';
+        return 'mautic.enhancer.integration.xverify.server.label';
     }
 
     /**
@@ -78,7 +78,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
      */
     public function getClientSecretKey()
     {
-        return 'mautic.integration.xverify.apikey.label';
+        return 'mautic.enhancer.integration.xverify.apikey.label';
     }
 
     /**
@@ -134,7 +134,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeE
             $contactFieldMapping = $settings['leadFields'];
             $keys                = $this->getDecryptedApiKeys();
 
-            $params  = [
+            $params = [
                 'apikey' => $keys['apikey'],
                 'domain' => $keys['server'],
                 'type'   => 'json',

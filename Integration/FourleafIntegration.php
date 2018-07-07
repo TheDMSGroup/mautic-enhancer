@@ -2,7 +2,7 @@
 
 /*
  * @copyright   2018 Mautic Contributors. All rights reserved
- * @author      Mautic, Inc
+ * @author      Digital Media Solutions, LLC
  *
  * @link        http://mautic.org
  *
@@ -51,9 +51,9 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
     public function getRequiredKeyFields()
     {
         $integrationFields = [
-            'id'  => $this->translator->trans('mautic.integration.fourleaf.id.label'),
-            'key' => $this->translator->trans('mautic.integration.fourleaf.key.label'),
-            'url' => $this->translator->trans('mautic.integration.fourleaf.url.label'),
+            'id'  => $this->translator->trans('mautic.enhancer.integration.fourleaf.id.label'),
+            'key' => $this->translator->trans('mautic.enhancer.integration.fourleaf.key.label'),
+            'url' => $this->translator->trans('mautic.enhancer.integration.fourleaf.url.label'),
         ];
 
         return $integrationFields;
