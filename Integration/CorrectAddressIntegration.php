@@ -12,7 +12,6 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
@@ -34,6 +33,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
     const CA_REMOTE_PSWD   = 'password';
 
     const CA_REMOTE_USER   = 'username';
+
+    /** @var array */
+    protected $attempts;
 
     /**
      * @return string
@@ -187,16 +189,32 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
-        $leadAddress1 = trim($lead->getAddress1());
-        $leadAddress2 = trim($lead->getAddress2());
-        $leadZipCode  = trim($lead->getZipcode());
-        $combined     = $leadAddress1.$leadAddress2.$leadZipCode;
-        $hash         = md5($combined);
-        $cacheKey     = 'mautic.enhancer.correctaddress.'.$hash;
-        if (empty($combined)) {
-            // Have too little information to attempt a parse.
-            return false;
+        $result       = false;
+        $leadAddress1 = $lead->getAddress1();
+        $leadAddress2 = $lead->getAddress2();
+        $leadZipCode  = $lead->getZipcode();
+        $combined     = trim($leadAddress1).'|'.trim($leadAddress2).'|'.trim($leadZipCode);
+
+        if (strlen($combined) < 6) {
+            // Too little information to even attempt an address correction.
+            return $result;
         }
+
+        if (isset($this->attempts[$combined])) {
+            // We have already processed this address.
+            return $result;
+        }
+
+        if (
+            $leadAddress1 == strtoupper($leadAddress1)
+            && $leadAddress2 == strtoupper($leadAddress2)
+            && strlen($leadAddress1) > 2
+            && ' ' == substr($leadAddress1, -1)
+        ) {
+            // We have most likely already attempted address correction for this contact.
+            return $result;
+        }
+
         $address = implode(
             '|',
             [
@@ -206,40 +224,50 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             ]
         );
 
-        $cache = new ArrayAdapter(60);
-        if ($cache->hasItem($cacheKey)) {
-            return false;
-        }
-
         // Run the executable to correct the address.
-        $corrected = $this->callCorrectA($address);
-        $cache->setItem($cacheKey, $corrected);
+        $this->attempts[$combined] = true;
+        $corrected                 = $this->callCorrectA($address);
+        if (!$corrected) {
+            // Complete failure to parse address.
+            return $result;
+        }
 
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
-        list($city, $state, $zipcode)                   = explode(' ', $city_st_zip);
 
         if ('1' <= $code) {
-            $address1 = trim($address1);
-            $address2 = trim($address2);
-            $city     = trim($city);
-            $state    = trim($state);
-            $zipcode  = trim($zipcode);
-            if ($address1) {
-                $lead->addUpdatedField('address1', $address1, $lead->getAddress1());
+            list($city, $state, $zipcode) = explode(' ', $city_st_zip);
+
+            // Append a space to prevent duplicate runs.
+            $address1  = trim($address1).' ';
+            $address2  = trim($address2);
+            $city      = trim($city);
+            $state     = trim($state);
+            $zipcode   = trim($zipcode);
+            $leadCity  = $lead->getCity();
+            $leadState = $lead->getState();
+            if (!empty($address1) && $address1 !== $leadAddress1) {
+                $lead->addUpdatedField('address1', $address1, $leadAddress1);
+                $result = true;
             }
-            if ($address2) {
-                $lead->addUpdatedField('address2', $address2, $lead->getAddress2());
+            if (!empty($address2) && $address2 !== $leadAddress2) {
+                $lead->addUpdatedField('address2', $address2, $leadAddress2);
+                $result = true;
             }
-            if ($city) {
-                $lead->addUpdatedField('city', $city, $lead->getCity());
+            if (!empty($city) && $city !== $leadCity) {
+                $lead->addUpdatedField('city', $city, $leadCity);
+                $result = true;
             }
-            if ($state) {
-                $lead->addUpdatedField('state', $state, $lead->getState());
+            if (!empty($state) && $state !== $leadState) {
+                $lead->addUpdatedField('state', $state, $leadState);
+                $result = true;
             }
-            if ($zipcode) {
-                $lead->addUpdatedField('zipcode', $zipcode, $lead->getZipcode());
+            if (!empty($zipcode) && $zipcode !== $leadZipCode) {
+                $lead->addUpdatedField('zipcode', $zipcode, $leadZipCode);
+                $result = true;
             }
         }
+
+        return $result;
     }
 
     /**
