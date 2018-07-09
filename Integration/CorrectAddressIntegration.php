@@ -186,8 +186,6 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
      * @param Lead $lead
      *
      * @return bool
-     *
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -235,9 +233,10 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         }
 
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
-        list($city, $state, $zipcode)                   = explode(' ', $city_st_zip);
 
         if ('1' <= $code) {
+            list($city, $state, $zipcode) = explode(' ', $city_st_zip);
+
             // Append a space to prevent duplicate runs.
             $address1  = trim($address1).' ';
             $address2  = trim($address2);
