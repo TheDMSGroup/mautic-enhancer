@@ -194,14 +194,17 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         $leadAddress2 = $lead->getAddress2();
         $leadZipCode  = $lead->getZipcode();
         $combined     = trim($leadAddress1).'|'.trim($leadAddress2).'|'.trim($leadZipCode);
-
         if (strlen($combined) < 6) {
-            // Too little information to even attempt an address correction.
+            $this->getLogger()->debug(
+                'Correct Address: Not enough address data to enhance contact '.$lead->getId()
+            );
+
             return $result;
         }
 
         if (isset($this->attempts[$combined])) {
-            // We have already processed this address.
+            $this->getLogger()->debug('Correct Address: Already processed address on contact '.$lead->getId());
+
             return $result;
         }
 
@@ -211,7 +214,8 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             && strlen($leadAddress1) > 2
             && ' ' == substr($leadAddress1, -1)
         ) {
-            // We have most likely already attempted address correction for this contact.
+            $this->getLogger()->debug('Correct Address: Already processed contact '.$lead->getId());
+
             return $result;
         }
 
@@ -229,42 +233,65 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         $corrected                 = $this->callCorrectA($address);
         if (!$corrected) {
             // Complete failure to parse address.
+            $this->getLogger()->debug('Correct Address: Failure to parse address on contact '.$lead->getId());
+
             return $result;
         }
-
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
 
-        if ('1' <= $code) {
-            list($city, $state, $zipcode) = explode(' ', $city_st_zip);
+        if (1 <= (int) $code) {
+            list($city, $state, $zipCode) = explode(' ', $city_st_zip);
 
             // Append a space to prevent duplicate runs.
             $address1  = trim($address1).' ';
             $address2  = trim($address2);
             $city      = trim($city);
             $state     = trim($state);
-            $zipcode   = trim($zipcode);
+            $zipCode   = trim($zipCode);
             $leadCity  = $lead->getCity();
             $leadState = $lead->getState();
             if (!empty($address1) && $address1 !== $leadAddress1) {
+                $lead->setAddress1($address1);
                 $lead->addUpdatedField('address1', $address1, $leadAddress1);
+                $this->getLogger()->debug(
+                    'Correct Address: Updated address1 to '.$address1.' for contact '.$lead->getId()
+                );
                 $result = true;
             }
             if (!empty($address2) && $address2 !== $leadAddress2) {
+                $lead->setAddress2($address2);
                 $lead->addUpdatedField('address2', $address2, $leadAddress2);
+                $this->getLogger()->debug(
+                    'Correct Address: Updated address2 to '.$address2.' for contact '.$lead->getId()
+                );
                 $result = true;
             }
             if (!empty($city) && $city !== $leadCity) {
+                $lead->setCity($city);
                 $lead->addUpdatedField('city', $city, $leadCity);
+                $this->getLogger()->debug(
+                    'Correct Address: Updated city to '.$city.' for contact '.$lead->getId()
+                );
                 $result = true;
             }
             if (!empty($state) && $state !== $leadState) {
+                $lead->setState($state);
                 $lead->addUpdatedField('state', $state, $leadState);
+                $this->getLogger()->debug(
+                    'Correct Address: Updated state to '.$state.' for contact '.$lead->getId()
+                );
                 $result = true;
             }
-            if (!empty($zipcode) && $zipcode !== $leadZipCode) {
-                $lead->addUpdatedField('zipcode', $zipcode, $leadZipCode);
+            if (!empty($zipCode) && $zipCode !== $leadZipCode) {
+                $lead->setZipcode($zipCode);
+                $lead->addUpdatedField('zipcode', $zipCode, $leadZipCode);
+                $this->getLogger()->debug(
+                    'Correct Address: Updated zipcode to '.$zipCode.' for contact '.$lead->getId()
+                );
                 $result = true;
             }
+        } else {
+            $this->getLogger()->debug('Correct Address: Could not discern accurate address, returned code '.$code);
         }
 
         return $result;
@@ -301,7 +328,7 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
 
         if (!file_exists($settings[self::CA_CORRECTA_CMD])) {
             $this->getLogger()->error(
-                'Correct Address Integration: Could not find executable '.$settings[self::CA_CORRECTA_CMD]
+                'Correct Address: Could not find executable '.$settings[self::CA_CORRECTA_CMD]
             );
         } else {
             $pipes   = [];
@@ -323,15 +350,17 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
 
                 // Log issues and cleanup
                 if ($err = stream_get_contents($pipes[2])) {
-                    $this->getLogger()->error('Correct Address Integration: Error from executable '.$err);
+                    $this->getLogger()->error(
+                        'Correct Address: Error from executable '.$err
+                    );
                 } else {
-                    $return = fgets($pipes[1], 194);
+                    $return = fgets($pipes[1]);
                 }
 
                 fclose($pipes[1]) && fclose($pipes[2]) && proc_close($process);
             } else {
                 $this->getLogger()->error(
-                    'Correct Address Integration: Could not open executable '.$settings[self::CA_CORRECTA_CMD]
+                    'Correct Address: Could not open executable '.$settings[self::CA_CORRECTA_CMD]
                 );
             }
         }
