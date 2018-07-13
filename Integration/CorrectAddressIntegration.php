@@ -240,7 +240,10 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         list($address1, $address2, $city_st_zip, $code) = explode('|', $corrected);
 
         if (1 <= (int) $code) {
-            list($city, $state, $zipCode) = explode(' ', $city_st_zip);
+            $city_st_zip = explode(' ', $city_st_zip);
+            $zipCode     = array_pop($city_st_zip);
+            $state       = array_pop($city_st_zip);
+            $city        = implode(' ', $city_st_zip);
 
             // Append a space to prevent duplicate runs.
             $address1  = trim($address1).' ';
