@@ -54,16 +54,24 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return array
+     * @return string
      */
-    protected function getEnhancerFieldArray()
-    {
-        return [];
-    }
-
     public function getAuthenticationType()
     {
         return 'sftp';
+    }
+
+    /**
+     * @return array|mixed
+     */
+    protected function getEnhancerFieldArray()
+    {
+        return [
+            'address_valid' => [
+                'label' => 'Address Validated',
+                'type'  => 'boolean',
+            ],
+        ];
     }
 
     /**
@@ -208,13 +216,20 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             return $result;
         }
 
+        $leadCorrected = $lead->getFieldValue('address_valid');
+        if (true === $leadCorrected) {
+            $this->getLogger()->debug('Correct Address: Already validated contact '.$lead->getId());
+
+            return $result;
+        }
+
         if (
             $leadAddress1 == strtoupper($leadAddress1)
             && $leadAddress2 == strtoupper($leadAddress2)
             && strlen($leadAddress1) > 2
             && ' ' == substr($leadAddress1, -1)
         ) {
-            $this->getLogger()->debug('Correct Address: Already processed contact '.$lead->getId());
+            $this->getLogger()->debug('Correct Address: Likely already processed contact '.$lead->getId());
 
             return $result;
         }
@@ -245,8 +260,7 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             $state       = array_pop($city_st_zip);
             $city        = implode(' ', $city_st_zip);
 
-            // Append a space to prevent duplicate runs.
-            $address1  = trim($address1).' ';
+            $address1  = trim($address1);
             $address2  = trim($address2);
             $city      = trim($city);
             $state     = trim($state);
@@ -292,6 +306,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                     'Correct Address: Updated zipcode to '.$zipCode.' for contact '.$lead->getId()
                 );
                 $result = true;
+            }
+            if ($result) {
+                $lead->addUpdatedField('address_valid', true, $leadCorrected);
             }
         } else {
             $this->getLogger()->debug('Correct Address: Could not discern accurate address, returned code '.$code);
