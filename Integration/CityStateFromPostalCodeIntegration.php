@@ -81,7 +81,10 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         $persist = false;
-        if ((empty($lead->getCity()) or empty($lead->getState())) and !empty($lead->getZipcode())) {
+        if (
+            (empty($lead->getCity()) || empty($lead->getState()))
+            && !empty($lead->getZipcode())
+        ) {
             $country = $lead->getCountry();
 
             if (empty($country)) {
@@ -101,14 +104,14 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             );
 
             if (null !== $cityStatePostalCode) {
-                if (empty($lead->getCity()) and !empty($cityStatePostalCode->getCity())) {
-                    $this->logger->info('found city for lead '.$lead->getId());
+                if (empty($lead->getCity()) && !empty($cityStatePostalCode->getCity())) {
+                    $this->logger->debug('CityStateFromPostal: Found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
                     $persist = true;
                 }
 
-                if (empty($lead->getState()) and !empty($cityStatePostalCode->getStateProvince())) {
-                    $this->logger->info('found state/province for lead '.$lead->getId());
+                if (empty($lead->getState()) && !empty($cityStatePostalCode->getStateProvince())) {
+                    $this->logger->debug('CityStateFromPostal: Found state/province for lead '.$lead->getId());
                     $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince());
                     $persist = true;
                 }
