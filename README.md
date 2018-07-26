@@ -1,4 +1,4 @@
-# Mautic Enhancer [![Latest Stable Version](https://poser.pugx.org/thedmsgroup/mautic-enhancer-bundle/v/stable)](https://packagist.org/packages/thedmsgroup/mautic-enhancer-bundle) [![License](https://poser.pugx.org/thedmsgroup/mautic-enhancer-bundle/license)](https://packagist.org/packages/thedmsgroup/mautic-enhancer-bundle) [![Build Status](https://travis-ci.org/TheDMSGroup/mautic-enhancer.svg?branch=master)](https://travis-ci.org/TheDMSGroup/mautic-enhancer)
+# Mautic Enhancer [![Latest Stable Version](https://poser.pugx.org/thedmsgroup/mautic-enhancer-bundle/v/stable)](https://packagist.org/packages/thedmsgroup/mautic-enhancer-bundle) [![License](https://poser.pugx.org/thedmsgroup/mautic-enhancer-bundle/license)](https://packagist.org/packages/thedmsgroup/mautic-enhancer-bundle) [![Build Status](https://travis-ci.com/TheDMSGroup/mautic-enhancer.svg?branch=master)](https://travis-ci.com/TheDMSGroup/mautic-enhancer)
 
 ![Age from Birthdate](./Assets/img/agefrombirthdate.png)![Alcazar](./Assets/img/alcazar.png)![Fourleaf](./Assets/img/fourleaf.png)![Random](./Assets/img/random.png)![Xverify](./Assets/img/xverify.png)
 
