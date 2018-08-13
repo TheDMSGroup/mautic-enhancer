@@ -16,7 +16,7 @@ use Mautic\LeadBundle\Entity\Lead;
 /**
  * Class FourleafIntegration.
  */
-class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
+class FourleafIntegration extends AbstractEnhancerIntegration
 {
     /* @var NonFreeEnhancerInterface */
     use NonFreeEnhancerTrait;

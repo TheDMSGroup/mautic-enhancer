@@ -14,11 +14,14 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Doctrine\ORM\OptimisticLockException;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadField;
+use Mautic\LeadBundle\Helper\FormFieldHelper;
+use Mautic\LeadBundle\LeadEvents;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\Event\ContactLedgerContextEvent;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
+use Symfony\Component\Form\Extension\Core\DataTransformer\NumberToLocalizedStringTransformer;
 
 /**
  * Class AbstractEnhancerIntegration.
@@ -28,6 +31,18 @@ use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
+    /**
+     * @param Lead $lead
+     *
+     * @return bool
+     */
+    abstract public function doEnhancement(Lead &$lead);
+
+    /**
+     * @returns array[]
+     */
+    abstract protected function getEnhancerFieldArray();
+
     /** @var array */
     protected $config;
 
@@ -37,69 +52,131 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     /** @var bool */
     protected $isPush = false;
 
+    /**
+     * @return string
+     */
+    private function getLeadFieldClassName()
+    {
+        return class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')
+            ? 'extendedField'
+            : 'lead';
+    }
+
+    /**
+     * @return array
+     */
+    private function enhancerFieldDefaults()
+    {
+        return [
+            'is_published' => true,
+            'type'         => 'text',
+            'group'        => 'enhancement',
+            'object'       => $this->getLeadFieldClassName(),
+        ];
+    }
+
     public function buildEnhancerFields()
     {
-        $new_field   = null;
         $integration = $this->getIntegrationSettings();
 
-        $existing = $this->fieldModel->getFieldList(false);
-        $existing = array_keys($existing);
+        /**
+         *  TODO:
+         *  eventually I would like to add field_group = 'enhancement'
+         *  to all enhancer fields and make this call without false
+         *  and change
+         *      in_array($alias, $exists) => in_array($alias, array_keys($exists['enhancement'])).
+         */
+        $exists = array_keys(
+            $this->fieldModel->getFieldList(false)
+        );
 
         if ($integration->getIsPublished()) {
-            foreach ($this->getEnhancerFieldArray() as $alias => $properties) {
-                if (in_array($alias, $existing)) {
+            /** @var LeadField[] $newFields */
+            $newFields = [];
+            foreach ($this->getEnhancerFieldArray() as $alias => $attributes) {
+                if (in_array($alias, $exists)) {
                     // The field already exists
                     continue;
                 }
 
-                $new_field = new LeadField();
-                $new_field->setAlias($alias);
-                //setting extendedField/lead in one place,
-                $new_field->setObject($this->getLeadFieldObject());
+                $newField = new LeadField();
+                $newField->setAlias($alias);
 
-                // Add default required properties to prevent warnings and notices.
-                if (isset($properties['type'])) {
-                    if ('boolean' === $properties['type']) {
-                        $new_field->setProperties('a:2:{s:2:"no";s:2:"No";s:3:"yes";s:3:"Yes";}');
-                    } elseif ('number' === $properties['type']) {
-                        $new_field->setProperties('a:2:{s:9:"roundmode";s:1:"3";s:9:"precision";s:0:"";}');
-                    }
+                $attributes = array_merge($this->enhancerFieldDefaults(), $attributes);
+                if (!isset($attributes['label'])) {
+                    $attributes['label'] = implode(' ', array_map('ucfirst', explode('_', $alias)));
                 }
-                foreach ($properties as $property => $value) {
-                    //convert snake case to cammel case
-                    $method = 'set'.implode('', array_map('ucfirst', explode('_', $property)));
+
+                switch ($attributes['type']) {
+                    case 'boolean':
+                        if (!isset($attibutes['properties'])) {
+                            $attributes['properties'] = ['no' => 'No', 'yes' => 'Yes'];
+                        }
+                        break;
+                    case 'number':
+                        if (!isset($attibutes['properties'])) {
+                            $attributes['properties'] = [
+                                'roundmode' => NumberToLocalizedStringTransformer::ROUND_HALF_UP,
+                                'scale'     => 0,   // precision changed to scale in symfony 2.7
+                                'precision' => 0,   // trusting the validator to do the right thing
+                            ];
+                        }
+                        break;
+                    case 'time': //intentional no break
+                        $attributes['is_listable'] = false;
+                    default:
+                        if (!isset($attributes['properties'])) {
+                            $attributes['properties'] = [];
+                        }
+                }
+
+                $result = FormFieldHelper::validateProperties($attributes['type'], $attributes['properties']);
+                if (!$result[0]) {
+                    $this->logger->error('Installation Failed: "'.$alias.''.$result[1].'"');
+                    $this->em->rollback();
+
+                    return;
+                }
+
+                foreach ($attributes as $attribute => $value) {
+                    // Now that i know better, I can not do it this way...
+                    // A lot of refactoring though and dynamic methods still
+                    // required
+
+                    //convert snake case to camel case
+                    $method = 'set'.\preg_replace('/_+([^_])?/', '$1', $attribute);
 
                     try {
-                        $new_field->$method($value);
+                        call_user_func(
+                            [$newField, $method],
+                            $value
+                        );
                     } catch (\Exception $e) {
-                        error_log('Failed with "'.$e->getMessage().'"');
+                        $this->logger->error('Failed to set attribute: "'.$e->getMessage().'"');
                     }
                 }
-                try {
-                    $this->em->persist($new_field);
-                    $this->em->flush($new_field);
-                } catch (OptimisticLockException $e) {
-                    $this->logger->warning($e->getMessage());
-                }
+
+                $this->fieldModel->setTimestamps($newField, true);
+
+                $event = $this->dispatcher->dispatch(LeadEvents::FIELD_PRE_SAVE);
+                // implicitly call flush once all fields are ready to be added
+                $this->fieldModel->getRepository()->saveEntity($newField, false);
+                $this->dispatcher->dispatch(LeadEvents::FIELD_POST_SAVE, $event);
+
+                $newFields[] = $newField;
             }
+
+            try {
+                $this->em->flush();
+            } catch (OptimisticLockException $ole) {
+                $this->logger->error('Failed to write lead field "'.$alias.'"" to database:'.$ole->getMessage());
+
+                return;
+            }
+
+            $newIds = array_map(function ($f) { return $f->getId(); }, $newFields);
+            $this->fieldModel->reorderFieldsByList($newIds);
         }
-    }
-
-    /**
-     * @returns array[]
-     */
-    abstract protected function getEnhancerFieldArray();
-
-    /**
-     * @return string
-     */
-    private function getLeadFieldObject()
-    {
-        if (class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')) {
-            return 'extendedField';
-        }
-
-        return 'lead';
     }
 
     /**
@@ -107,9 +184,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      */
     public function getDisplayName()
     {
-        $spaced_name = preg_replace('/([a-z])([A-Z])/', '$1 $2', $this->getName());
+        $spacedName = preg_replace('/([a-z])([A-Z])/', '$1 $2', $this->getName());
 
-        return sprintf('%s Data Enhancer', $spaced_name);
+        return sprintf('%s Data Enhancer', $spacedName);
     }
 
     /**
@@ -218,6 +295,11 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function pushLead(Lead &$lead, array $config = [])
     {
         $this->logger->debug('Pushing to Enhancer '.$this->getName(), $config);
+
+        if (!$this->getIntegrationSettings()->getIsPublished()) {
+            return true;
+        }
+
         $this->config = $config;
         $this->isPush = true;
 
@@ -241,13 +323,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         // Always return true to prevent campaign actions from being halted, even if an enhancer fails.
         return true;
     }
-
-    /**
-     * @param Lead $lead
-     *
-     * @return bool
-     */
-    abstract public function doEnhancement(Lead &$lead);
 
     /**
      * @param $lead
@@ -334,5 +409,10 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function getId()
     {
         return $this->getIntegrationSettings()->getId();
+    }
+
+    public function getFormSettings()
+    {
+        return parent::getFormSettings(); // TODO: Change the autogenerated stub
     }
 }
