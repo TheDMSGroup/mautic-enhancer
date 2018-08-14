@@ -20,7 +20,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
         appendToForm as appendNonFree;
     }
 
-    const NEUSTAR_PREFIX = 'neustar';
+    const NEUSTAR_PREFIX = 'Neustar';
 
     //const NEUSTAR_ENDPOINT_PROD = 'https://webgwy.targusinfo.com/access/query';
 
@@ -113,10 +113,12 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     public function getRequiredKeyFields()
     {
+        $stop = 'here';
+
         return [
             'username'   => 'mautic.enhancer.neustar.required_key.username',
             'password'   => 'mautic.enhancer.neustar.required_key.password',
-            'serviceId' => 'mautic.enhancer.neustar.required_key.serviceId',
+            'serviceId' => 'mautic.enhancer.neustar.required_key.service_id',
         ];
     }
 
@@ -147,6 +149,8 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
+        $stop = 'here';
+
         if ('features' === $formArea) {
             $builder
                 ->add(
@@ -156,7 +160,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
                         'label' => $this->translator->trans('mautic.enhancer.neustar.query.endpoint.label'),
                         'data'  => isset($data['endpoint']) ? $data['endpoint'] : '',
                         'required' => true,
-                        'empty_value' => false,
                         'label_attr' => ['class' => 'control-label'],
                         'attr' => [
                             'class' => 'form-control',
@@ -175,7 +178,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     public function getName()
     {
-        return strtolower(self::NEUSTAR_PREFIX.$this->getNeustarIntegrationName());
+        return self::NEUSTAR_PREFIX.$this->getNeustarIntegrationName();
     }
 
     /**

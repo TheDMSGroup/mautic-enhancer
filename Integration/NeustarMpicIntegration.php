@@ -10,7 +10,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
 
-class Neustar3226Integration extends AbstractNeustarIntegration
+class NeustarMpicIntegration extends AbstractNeustarIntegration
 {
     protected function getNeustarElementId()
     {
@@ -19,7 +19,7 @@ class Neustar3226Integration extends AbstractNeustarIntegration
 
     protected function getNeustarIntegrationName()
     {
-        return 'mpic';
+        return 'Mpic';
     }
 
     /**
