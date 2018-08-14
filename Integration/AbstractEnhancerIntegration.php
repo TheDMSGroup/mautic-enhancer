@@ -174,13 +174,9 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
             try {
                 $this->em->flush();
             } catch (OptimisticLockException $ole) {
-                $this->logger->error('Failed to write lead field "'.$alias.'"" to database:'.$ole->getMessage());
-
-                return;
+                $this->logger->error($this->getDisplayName().' failed to install: '.$ole->getMessage());
+                //add flash failure message?
             }
-
-            $newIds = array_map(function ($f) { return $f->getId(); }, $newFields);
-            $this->fieldModel->reorderFieldsByList($newIds);
         }
     }
 
