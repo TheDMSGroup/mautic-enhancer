@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 8/8/18
- * Time: 10:08 AM
+ * Time: 10:08 AM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
@@ -34,8 +34,8 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
     {
         return [
             'address' => ['score'],
-            'phone' => ['score', 'appends' => ['validation', 'mobile']],
-            'email' => ['score'],
+            'phone'   => ['score', 'appends' => ['validation', 'mobile']],
+            'email'   => ['score'],
         ];
     }
 
@@ -46,7 +46,7 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         // for now, just address[score]
         // $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
-        $xmlDoc = new \DOMDocument('1.0');
+        $xmlDoc                     = new \DOMDocument('1.0');
         $xmlDoc->preserveWhiteSpace = false;
 
         $root = $xmlDoc->createElement('Contact');
