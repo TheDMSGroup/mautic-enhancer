@@ -9,6 +9,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Mautic\LeadBundle\Entity\Lead;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 
@@ -22,10 +23,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     }
 
     const NEUSTAR_PREFIX = 'Neustar';
-
-    //const NEUSTAR_ENDPOINT_PROD = 'https://webgwy.targusinfo.com/access/query';
-
-    const NEUSTAR_ENDPOINT_DEV = 'https:/gwydemo.targusinfo.com/access/query';
 
     protected static $serviceKeysDict = [
         '1' => [
@@ -108,7 +105,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     abstract protected function getServiceData(Lead $lead, $serviceId);
 
-    abstract protected function processResponse($neustarResponse);
+    abstract protected function processResponse(Lead $lead, Response $neustarResponse);
 
     /**
      * @return array
@@ -209,19 +206,67 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
             'username' => $keys['username'],
             'password' => $keys['password'],
             'svcid'    => $keys['serviceId'],
-            'elems'    => $this->getElementId(),
+            'elems'    => $this->getNeustarElementId(),
             'version'  => '1.0',
             'transid'  => '1',
         ];
 
-        foreach ($this->getServiceKeys() as $serviceKey) {
+        foreach ($this->getNeustarServiceKeys() as $serviceKey) {
             $query['key'.$serviceKey] = $this->getServiceData($lead, $serviceKey);
         }
 
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
         $neustarClient   = new Client();
+        /** @var Response $neustarResponse */
         $neustarResponse = $neustarClient->request('GET', $settings['endpoint'], ['query' => $query]);
-        $this->processResponse($neustarResponse);
+
+        $this->processResponse($lead, $neustarResponse);
     }
+
+    /**
+     * Convert a DOM Document into a nested array.
+     *
+     * @param $root
+     *
+     * @return array|mixed
+     */
+    protected function domDocumentArray($root)
+    {
+        $result = [];
+
+        if ($root->hasAttributes()) {
+            foreach ($root->attributes as $attribute) {
+                $result['@attributes'][$attribute->name] = $attribute->value;
+            }
+        }
+
+        if ($root->hasChildNodes()) {
+            if (1 == $root->childNodes->length) {
+                $child = $root->childNodes->item(0);
+                if (in_array($child->nodeType, [XML_TEXT_NODE, XML_CDATA_SECTION_NODE]) && !empty($child->nodeValue)) {
+                    $result['_value'] = $child->nodeValue;
+
+                    return 1 == count($result)
+                        ? $result['_value']
+                        : $result;
+                }
+            }
+            $groups = [];
+            foreach ($root->childNodes as $child) {
+                if (!isset($result[$child->nodeName])) {
+                    $result[$child->nodeName] = $this->domDocumentArray($child);
+                } else {
+                    if (!isset($groups[$child->nodeName])) {
+                        $result[$child->nodeName] = [$result[$child->nodeName]];
+                        $groups[$child->nodeName] = 1;
+                    }
+                    $result[$child->nodeName][] = $this->domDocumentArray($child);
+                }
+            }
+        }
+
+        return $result;
+    }
+
 }

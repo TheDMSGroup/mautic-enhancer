@@ -8,6 +8,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use GuzzleHttp\Psr7\Response;
 use Mautic\LeadBundle\Entity\Lead;
 
 class NeustarMpicIntegration extends AbstractNeustarIntegration
@@ -56,7 +57,8 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         $name->appendChild($xmlDoc->createElement('First', $lead->getFirstname()));
         $name->appendChild($xmlDoc->createElement('Last', $lead->getLastname()));
 
-        $names = $xmlDoc->createElement('Names')->appendChild($name);
+        $names = $xmlDoc->createElement('Names');
+        $names->appendChild($name);
         $root->appendChild($names);
 
         if ($lead->getAddress1()) {
@@ -67,7 +69,8 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
             $address->appendChild($xmlDoc->createElement('ST', $lead->getState()));
             $address->appendChild($xmlDoc->createElement('postal', $lead->getZipcode()));
 
-            $addresses = $xmlDoc->createElement('Addresses')->appendChild($address);
+            $addresses = $xmlDoc->createElement('Addresses');
+            $addresses->appendChild($address);
             $root->appendChild($addresses);
         }
 
@@ -76,7 +79,8 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
             $phone->setAttribute('score', '1');
             $phone->setAttribute('appends', 'validation,mobile');
 
-            $phones = $xmlDoc->createElement('Phones')->appendChild($phone);
+            $phones = $xmlDoc->createElement('Phones');
+            $phones->appendChild($phone);
             $root->appendChild($phones);
         }
 
@@ -84,7 +88,8 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
             $email = $xmlDoc->createElement('eMail', $lead->getEmail());
             $email->setAttribute('score', '1');
 
-            $emails = $xmlDoc->createElement('eMailAddresses')->appendChild($email);
+            $emails = $xmlDoc->createElement('eMailAddresses');
+            $emails->appendChild($email);
             $root->appendChild($emails);
         }
 
@@ -93,8 +98,62 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         return $xmlDoc->saveXML();
     }
 
-    protected function processResponse($response)
+    /**
+     * @param Response $response
+     */
+    protected function processResponse(Lead $lead, Response $response)
     {
-        return;
+
+        $data = trim($response->getBody()->getContents());
+
+        $xdgResponse = new \SimpleXMLElement($data);
+
+        if ("0" === ''.$xdgResponse->errorcode) {
+
+            $result = $xdgResponse->response->result;
+            if ("0" === ''.$result->errorcode) {
+
+                $contact = new \DOMDocument();
+                $contact->recover;
+                $contact->loadXML($result->value);
+                $contact = $this->domDocumentArray($contact);
+
+                foreach ($contact['Contact'] as $section => $result) {
+                    switch ($section) {
+                        case 'Addresses':
+                            $field = 'address';
+                            $attributes = isset($result['Address']['@attributes'])
+                                ? $result['Address']['@attributes']
+                                : [];
+                            break;
+                        case 'Phones':
+                            $field = 'phone';
+                            $attributes = isset($result['Phone']['@attributes'])
+                                ? $result['Phone']['@attributes']
+                                : [];
+                            break;
+                        case 'eMailAddresses':
+                            $field = 'email';
+                            $attributes = isset($result['eMail']['@attributes'])
+                                ? $result['eMail']['@attributes']
+                                : [];
+                            break;
+                        default:
+                            $field = false;
+                            $attributes = [];
+                    }
+
+                    if ($field) {
+                        $fieldNameBase = strtolower(sprintf('%s_%s_%s_',self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(),$field));
+                        foreach ($attributes as $attribute => $value) {
+                            $lead->addUpdatedField($fieldNameBase.$attribute, $value);
+                        }
+                    }
+                }
+            }
+        }
+        $stop = 'here';
+
+        return true;
     }
 }
