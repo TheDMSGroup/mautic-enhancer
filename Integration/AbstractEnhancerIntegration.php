@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Doctrine\ORM\OptimisticLockException;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadField;
+use Mautic\LeadBundle\Event\LeadFieldEvent;
 use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\LeadBundle\LeadEvents;
 use Mautic\PluginBundle\Exception\ApiErrorException;
@@ -93,7 +94,8 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         if ($integration->getIsPublished()) {
             /** @var LeadField[] $newFields */
             $newFields = [];
-            foreach ($this->getEnhancerFieldArray() as $alias => $attributes) {
+            $possibleFields = $this->getEnhancerFieldArray();
+            foreach ($possibleFields as $alias => $attributes) {
                 if (in_array($alias, $exists)) {
                     // The field already exists
                     continue;
@@ -129,6 +131,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                             $attributes['properties'] = [];
                         }
                 }
+                $attributes['properties'] = \serialize($attributes['properties']);
 
                 $result = FormFieldHelper::validateProperties($attributes['type'], $attributes['properties']);
                 if (!$result[0]) {
@@ -144,7 +147,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                     // required
 
                     //convert snake case to camel case
-                    $method = 'set'.\preg_replace('/_+([^_])?/', '$1', $attribute);
+                    $method = 'set'.implode('', array_map('ucfirst', explode('_', $attribute)));
 
                     try {
                         call_user_func(
@@ -158,8 +161,10 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
                 $this->fieldModel->setTimestamps($newField, true);
 
-                $event = $this->dispatcher->dispatch(LeadEvents::FIELD_PRE_SAVE);
+                $event = new LeadFieldEvent($newField, true);
+                $event = $this->dispatcher->dispatch(LeadEvents::FIELD_PRE_SAVE, $event);
                 // implicitly call flush once all fields are ready to be added
+                // which allows us to rollback the entire integration install
                 $this->fieldModel->getRepository()->saveEntity($newField, false);
                 $this->dispatcher->dispatch(LeadEvents::FIELD_POST_SAVE, $event);
 

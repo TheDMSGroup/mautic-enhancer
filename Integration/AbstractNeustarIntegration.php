@@ -133,10 +133,10 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
                     $options = [$options];
                 }
                 foreach ($options as $option) {
-                    $name               = [self::NEUSTAR_PREFIX, $this->getElementId(), $section, $option];
+                    $name               = [self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(), $section, $option];
                     $fieldName          = strtolower(implode('_', $name));
                     $fields[$fieldName] = [
-                        'label' => ucfirst(implode(' ', $name)),
+                        'label' => ucwords(implode(' ', $name)),
                     ];
                 }
             }
