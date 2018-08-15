@@ -40,8 +40,6 @@ trait NonFreeEnhancerTrait
      */
     public function appendToForm(&$builder, $data, $formArea, $overrideArea = false)
     {
-        $stop = 'here';
-
         if ('features' === $formArea) {
             $builder
                 ->add(

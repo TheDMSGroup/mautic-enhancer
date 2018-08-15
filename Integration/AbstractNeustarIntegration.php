@@ -112,8 +112,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     public function getRequiredKeyFields()
     {
-        $stop = 'here';
-
         return [
             'username'   => 'mautic.enhancer.neustar.required_key.username',
             'password'   => 'mautic.enhancer.neustar.required_key.password',
@@ -149,8 +147,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        $stop = 'here';
-
         if ('features' === $formArea) {
             $builder
                 ->add(
