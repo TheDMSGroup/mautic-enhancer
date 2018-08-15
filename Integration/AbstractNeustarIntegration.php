@@ -103,8 +103,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     /**
      * @param Lead     $lead
      * @param Response $neustarResponse
-     *
-     * @return void
      */
     abstract protected function processResponse(Lead $lead, Response $neustarResponse);
 

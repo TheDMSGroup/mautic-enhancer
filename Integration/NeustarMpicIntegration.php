@@ -36,23 +36,23 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         return [
             'neustar_mpic_address_score' => [
                 'label' => 'Neustar Address Score',
-                'type' => 'number',
+                'type'  => 'number',
             ],
             'neustar_mpic_phone_score' => [
                 'label' => 'Neustar Phone Score',
-                'type' => 'number',
+                'type'  => 'number',
             ],
             'neustar_mpic_phone_validation' => [
                 'label' => 'Neustar Phone Is Valid',
-                'type' => 'boolean',
+                'type'  => 'boolean',
             ],
             'neustar_mpic_phone_mobile' => [
                 'label' => 'Neustar Phone Is Mobile',
-                'type' => 'boolean',
+                'type'  => 'boolean',
             ],
             'neustar_mpic_email_score' => [
                 'label' => 'Neustar Email Score',
-                'type' => 'number',
+                'type'  => 'number',
             ],
         ];
     }
@@ -121,7 +121,7 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
     protected function processResponse(Lead $lead, Response $response)
     {
         try {
-            $data = trim($response->getBody()->getContents());
+            $data        = trim($response->getBody()->getContents());
             $xdgResponse = new \SimpleXMLElement($data);
 
             if ('0' === ''.$xdgResponse->errorcode) {
@@ -135,29 +135,29 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                     foreach ($contact['Contact'] as $section => $result) {
                         switch ($section) {
                             case 'Addresses':
-                                $field = 'address';
+                                $field      = 'address';
                                 $attributes = isset($result['Address']['@attributes'])
                                     ? $result['Address']['@attributes']
                                     : [];
                                 break;
                             case 'Phones':
-                                $field = 'phone';
+                                $field      = 'phone';
                                 $attributes = isset($result['Phone']['@attributes'])
                                     ? $result['Phone']['@attributes']
                                     : [];
                                 if (!empty($attributes)) {
-                                    $attributes['validation'] = (bool)$attributes['validation'];
-                                    $attributes['mobile'] = ('Y' === $attributes['mobile']);
+                                    $attributes['validation'] = (bool) $attributes['validation'];
+                                    $attributes['mobile']     = ('Y' === $attributes['mobile']);
                                 }
                                 break;
                             case 'eMailAddresses':
-                                $field = 'email';
+                                $field      = 'email';
                                 $attributes = isset($result['eMail']['@attributes'])
                                     ? $result['eMail']['@attributes']
                                     : [];
                                 break;
                             default:
-                                $field = false;
+                                $field      = false;
                                 $attributes = [];
                         }
 
@@ -178,9 +178,11 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 }
             }
         } catch (\Exception $e) {
-            $this->logger->error(sprintf('%s (%s): %s',__FILE__, __LINE__, $e->getMessage()));
+            $this->logger->error(sprintf('%s (%s): %s', __FILE__, __LINE__, $e->getMessage()));
+
             return false;
         }
+
         return true;
     }
 }
