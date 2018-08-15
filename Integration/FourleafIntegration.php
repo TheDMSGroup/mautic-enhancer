@@ -130,7 +130,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
             if ('ok' === $response['message']) {
                 $this->applyCost($lead);
-                $data = $response['data'];
+                $data           = $response['data'];
                 $allowedAliases = $this->getEnhancerFieldArray();
                 unset($data['md5']);
                 $data['low_intel'] = (bool) strcasecmp($response['data']['low_intel'], 'false');
@@ -142,7 +142,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                     }
                     $stop = 'here';
                 }
-            $persist = true;
+                $persist = true;
             }
         }
 
