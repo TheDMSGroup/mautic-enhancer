@@ -268,5 +268,4 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
 
         return $result;
     }
-
 }

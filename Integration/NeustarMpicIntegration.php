@@ -103,16 +103,13 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
      */
     protected function processResponse(Lead $lead, Response $response)
     {
-
         $data = trim($response->getBody()->getContents());
 
         $xdgResponse = new \SimpleXMLElement($data);
 
-        if ("0" === ''.$xdgResponse->errorcode) {
-
+        if ('0' === ''.$xdgResponse->errorcode) {
             $result = $xdgResponse->response->result;
-            if ("0" === ''.$result->errorcode) {
-
+            if ('0' === ''.$result->errorcode) {
                 $contact = new \DOMDocument();
                 $contact->recover;
                 $contact->loadXML($result->value);
@@ -121,30 +118,30 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 foreach ($contact['Contact'] as $section => $result) {
                     switch ($section) {
                         case 'Addresses':
-                            $field = 'address';
+                            $field      = 'address';
                             $attributes = isset($result['Address']['@attributes'])
                                 ? $result['Address']['@attributes']
                                 : [];
                             break;
                         case 'Phones':
-                            $field = 'phone';
+                            $field      = 'phone';
                             $attributes = isset($result['Phone']['@attributes'])
                                 ? $result['Phone']['@attributes']
                                 : [];
                             break;
                         case 'eMailAddresses':
-                            $field = 'email';
+                            $field      = 'email';
                             $attributes = isset($result['eMail']['@attributes'])
                                 ? $result['eMail']['@attributes']
                                 : [];
                             break;
                         default:
-                            $field = false;
+                            $field      = false;
                             $attributes = [];
                     }
 
                     if ($field) {
-                        $fieldNameBase = strtolower(sprintf('%s_%s_%s_',self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(),$field));
+                        $fieldNameBase = strtolower(sprintf('%s_%s_%s_', self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(), $field));
                         foreach ($attributes as $attribute => $value) {
                             $lead->addUpdatedField($fieldNameBase.$attribute, $value);
                         }
@@ -152,7 +149,6 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 }
             }
         }
-        $stop = 'here';
 
         return true;
     }

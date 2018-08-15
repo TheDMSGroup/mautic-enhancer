@@ -71,7 +71,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         return [
             'is_published' => true,
             'type'         => 'text',
-            'group'        => 'enhancement',
+            //'group'        => 'enhancement',
             'object'       => $this->getLeadFieldClassName(),
         ];
     }
@@ -93,7 +93,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
         if ($integration->getIsPublished()) {
             /** @var LeadField[] $newFields */
-            $newFields = [];
+            $newFields      = [];
             $possibleFields = $this->getEnhancerFieldArray();
             foreach ($possibleFields as $alias => $attributes) {
                 if (in_array($alias, $exists)) {
