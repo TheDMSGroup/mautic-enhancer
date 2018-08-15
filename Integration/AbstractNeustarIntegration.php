@@ -119,9 +119,9 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param \Mautic\PluginBundle\Integration\Form|\Symfony\Component\Form\FormBuilder $builder
-     * @param array                                                                     $data
-     * @param string                                                                    $formArea
+     * @param \Mautic\PluginBundle\Integration\Form|FormBuilder $builder
+     * @param array                                             $data
+     * @param string                                            $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
