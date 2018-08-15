@@ -93,11 +93,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     abstract protected function getNeustarServiceKeys();
 
     /**
-     * @return array
-     */
-    abstract protected function getAvailableResponses();
-
-    /**
      * @param Lead lead
      * @param int
      *
@@ -105,6 +100,12 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      */
     abstract protected function getServiceData(Lead $lead, $serviceId);
 
+    /**
+     * @param Lead     $lead
+     * @param Response $neustarResponse
+     *
+     * @return void
+     */
     abstract protected function processResponse(Lead $lead, Response $neustarResponse);
 
     /**
@@ -117,27 +118,6 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
             'password'   => 'mautic.enhancer.neustar.required_key.password',
             'serviceId'  => 'mautic.enhancer.neustar.required_key.service_id',
         ];
-    }
-
-    public function getEnhancerFieldArray()
-    {
-        $fields = [];
-        foreach ($this->getAvailableResponses() as $section => $attribues) {
-            foreach ($attribues as $attribute => $options) {
-                if (!is_array($options)) {
-                    $options = [$options];
-                }
-                foreach ($options as $option) {
-                    $name               = [self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(), $section, $option];
-                    $fieldName          = strtolower(implode('_', $name));
-                    $fields[$fieldName] = [
-                        'label' => ucwords(implode(' ', $name)),
-                    ];
-                }
-            }
-        }
-
-        return $fields;
     }
 
     /**
@@ -217,7 +197,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
         /** @var Response $neustarResponse */
         $neustarResponse = $neustarClient->request('GET', $settings['endpoint'], ['query' => $query]);
 
-        $this->processResponse($lead, $neustarResponse);
+        return $this->processResponse($lead, $neustarResponse);
     }
 
     /**

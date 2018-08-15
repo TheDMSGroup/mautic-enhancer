@@ -31,12 +31,29 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         return ['875'];
     }
 
-    protected function getAvailableResponses()
+    public function getEnhancerFieldArray()
     {
         return [
-            'address' => ['score'],
-            'phone'   => ['score', 'appends' => ['validation', 'mobile']],
-            'email'   => ['score'],
+            'neustar_mpic_address_score' => [
+                'label' => 'Neustar Address Score',
+                'type' => 'number',
+            ],
+            'neustar_mpic_phone_score' => [
+                'label' => 'Neustar Phone Score',
+                'type' => 'number',
+            ],
+            'neustar_mpic_phone_validation' => [
+                'label' => 'Neustar Phone Is Valid',
+                'type' => 'boolean',
+            ],
+            'neustar_mpic_phone_mobile' => [
+                'label' => 'Neustar Phone Is Mobile',
+                'type' => 'boolean',
+            ],
+            'neustar_mpic_email_score' => [
+                'label' => 'Neustar Email Score',
+                'type' => 'number',
+            ],
         ];
     }
 
@@ -103,53 +120,67 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
      */
     protected function processResponse(Lead $lead, Response $response)
     {
-        $data = trim($response->getBody()->getContents());
+        try {
+            $data = trim($response->getBody()->getContents());
+            $xdgResponse = new \SimpleXMLElement($data);
 
-        $xdgResponse = new \SimpleXMLElement($data);
+            if ('0' === ''.$xdgResponse->errorcode) {
+                $result = $xdgResponse->response->result;
+                if ('0' === ''.$result->errorcode) {
+                    $contact = new \DOMDocument();
+                    $contact->recover;
+                    $contact->loadXML($result->value);
+                    $contact = $this->domDocumentArray($contact);
 
-        if ('0' === ''.$xdgResponse->errorcode) {
-            $result = $xdgResponse->response->result;
-            if ('0' === ''.$result->errorcode) {
-                $contact = new \DOMDocument();
-                $contact->recover;
-                $contact->loadXML($result->value);
-                $contact = $this->domDocumentArray($contact);
+                    foreach ($contact['Contact'] as $section => $result) {
+                        switch ($section) {
+                            case 'Addresses':
+                                $field = 'address';
+                                $attributes = isset($result['Address']['@attributes'])
+                                    ? $result['Address']['@attributes']
+                                    : [];
+                                break;
+                            case 'Phones':
+                                $field = 'phone';
+                                $attributes = isset($result['Phone']['@attributes'])
+                                    ? $result['Phone']['@attributes']
+                                    : [];
+                                if (!empty($attributes)) {
+                                    $attributes['validation'] = (bool)$attributes['validation'];
+                                    $attributes['mobile'] = ('Y' === $attributes['mobile']);
+                                }
+                                break;
+                            case 'eMailAddresses':
+                                $field = 'email';
+                                $attributes = isset($result['eMail']['@attributes'])
+                                    ? $result['eMail']['@attributes']
+                                    : [];
+                                break;
+                            default:
+                                $field = false;
+                                $attributes = [];
+                        }
 
-                foreach ($contact['Contact'] as $section => $result) {
-                    switch ($section) {
-                        case 'Addresses':
-                            $field      = 'address';
-                            $attributes = isset($result['Address']['@attributes'])
-                                ? $result['Address']['@attributes']
-                                : [];
-                            break;
-                        case 'Phones':
-                            $field      = 'phone';
-                            $attributes = isset($result['Phone']['@attributes'])
-                                ? $result['Phone']['@attributes']
-                                : [];
-                            break;
-                        case 'eMailAddresses':
-                            $field      = 'email';
-                            $attributes = isset($result['eMail']['@attributes'])
-                                ? $result['eMail']['@attributes']
-                                : [];
-                            break;
-                        default:
-                            $field      = false;
-                            $attributes = [];
-                    }
-
-                    if ($field) {
-                        $fieldNameBase = strtolower(sprintf('%s_%s_%s_', self::NEUSTAR_PREFIX, $this->getNeustarIntegrationName(), $field));
-                        foreach ($attributes as $attribute => $value) {
-                            $lead->addUpdatedField($fieldNameBase.$attribute, $value);
+                        if ($field) {
+                            $fieldNameBase = strtolower(sprintf(
+                                '%s_%s_%s_',
+                                self::NEUSTAR_PREFIX,
+                                $this->getNeustarIntegrationName(),
+                                $field
+                            ));
+                            foreach ($attributes as $attribute => $value) {
+                                $default = $lead->getFieldValue($fieldNameBase.$attribute);
+                                $lead->addUpdatedField($fieldNameBase.$attribute, $value, $default);
+                            }
                         }
                     }
+                    $stop = 'here';
                 }
             }
+        } catch (\Exception $e) {
+            $this->logger->error(sprintf('%s (%s): %s',__FILE__, __LINE__, $e->getMessage()));
+            return false;
         }
-
         return true;
     }
 }

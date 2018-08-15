@@ -71,7 +71,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         return [
             'is_published' => true,
             'type'         => 'text',
-            //'group'        => 'enhancement',
+            'group'        => 'enhancement',
             'object'       => $this->getLeadFieldClassName(),
         ];
     }
