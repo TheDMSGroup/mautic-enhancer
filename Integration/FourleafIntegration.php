@@ -109,10 +109,9 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
             // @todo - Update to use Guzzle.
             $options = [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_URL            => $keys['url'].$lead->getEmail(),
+                CURLOPT_URL            => $keys['url'].'?ident='.$lead->getEmail(),
                 CURLOPT_HTTPHEADER     => [
-                    "x-fourleaf-id: $keys[id]",
-                    "x-fourleaf-key: $keys[key]",
+                    "X-Fourleaf-Id: $keys[id]",
                 ],
             ];
 
@@ -129,16 +128,19 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
 
             $response = json_decode($response, true);
 
-            if ($response) {
+            if ('ok' === $response['message']) {
                 $this->applyCost($lead);
-
+                $data           = $response['data'];
                 $allowedAliases = $this->getEnhancerFieldArray();
-                foreach ($response as $key => $value) {
+                unset($data['md5']);
+                $data['low_intel'] = (bool) strcasecmp($response['data']['low_intel'], 'false');
+                foreach ($data as $key => $value) {
                     $alias = 'fourleaf_'.str_replace('user_', '', $key);
                     if (isset($allowedAliases[$alias])) {
                         $default = $lead->getFieldValue($alias);
                         $lead->addUpdatedField($alias, $value, $default);
                     }
+                    $stop = 'here';
                 }
                 $persist = true;
             }
