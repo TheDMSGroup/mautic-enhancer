@@ -233,12 +233,17 @@ class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeE
                 }
             }
 
+            $settings = [
+                'ignore_event_dispatch' => 1,
+                'curl_options'          => [CURLOPT_CONNECTTIMEOUT => 1, CURLOPT_TIMEOUT => 30],
+            ];
+
             try {
                 $response = $this->makeRequest(
                     $keys['server'],
                     ['append_to_query' => $params],
                     'GET',
-                    ['ignore_event_dispatch' => 1]
+                    $settings
                 );
             } catch (\Exception $e) {
                 $this->logger->error($e->getMessage());
