@@ -34,6 +34,7 @@ class GenderNameModel extends AbstractCommonModel
         if ($record = $this->getRepository()->findOneBy(['name' => strtoupper($name)])) {
             return $record->getGender();
         } else {
+            $gender = null;
             try {
                 $url         = 'https://api.genderize.io/?name='.urlencode($name);
                 $ch          = curl_init($url);
@@ -50,6 +51,7 @@ class GenderNameModel extends AbstractCommonModel
                     $result = json_decode($result, true);
                     if (isset($result['gender'])) {
                         $gender = 'female' === $result['gender'] ? 'F' : 'M';
+
                         //add it to our reference table
                         $genderName = new PluginEnhancerGenderName();
                         $genderName
@@ -57,13 +59,7 @@ class GenderNameModel extends AbstractCommonModel
                             ->setGender($gender)
                             ->setProbability($result['probability'])
                             ->setCount($result['count']);
-                        try {
-                            $this->getRepository()->saveEntity($genderName, true);
-                        } catch (\Exception $e) {
-                            $this->logger->error($e->getMessage());
-                        }
-
-                        return $gender;
+                        $this->getRepository()->saveEntity($genderName, true);
                     }
                 }
             } catch (\Exception $e) {
@@ -75,7 +71,7 @@ class GenderNameModel extends AbstractCommonModel
                 ));
             }
 
-            return null;
+            return $gender;
         }
     }
 
