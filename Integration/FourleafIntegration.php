@@ -16,7 +16,7 @@ use Mautic\LeadBundle\Entity\Lead;
 /**
  * Class FourleafIntegration.
  */
-class FourleafIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
+class FourleafIntegration extends AbstractEnhancerIntegration
 {
     /* @var NonFreeEnhancerInterface */
     use NonFreeEnhancerTrait;
@@ -142,7 +142,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration implements NonFree
                         $default = $lead->getFieldValue($alias);
                         $lead->addUpdatedField($alias, $value, $default);
                     }
-                    $stop = 'here';
                 }
                 $persist = true;
             }

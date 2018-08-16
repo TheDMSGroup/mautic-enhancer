@@ -36,9 +36,8 @@ trait NonFreeEnhancerTrait
      * @param \Symfony\Component\Form\FormBuilderInterface $builder
      * @param array                                        $data
      * @param string                                       $formArea
-     * @param bool                                         $overrideArea
      */
-    public function appendToForm(&$builder, $data, $formArea, $overrideArea = false)
+    public function appendToForm(&$builder, $data, $formArea)
     {
         if ('features' === $formArea) {
             $builder

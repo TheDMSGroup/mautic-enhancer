@@ -21,7 +21,7 @@ use Mautic\LeadBundle\Entity\Lead;
  *
  * @todo Hook up to the plugin stats
  */
-class XverifyIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
+class XverifyIntegration extends AbstractEnhancerIntegration
 {
     /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
     use NonFreeEnhancerTrait;
