@@ -359,7 +359,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                     /** @var \Doctrine\ORM\UnitOfWork $identityMap */
                     $identityMap = $this->em->getUnitOfWork()->getIdentityMap();
                     if (isset($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'])) {
-                        /** @var \Mautic\LeadBundle\Entity\LeadEventLog $leadEventLog */
+                        /** @var \Mautic\CampaignBundle\Entity\LeadEventLog $leadEventLog */
                         foreach ($identityMap['Mautic\CampaignBundle\Entity\LeadEventLog'] as $leadEventLog) {
                             $properties = $leadEventLog->getEvent()->getProperties();
                             if (

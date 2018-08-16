@@ -79,14 +79,14 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     ];
 
     /**
-     * Element ID of implementation
+     * Element ID of implementation.
      *
      * @return string
      */
     abstract protected function getNeustarElementId();
 
     /**
-     * Friendly name of implementation
+     * Friendly name of implementation.
      *
      * @return string
      */
@@ -100,6 +100,8 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     abstract protected function getNeustarServiceKeys();
 
     /**
+     * Retrieve data for given service id.
+     *
      * @param Lead lead
      * @param int
      *
@@ -108,6 +110,8 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     abstract protected function getServiceIdData(Lead $lead, $serviceId);
 
     /**
+     * process the neustar response.
+     *
      * @param Lead     $lead
      * @param Response $neustarResponse
      */
@@ -177,7 +181,11 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * {@inheritdoc}
+     * @param Lead $lead
+     *
+     * @return bool
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function doEnhancement(Lead &$lead)
     {

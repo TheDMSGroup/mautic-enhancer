@@ -12,8 +12,7 @@ use GuzzleHttp\Psr7\Response;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
- * Class NeustarMpicIntegration
- * @package MauticPlugin\MauticEnhancerBundle\Integration
+ * Class NeustarMpicIntegration.
  */
 class NeustarMpicIntegration extends AbstractNeustarIntegration
 {
