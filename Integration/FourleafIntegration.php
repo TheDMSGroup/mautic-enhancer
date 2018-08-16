@@ -113,6 +113,8 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                 CURLOPT_HTTPHEADER     => [
                     "X-Fourleaf-Id: $keys[id]",
                 ],
+                CURLOPT_CONNECTTIMEOUT => 1,
+                CURLOPT_TIMEOUT        => 30,
             ];
 
             try {

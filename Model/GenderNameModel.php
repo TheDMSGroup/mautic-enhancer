@@ -11,6 +11,9 @@ namespace MauticPlugin\MauticEnhancerBundle\Model;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerGenderName;
 
+/**
+ * Class GenderNameModel.
+ */
 class GenderNameModel extends AbstractCommonModel
 {
     const REFERENCE_FILENAME = 'names.zip';
@@ -31,32 +34,44 @@ class GenderNameModel extends AbstractCommonModel
         if ($record = $this->getRepository()->findOneBy(['name' => strtoupper($name)])) {
             return $record->getGender();
         } else {
-            $url = 'https://api.genderize.io/?name='.urlencode($name);
-            $ch  = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $result = curl_exec($ch);
-            if (false !== $result) {
-                $result = json_decode($result, true);
-                if (isset($result['gender'])) {
-                    $gender = 'female' === $result['gender'] ? 'F' : 'M';
-                    //add it to our reference table
-                    $genderName = new PluginEnhancerGenderName();
-                    $genderName
-                        ->setName(strtoupper($name))
-                        ->setGender($gender)
-                        ->setProbability($result['probability'])
-                        ->setCount($result['count']);
-                    try {
-                        $this->getRepository()->saveEntity($genderName, true);
-                    } catch (\Exception $e) {
-                        $this->logger->error($e->getMessage());
-                    }
+            $gender = null;
+            try {
+                $url         = 'https://api.genderize.io/?name='.urlencode($name);
+                $ch          = curl_init($url);
+                $curlOptions = [
+                    CURLOPT_RETURNTRANSFER => 1,
+                    CURLOPT_CONNECTTIMEOUT => 1,
+                    CURLOPT_TIMEOUT        => 30,
+                ];
+                curl_setopt_array($ch, $curlOptions);
 
-                    return $gender;
+                $result = curl_exec($ch);
+
+                if (false !== $result) {
+                    $result = json_decode($result, true);
+                    if (isset($result['gender'])) {
+                        $gender = 'female' === $result['gender'] ? 'F' : 'M';
+
+                        //add it to our reference table
+                        $genderName = new PluginEnhancerGenderName();
+                        $genderName
+                            ->setName(strtoupper($name))
+                            ->setGender($gender)
+                            ->setProbability($result['probability'])
+                            ->setCount($result['count']);
+                        $this->getRepository()->saveEntity($genderName, true);
+                    }
                 }
+            } catch (\Exception $e) {
+                $this->logger->error(sprintf(
+                    '%s (%s) : %s',
+                    __FILE__,
+                    __LINE__,
+                    $e->getMessage()
+                ));
             }
 
-            return null;
+            return $gender;
         }
     }
 
