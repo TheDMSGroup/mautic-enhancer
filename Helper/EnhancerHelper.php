@@ -72,6 +72,7 @@ class EnhancerHelper
             'GenderFromName',
             'PhoneToParts',
             'CorrectAddress',
+            'NeustarMpic',
         ];
     }
 }

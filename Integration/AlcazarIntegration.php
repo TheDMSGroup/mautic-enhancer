@@ -16,7 +16,7 @@ use Mautic\LeadBundle\Entity\Lead;
 /**
  * Class AlcazarIntegration.
  */
-class AlcazarIntegration extends AbstractEnhancerIntegration implements NonFreeEnhancerInterface
+class AlcazarIntegration extends AbstractEnhancerIntegration
 {
     /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
     use NonFreeEnhancerTrait {
