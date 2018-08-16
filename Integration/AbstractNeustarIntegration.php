@@ -78,15 +78,22 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
         ],
     ];
 
+    /**
+     * Element ID of implementation
+     *
+     * @return string
+     */
     abstract protected function getNeustarElementId();
 
     /**
+     * Friendly name of implementation
+     *
      * @return string
      */
     abstract protected function getNeustarIntegrationName();
 
     /**
-     * Returns a list of keys use to build the scoring query.
+     * Returns a list of keys use to build the query.
      *
      * @return array
      */
@@ -98,7 +105,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      *
      * @return string
      */
-    abstract protected function getServiceData(Lead $lead, $serviceId);
+    abstract protected function getServiceIdData(Lead $lead, $serviceId);
 
     /**
      * @param Lead     $lead
@@ -119,9 +126,9 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param \Mautic\PluginBundle\Integration\Form|FormBuilder $builder
-     * @param array                                             $data
-     * @param string                                            $formArea
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
@@ -186,7 +193,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
         ];
 
         foreach ($this->getNeustarServiceKeys() as $serviceKey) {
-            $query['key'.$serviceKey] = $this->getServiceData($lead, $serviceKey);
+            $query['key'.$serviceKey] = $this->getServiceIdData($lead, $serviceKey);
         }
 
         $settings = $this->getIntegrationSettings()->getFeatureSettings();

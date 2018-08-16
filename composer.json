@@ -9,6 +9,7 @@
   ],
   "type": "mautic-plugin",
   "require": {
+    "ext-curl": "*",
     "mautic/composer-plugin": "^1.0",
     "league/flysystem": "^1.0",
     "league/flysystem-sftp": "^1.0"

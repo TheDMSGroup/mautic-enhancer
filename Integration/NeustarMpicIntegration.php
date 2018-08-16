@@ -11,13 +11,23 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use GuzzleHttp\Psr7\Response;
 use Mautic\LeadBundle\Entity\Lead;
 
+/**
+ * Class NeustarMpicIntegration
+ * @package MauticPlugin\MauticEnhancerBundle\Integration
+ */
 class NeustarMpicIntegration extends AbstractNeustarIntegration
 {
+    /**
+     * @return string
+     */
     protected function getNeustarElementId()
     {
         return '3226';
     }
 
+    /**
+     * @return string
+     */
     protected function getNeustarIntegrationName()
     {
         return 'Mpic';
@@ -31,6 +41,9 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         return ['875'];
     }
 
+    /**
+     * @return array
+     */
     public function getEnhancerFieldArray()
     {
         return [
@@ -57,13 +70,14 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         ];
     }
 
-    protected function getServiceData(Lead $lead, $serviceId = '875')
+    /**
+     * @param Lead   $lead
+     * @param string $serviceId
+     *
+     * @return string
+     */
+    protected function getServiceIdData(Lead $lead, $serviceId = '875')
     {
-        // I would like to enable campaign config for the fields (phone, email, address, IP)
-        // and the append options (see Element ID 3226.pdf.
-        // for now, just address[score]
-        // $settings = $this->getIntegrationSettings()->getFeatureSettings();
-
         $xmlDoc                     = new \DOMDocument('1.0');
         $xmlDoc->preserveWhiteSpace = false;
 
@@ -174,7 +188,6 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                             }
                         }
                     }
-                    $stop = 'here';
                 }
             }
         } catch (\Exception $e) {

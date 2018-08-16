@@ -140,7 +140,6 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                         $default = $lead->getFieldValue($alias);
                         $lead->addUpdatedField($alias, $value, $default);
                     }
-                    $stop = 'here';
                 }
                 $persist = true;
             }
