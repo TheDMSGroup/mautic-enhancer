@@ -90,6 +90,17 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         $this->logger->info('AgeFromBirthdate:doEnhancemet');
+
+        if (null !== $lead->getFieldValue('dob') && null === $lead->getFieldValue('dob_year')) {
+            $dob = $lead->getFieldValue('dob');
+            if (!is_object($dob)) {
+                $dob = new \DateTime($dob);
+            }
+            $lead->addUpdatedField('dob_day', intval($dob->format('d')), null);
+            $lead->addUpdatedField('dob_month', intval($dob->format('m')), null);
+            $lead->addUpdatedField('dob_year', intval($dob->format('Y')), null);
+        }
+
         $year  = intval($lead->getFieldValue('dob_year'));
         $month = intval($lead->getFieldValue('dob_month'));
         $day   = intval($lead->getFieldValue('dob_day'));
@@ -97,9 +108,12 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         if ($year && $month && $month <= 12 && $day && $day <= 31) {
             $birthdate = sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day);
             $dob       = new DateTime($birthdate);
-            $today     = new DateTime();
-            $age       = (int) $today->diff($dob)->y;
-            $prevAge   = (int) $lead->getFieldValue('afb_age');
+            if (null === $lead->getFieldValue('dob')) {
+                $lead->addUpdatedField('dob', $dob, null);
+            }
+            $today   = new DateTime();
+            $age     = (int) $today->diff($dob)->y;
+            $prevAge = (int) $lead->getFieldValue('afb_age');
             if ($age !== $prevAge && $age < 120) {
                 $this->logger->info("calculated age is $age");
                 $lead->addUpdatedField('afb_age', $age, $prevAge);
