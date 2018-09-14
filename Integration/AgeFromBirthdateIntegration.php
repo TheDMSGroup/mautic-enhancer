@@ -97,31 +97,40 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         $month  = $monthOrig = $lead->getFieldValue('dob_month');
         $year   = $yearOrig = $lead->getFieldValue('dob_year');
         $age    = $ageOrig = $lead->getFieldValue('afb_age');
+        $today  = new \DateTime();
 
         try {
-            if ('' !== $dobStr && '0000-00-00' !== $dobStr) {
+            if ($dobOrig instanceof \DateTime) {
+                // For BC.
+                $dobStr = $dobOrig = $dobOrig->format('Y-m-d');
+            }
+            if (
+                $dobStr
+                && '0000-00-00' !== $dobStr
+                && $today->format('Y-m-d') != $dobStr
+            ) {
                 // DOB field to date/month/day fields.
                 $dob   = new \DateTime($dobStr);
                 $day   = (int) $dob->format('d');
                 $month = (int) $dob->format('m');
                 $year  = (int) $dob->format('Y');
-            } elseif ('' !== $yearOrig) {
+            } elseif ($yearOrig) {
                 // Date/month/day fields to DOB field with normalization.
-                $day   = max(1, min(31, (int) $dayOrig));
-                $month = max(1, min(12, (int) $monthOrig));
                 $year  = (int) $yearOrig;
                 if ($year) {
+                    $day   = max(1, min(31, (int) $dayOrig));
+                    $month = max(1, min(12, (int) $monthOrig));
                     $dob = new \DateTime(sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day));
                 }
+            } elseif ($ageOrig) {
+                // @todo - Support age back to DOB estimation.
             }
-            // @todo - Support age back to DOB estimation.
         } catch (\Exception $e) {
             // Allow DateTime to fail gracefully.
         }
 
         // Generate age if DOB was found valid.
         if (isset($dob) && $dob) {
-            $today    = new \DateTime();
             $yearDiff = (int) $today->diff($dob)->y;
             if ($yearDiff > -1 && $yearDiff < 120) {
                 $age    = $yearDiff;
@@ -130,23 +139,23 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         }
 
         // See if any field values changed (intentionally not type checking).
-        if ($dobOrig != $dobStr) {
+        if ($dobStr && $dobOrig != $dobStr) {
             $lead->addUpdatedField('dob', $dobStr, $dobOrig);
             $save = true;
         }
-        if ($dayOrig != $day) {
+        if ($day && $dayOrig != $day) {
             $lead->addUpdatedField('dob_day', $day, $dayOrig);
             $save = true;
         }
-        if ($monthOrig != $month) {
+        if ($month && $monthOrig != $month) {
             $lead->addUpdatedField('dob_month', $month, $monthOrig);
             $save = true;
         }
-        if ($yearOrig != $year) {
+        if ($year && $yearOrig != $year) {
             $lead->addUpdatedField('dob_year', $year, $yearOrig);
             $save = true;
         }
-        if ($ageOrig != $age) {
+        if ($age && $ageOrig != $age) {
             $lead->addUpdatedField('afb_age', $age, $ageOrig);
             $save = true;
         }
