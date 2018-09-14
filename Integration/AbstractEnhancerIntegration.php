@@ -126,6 +126,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         break;
                     case 'time': //intentional no break
                         $attributes['is_listable'] = false;
+                        // no break
                     default:
                         if (!isset($attributes['properties'])) {
                             $attributes['properties'] = [];

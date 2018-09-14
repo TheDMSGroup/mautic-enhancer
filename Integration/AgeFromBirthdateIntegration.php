@@ -11,7 +11,6 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use DateTime;
 use Mautic\LeadBundle\Entity\Lead;
 
 /**
@@ -89,39 +88,69 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
+        $save = false;
         $this->logger->info('AgeFromBirthdate:doEnhancemet');
 
-        if (null !== $lead->getFieldValue('dob') && null === $lead->getFieldValue('dob_year')) {
-            $dob = $lead->getFieldValue('dob');
-            if (!is_object($dob)) {
-                $dob = new \DateTime($dob);
+        // Get original field values.
+        $dobStr = $dobOrig = $lead->getFieldValue('dob');
+        $day    = $dayOrig = $lead->getFieldValue('dob_day');
+        $month  = $monthOrig = $lead->getFieldValue('dob_month');
+        $year   = $yearOrig = $lead->getFieldValue('dob_year');
+        $age    = $ageOrig = $lead->getFieldValue('afb_age');
+
+        try {
+            if ('' !== $dobStr && '0000-00-00' !== $dobStr) {
+                // DOB field to date/month/day fields.
+                $dob   = new \DateTime($dobStr);
+                $day   = (int) $dob->format('d');
+                $month = (int) $dob->format('m');
+                $year  = (int) $dob->format('Y');
+            } elseif ('' !== $yearOrig) {
+                // Date/month/day fields to DOB field with normalization.
+                $day   = max(1, min(31, (int) $dayOrig));
+                $month = max(1, min(12, (int) $monthOrig));
+                $year  = (int) $yearOrig;
+                if ($year) {
+                    $dob = new \DateTime(sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day));
+                }
             }
-            $lead->addUpdatedField('dob_day', intval($dob->format('d')), null);
-            $lead->addUpdatedField('dob_month', intval($dob->format('m')), null);
-            $lead->addUpdatedField('dob_year', intval($dob->format('Y')), null);
+            // @todo - Support age back to DOB estimation.
+        } catch (\Exception $e) {
+            // Allow DateTime to fail gracefully.
         }
 
-        $year  = intval($lead->getFieldValue('dob_year'));
-        $month = intval($lead->getFieldValue('dob_month'));
-        $day   = intval($lead->getFieldValue('dob_day'));
-
-        if ($year && $month && $month <= 12 && $day && $day <= 31) {
-            $birthdate = sprintf('%04d-%02d-%02d 00:00:00', $year, $month, $day);
-            $dob       = new DateTime($birthdate);
-            if (null === $lead->getFieldValue('dob')) {
-                $lead->addUpdatedField('dob', $dob, null);
-            }
-            $today   = new DateTime();
-            $age     = (int) $today->diff($dob)->y;
-            $prevAge = (int) $lead->getFieldValue('afb_age');
-            if ($age !== $prevAge && $age < 120) {
-                $this->logger->info("calculated age is $age");
-                $lead->addUpdatedField('afb_age', $age, $prevAge);
-
-                return true;
+        // Generate age if DOB was found valid.
+        if (isset($dob) && $dob) {
+            $today    = new \DateTime();
+            $yearDiff = (int) $today->diff($dob)->y;
+            if ($yearDiff > -1 && $yearDiff < 120) {
+                $age    = $yearDiff;
+                $dobStr = $dob->format('Y-m-d');
             }
         }
 
-        return false;
+        // See if any field values changed (intentionally not type checking).
+        if ($dobOrig != $dobStr) {
+            $lead->addUpdatedField('dob', $dobStr, $dobOrig);
+            $save = true;
+        }
+        if ($dayOrig != $day) {
+            $lead->addUpdatedField('dob_day', $day, $dayOrig);
+            $save = true;
+        }
+        if ($monthOrig != $month) {
+            $lead->addUpdatedField('dob_month', $month, $monthOrig);
+            $save = true;
+        }
+        if ($yearOrig != $year) {
+            $lead->addUpdatedField('dob_year', $year, $yearOrig);
+            $save = true;
+        }
+        if ($ageOrig != $age) {
+            $lead->addUpdatedField('afb_age', $age, $ageOrig);
+            $save = true;
+        }
+
+        return $save;
     }
 }
