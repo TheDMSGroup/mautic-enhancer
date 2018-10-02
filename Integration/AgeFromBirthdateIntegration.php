@@ -90,7 +90,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
     {
         $save = false;
         $this->logger->info('AgeFromBirthdate:doEnhancemet');
-
         // Get original field values.
         $dobStr = $dobOrig = $lead->getFieldValue('dob');
         $day    = $dayOrig = $lead->getFieldValue('dob_day');
@@ -98,7 +97,6 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         $year   = $yearOrig = $lead->getFieldValue('dob_year');
         $age    = $ageOrig = $lead->getFieldValue('afb_age');
         $today  = new \DateTime();
-
         try {
             if ($dobOrig instanceof \DateTime) {
                 // For BC.
@@ -128,16 +126,19 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
         } catch (\Exception $e) {
             // Allow DateTime to fail gracefully.
         }
-
         // Generate age if DOB was found valid.
-        if (isset($dob) && $dob) {
-            $yearDiff = (int) $today->diff($dob)->y;
-            if ($yearDiff > -1 && $yearDiff < 120) {
-                $age    = $yearDiff;
-                $dobStr = $dob->format('Y-m-d');
+        try {
+            if (isset($dob) && $dob) {
+                $yearDiff = (int) $today->diff($dob)->y;
+                if ($yearDiff > -1 && $yearDiff < 120) {
+                    $age    = $yearDiff;
+                    $dobStr = $dob->format('Y-m-d');
+                }
             }
+        } catch (\Exception $e) {
+            // Dont write dob fields because weirdness in what was sent
+            return false;
         }
-
         // See if any field values changed (intentionally not type checking).
         if ($dobStr && $dobOrig != $dobStr) {
             $lead->addUpdatedField('dob', $dobStr, $dobOrig);
