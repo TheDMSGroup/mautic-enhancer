@@ -160,6 +160,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
             $lead->addUpdatedField('afb_age', $age, $ageOrig);
             $save = true;
         }
+
         return $save;
     }
 }
