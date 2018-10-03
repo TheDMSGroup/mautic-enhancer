@@ -62,6 +62,10 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 'label' => 'Neustar Phone Is Mobile',
                 'type'  => 'boolean',
             ],
+            'neustar_mpic_phone_active'     => [
+                'label' => 'Neustar Phone Is Active',
+                'type'  => 'boolean',
+            ],
             'neustar_mpic_email_score'      => [
                 'label' => 'Neustar Email Score',
                 'type'  => 'number',
@@ -107,7 +111,7 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
         if ($lead->getPhone()) {
             $phone = $xmlDoc->createElement('Phone', $lead->getPhone());
             $phone->setAttribute('score', '1');
-            $phone->setAttribute('appends', 'validation,mobile');
+            $phone->setAttribute('appends', 'validation,mobile,active');
 
             $phones = $xmlDoc->createElement('Phones');
             $phones->appendChild($phone);
@@ -159,6 +163,7 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                                     ? $result['Phone']['@attributes']
                                     : [];
                                 if (!empty($attributes)) {
+                                    $attributes['active']     = (bool) $attributes['active'];
                                     $attributes['validation'] = (bool) $attributes['validation'];
                                     $attributes['mobile']     = ('Y' === $attributes['mobile']);
                                 }
