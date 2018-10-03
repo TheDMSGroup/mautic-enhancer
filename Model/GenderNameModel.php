@@ -63,12 +63,14 @@ class GenderNameModel extends AbstractCommonModel
                     }
                 }
             } catch (\Exception $e) {
-                $this->logger->error(sprintf(
-                    '%s (%s) : %s',
-                    __FILE__,
-                    __LINE__,
-                    $e->getMessage()
-                ));
+                $this->logger->error(
+                    sprintf(
+                        '%s (%s) : %s',
+                        __FILE__,
+                        __LINE__,
+                        $e->getMessage()
+                    )
+                );
             }
 
             return $gender;
@@ -152,16 +154,18 @@ class GenderNameModel extends AbstractCommonModel
                 if (in_array($fName, $unisex)) {
                     $total = $count + $dataWorking['M'][$fName];
                     if ($count > $dataWorking['M'][$fName]) {
-                        $dataPrepped[] = ['gender'      => 'F',
-                                          'name'        => $fName,
-                                          'probability' => ($count / $total),
-                                          'count'       => $total,
+                        $dataPrepped[] = [
+                            'gender'      => 'F',
+                            'name'        => $fName,
+                            'probability' => ($count / $total),
+                            'count'       => $total,
                         ];
                     } else {
-                        $dataPrepped[] = ['gender'      => 'M',
-                                          'name'        => $fName,
-                                          'probability' => ($dataWorking['M'][$fName] / $total),
-                                          'count'       => $total,
+                        $dataPrepped[] = [
+                            'gender'      => 'M',
+                            'name'        => $fName,
+                            'probability' => ($dataWorking['M'][$fName] / $total),
+                            'count'       => $total,
                         ];
                     }
                     unset($dataWorking['M'][$fName]);

@@ -63,7 +63,7 @@ return [
             'mautic.enhancer.integration.correctaddress'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\CorrectAddressIntegration::class,
             ],
-            'mautic.enhancer.integration.neustarmpic'            => [
+            'mautic.enhancer.integration.neustarmpic'             => [
                 'class' => MauticPlugin\MauticEnhancerBundle\Integration\NeustarMpicIntegration::class,
             ],
         ],

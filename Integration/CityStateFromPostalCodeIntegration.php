@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
 
 /**
  * Class CityStateFromPostalCodeIntegration.
@@ -36,7 +37,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      */
     public function getDisplayName()
     {
-        return 'Fill Missing City, State/Province From Postal Code';
+        return 'Fill Missing City, State/Province and County From Postal Code';
     }
 
     /**
@@ -49,7 +50,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         try {
             $this->getIntegrationModel()->verifyReferenceTable();
         } catch (\Exception $e) {
-            $this->logger->error($e->getMessage());
+            $this->logger->error('CityStateFromPostalCode: '.$e->getMessage());
             $this->settings->setIsPublished(false);
             $this->session->getFlashBag()->add(
                 'notice',
@@ -57,8 +58,12 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             );
         }
 
-        //but at least no enhancer specific fields?
-        return [];
+        return [
+            'county' => [
+                'label' => 'County',
+                'type'  => 'text',
+            ],
+        ];
     }
 
     /**
@@ -96,6 +101,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 $country = 'US';
             }
 
+            /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
                 [
                     'postalCode' => $lead->getZipcode(),
@@ -105,14 +111,20 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
             if (null !== $cityStatePostalCode) {
                 if (empty($lead->getCity()) && !empty($cityStatePostalCode->getCity())) {
-                    $this->logger->debug('CityStateFromPostal: Found city for lead '.$lead->getId());
+                    $this->logger->debug('CityStateFromPostalCode: Found city for lead '.$lead->getId());
                     $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
                     $persist = true;
                 }
 
                 if (empty($lead->getState()) && !empty($cityStatePostalCode->getStateProvince())) {
-                    $this->logger->debug('CityStateFromPostal: Found state/province for lead '.$lead->getId());
+                    $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
                     $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince());
+                    $persist = true;
+                }
+
+                if (empty($lead->getFieldValue('county')) && !empty($cityStatePostalCode->getCounty())) {
+                    $this->logger->debug('CityStateFromPostalCode: Found county for lead '.$lead->getId());
+                    $lead->addUpdatedField('county', $cityStatePostalCode->getCounty());
                     $persist = true;
                 }
             }

@@ -32,18 +32,6 @@ use Symfony\Component\Form\Extension\Core\DataTransformer\NumberToLocalizedStrin
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
 {
-    /**
-     * @param Lead $lead
-     *
-     * @return bool
-     */
-    abstract public function doEnhancement(Lead &$lead);
-
-    /**
-     * @returns array[]
-     */
-    abstract protected function getEnhancerFieldArray();
-
     /** @var array */
     protected $config;
 
@@ -52,29 +40,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
 
     /** @var bool */
     protected $isPush = false;
-
-    /**
-     * @return string
-     */
-    private function getLeadFieldClassName()
-    {
-        return class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')
-            ? 'extendedField'
-            : 'lead';
-    }
-
-    /**
-     * @return array
-     */
-    private function enhancerFieldDefaults()
-    {
-        return [
-            'is_published' => true,
-            'type'         => 'text',
-            'group'        => 'enhancement',
-            'object'       => $this->getLeadFieldClassName(),
-        ];
-    }
 
     public function buildEnhancerFields()
     {
@@ -126,7 +91,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                         break;
                     case 'time': //intentional no break
                         $attributes['is_listable'] = false;
-                        // no break
+                    // no break
                     default:
                         if (!isset($attributes['properties'])) {
                             $attributes['properties'] = [];
@@ -179,6 +144,34 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 //add flash failure message?
             }
         }
+    }
+
+    /**
+     * @returns array[]
+     */
+    abstract protected function getEnhancerFieldArray();
+
+    /**
+     * @return array
+     */
+    private function enhancerFieldDefaults()
+    {
+        return [
+            'is_published' => true,
+            'type'         => 'text',
+            'group'        => 'enhancement',
+            'object'       => $this->getLeadFieldClassName(),
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    private function getLeadFieldClassName()
+    {
+        return class_exists('MauticPlugin\MauticExtendedFieldBundle\MauticExtendedFieldBundle')
+            ? 'extendedField'
+            : 'lead';
     }
 
     /**
@@ -325,6 +318,13 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
         // Always return true to prevent campaign actions from being halted, even if an enhancer fails.
         return true;
     }
+
+    /**
+     * @param Lead $lead
+     *
+     * @return bool
+     */
+    abstract public function doEnhancement(Lead &$lead);
 
     /**
      * @param $lead

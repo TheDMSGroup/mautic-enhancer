@@ -46,11 +46,11 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
     public function getEnhancerFieldArray()
     {
         return [
-            'neustar_mpic_address_score' => [
+            'neustar_mpic_address_score'    => [
                 'label' => 'Neustar Address Score',
                 'type'  => 'number',
             ],
-            'neustar_mpic_phone_score' => [
+            'neustar_mpic_phone_score'      => [
                 'label' => 'Neustar Phone Score',
                 'type'  => 'number',
             ],
@@ -58,11 +58,11 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 'label' => 'Neustar Phone Is Valid',
                 'type'  => 'boolean',
             ],
-            'neustar_mpic_phone_mobile' => [
+            'neustar_mpic_phone_mobile'     => [
                 'label' => 'Neustar Phone Is Mobile',
                 'type'  => 'boolean',
             ],
-            'neustar_mpic_email_score' => [
+            'neustar_mpic_email_score'      => [
                 'label' => 'Neustar Email Score',
                 'type'  => 'number',
             ],
@@ -175,12 +175,14 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                         }
 
                         if ($field) {
-                            $fieldNameBase = strtolower(sprintf(
-                                '%s_%s_%s_',
-                                self::NEUSTAR_PREFIX,
-                                $this->getNeustarIntegrationName(),
-                                $field
-                            ));
+                            $fieldNameBase = strtolower(
+                                sprintf(
+                                    '%s_%s_%s_',
+                                    self::NEUSTAR_PREFIX,
+                                    $this->getNeustarIntegrationName(),
+                                    $field
+                                )
+                            );
                             foreach ($attributes as $attribute => $value) {
                                 $default = $lead->getFieldValue($fieldNameBase.$attribute);
                                 $lead->addUpdatedField($fieldNameBase.$attribute, $value, $default);
