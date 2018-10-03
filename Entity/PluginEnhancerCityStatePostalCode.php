@@ -14,30 +14,32 @@ use Mautic\CoreBundle\Entity\CommonEntity;
 
 class PluginEnhancerCityStatePostalCode extends CommonEntity
 {
-    /**
-     * @var int
-     */
+    /* Table name */
+    const TABLE_NAME = 'plugin_enhancer_city_state_postal_code';
+
+    /** @var int */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $postalCode;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $city;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $stateProvince;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $country;
+
+    /** @var string */
+    protected $county;
+
+    /** @var string */
+    protected $latitude;
+
+    /** @var string */
+    protected $longitude;
 
     /**
      * @param ClassMetadata $metadata
@@ -46,7 +48,7 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
     {
         $builder = new ClassMetadataBuilder($metadata);
 
-        $builder->setTable(self::getSQLTableName())
+        $builder->setTable(MAUTIC_TABLE_PREFIX.self::TABLE_NAME)
             ->setCustomRepositoryClass(
                 PluginEnhancerCityStatePostalCodeRepository::class
             );
@@ -66,6 +68,21 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
             ->nullable()
             ->build();
 
+        $builder->createField('county', 'string')
+            ->columnName('county')
+            ->nullable()
+            ->build();
+
+        $builder->createField('latitude', 'string')
+            ->columnName('latitude')
+            ->nullable()
+            ->build();
+
+        $builder->createField('longitude', 'string')
+            ->columnName('longitude')
+            ->nullable()
+            ->build();
+
         $builder->createField('country', 'string')
             ->build();
 
@@ -76,14 +93,6 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
             ],
             'country_postal_code'
         );
-    }
-
-    /**
-     * @return string
-     */
-    public static function getSQLTableName()
-    {
-        return 'plugin_enhancer_city_state_postal_code';
     }
 
     /**
@@ -162,6 +171,66 @@ class PluginEnhancerCityStatePostalCode extends CommonEntity
     public function setCountry($country)
     {
         $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCounty()
+    {
+        return $this->county;
+    }
+
+    /**
+     * @param string $county
+     *
+     * @return PluginEnhancerCityStatePostalCode
+     */
+    public function setCounty($county)
+    {
+        $this->county = $county;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLatitude()
+    {
+        return $this->latitude;
+    }
+
+    /**
+     * @param string $latitude
+     *
+     * @return PluginEnhancerCityStatePostalCode
+     */
+    public function setLatitude($latitude)
+    {
+        $this->latitude = $latitude;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLongitude()
+    {
+        return $this->longitude;
+    }
+
+    /**
+     * @param string $longitude
+     *
+     * @return PluginEnhancerCityStatePostalCode
+     */
+    public function setLongitude($longitude)
+    {
+        $this->longitude = $longitude;
 
         return $this;
     }

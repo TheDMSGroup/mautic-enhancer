@@ -25,41 +25,41 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     const NEUSTAR_PREFIX = 'Neustar';
 
     protected static $serviceKeysDict = [
-        '1' => [
+        '1'    => [
             'format' => '/^\d{10}$/',
             'desc'   => 'mautic.enhancer.neustar.keys.phone.primary',
             'alias'  => 'lead.phone',
         ],
-        '2' => [
+        '2'    => [
             'format' => '/^\d{10}$/',
             'desc'   => 'mautic.enhancer.neustar.keys.phone.secondary',
             //'alias' => '',
         ],
-        '572' => [
+        '572'  => [
             'desc'  => 'mautic.enhancer.neustar.keys.email',
             'alias' => 'lead.email',
         ],
-        '574' => [
+        '574'  => [
             'format' => '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', //in UTC
             'desc'   => 'mautic.enhancer.neustar.keys.date',
             'alias'  => 'lead.date_added',
         ],
-        '875' => [
+        '875'  => [
             'desc' => 'mautic.enhancer.neustar.keys.scoring_xml',
         ],
-        '1390'=> [
+        '1390' => [
             'desc'  => 'mautic.enhancer.neustar.keys.address.street',
             'alias' => ['lead.address1', 'lead.address2'],
         ],
-        '1391'=> [
+        '1391' => [
             'desc'  => 'mautic.enhancer.neustar.keys.address.city',
             'alias' => 'lead.city',
         ],
-        '1392'=> [
+        '1392' => [
             'desc'  => 'mautic.enhancer.neustar.keys.address.state',
             'alias' => 'lead.state',
         ],
-        '1393'=> [
+        '1393' => [
             'desc'  => 'mautic.enhancer.neustar.keys.address.zip_code',
             'alias' => 'lead.zipcode',
         ],
@@ -79,53 +79,14 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     ];
 
     /**
-     * Element ID of implementation.
-     *
-     * @return string
-     */
-    abstract protected function getNeustarElementId();
-
-    /**
-     * Friendly name of implementation.
-     *
-     * @return string
-     */
-    abstract protected function getNeustarIntegrationName();
-
-    /**
-     * Returns a list of keys use to build the query.
-     *
-     * @return array
-     */
-    abstract protected function getNeustarServiceKeys();
-
-    /**
-     * Retrieve data for given service id.
-     *
-     * @param Lead lead
-     * @param int
-     *
-     * @return string
-     */
-    abstract protected function getServiceIdData(Lead $lead, $serviceId);
-
-    /**
-     * process the neustar response.
-     *
-     * @param Lead     $lead
-     * @param Response $neustarResponse
-     */
-    abstract protected function processResponse(Lead $lead, Response $neustarResponse);
-
-    /**
      * @return array
      */
     public function getRequiredKeyFields()
     {
         return [
-            'username'   => 'mautic.enhancer.neustar.required_key.username',
-            'password'   => 'mautic.enhancer.neustar.required_key.password',
-            'serviceId'  => 'mautic.enhancer.neustar.required_key.service_id',
+            'username'  => 'mautic.enhancer.neustar.required_key.username',
+            'password'  => 'mautic.enhancer.neustar.required_key.password',
+            'serviceId' => 'mautic.enhancer.neustar.required_key.service_id',
         ];
     }
 
@@ -163,6 +124,13 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
     {
         return self::NEUSTAR_PREFIX.$this->getNeustarIntegrationName();
     }
+
+    /**
+     * Friendly name of implementation.
+     *
+     * @return string
+     */
+    abstract protected function getNeustarIntegrationName();
 
     /**
      * @return string
@@ -206,12 +174,44 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
 
         $settings = $this->getIntegrationSettings()->getFeatureSettings();
 
-        $neustarClient   = new Client();
+        $neustarClient = new Client();
         /** @var Response $neustarResponse */
         $neustarResponse = $neustarClient->request('GET', $settings['endpoint'], ['query' => $query]);
 
         return $this->processResponse($lead, $neustarResponse);
     }
+
+    /**
+     * Element ID of implementation.
+     *
+     * @return string
+     */
+    abstract protected function getNeustarElementId();
+
+    /**
+     * Returns a list of keys use to build the query.
+     *
+     * @return array
+     */
+    abstract protected function getNeustarServiceKeys();
+
+    /**
+     * Retrieve data for given service id.
+     *
+     * @param Lead lead
+     * @param int
+     *
+     * @return string
+     */
+    abstract protected function getServiceIdData(Lead $lead, $serviceId);
+
+    /**
+     * process the neustar response.
+     *
+     * @param Lead     $lead
+     * @param Response $neustarResponse
+     */
+    abstract protected function processResponse(Lead $lead, Response $neustarResponse);
 
     /**
      * Convert a DOM Document into a nested array.

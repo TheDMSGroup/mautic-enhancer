@@ -98,7 +98,9 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                         'label_attr'  => ['class' => 'control-label'],
                         'attr'        => [
                             'class'   => 'form-control',
-                            'tooltip' => $this->translator->trans('mautic.enhancer.integration.alcazar.extended.tooltip'),
+                            'tooltip' => $this->translator->trans(
+                                'mautic.enhancer.integration.alcazar.extended.tooltip'
+                            ),
                         ],
                     ]
                 )

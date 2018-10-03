@@ -114,7 +114,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 $year  = (int) $dob->format('Y');
             } elseif ($yearOrig) {
                 // Date/month/day fields to DOB field with normalization.
-                $year  = (int) $yearOrig;
+                $year = (int) $yearOrig;
                 if ($year) {
                     $day   = max(1, min(31, (int) $dayOrig));
                     $month = max(1, min(12, (int) $monthOrig));
