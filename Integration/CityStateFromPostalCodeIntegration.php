@@ -19,6 +19,9 @@ use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
  */
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
+    /** @var string */
+    const COUNTRIES = 'AF,AX,AL,DZ,AS,AD,AO,AI,AQ,AG,AR,AM,AW,AU,AT,AZ,BS,BH,BD,BB,BY,BE,BZ,BJ,BM,BT,BO,BQ,BA,BW,BV,BR,IO,BN,BG,BF,BI,KH,CM,CA,CV,KY,CF,TD,CL,CN,CX,CC,CO,KM,CG,CD,CK,CR,CI,HR,CU,CW,CY,CZ,DK,DJ,DM,DO,EC,EG,SV,GQ,ER,EE,ET,FK,FO,FJ,FI,FR,GF,PF,TF,GA,GM,GE,DE,GH,GI,GR,GL,GD,GP,GU,GT,GG,GN,GW,GY,HT,HM,VA,HN,HK,HU,IS,IN,ID,IR,IQ,IE,IM,IL,IT,JM,JP,JE,JO,KZ,KE,KI,KP,KR,KW,KG,LA,LV,LB,LS,LR,LY,LI,LT,LU,MO,MK,MG,MW,MY,MV,ML,MT,MH,MQ,MR,MU,YT,MX,FM,MD,MC,MN,ME,MS,MA,MZ,MM,NA,NR,NP,NL,NC,NZ,NI,NE,NG,NU,NF,MP,NO,OM,PK,PW,PS,PA,PG,PY,PE,PH,PN,PL,PT,PR,QA,RE,RO,RU,RW,BL,SH,KN,LC,MF,PM,VC,WS,SM,ST,SA,SN,RS,SC,SL,SG,SX,SK,SI,SB,SO,ZA,GS,SS,ES,LK,SD,SR,SJ,SZ,SE,CH,SY,TW,TJ,TZ,TH,TL,TG,TK,TO,TT,TN,TR,TM,TC,TV,UG,UA,AE,GB,US,UM,UY,UZ,VU,VE,VN,VG,VI,WF,EH,YE,ZM,ZW';
+
     /**
      * @var \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
      */
@@ -86,51 +89,78 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         $persist = false;
+
+        $leadCity   = $lead->getCity();
+        $leadState  = $lead->getState();
+        $leadCounty = $lead->getFieldValue('county');
+
+        // Get country in standard ISO3166 format.
+        $leadCountry = $lead->getCounty();
+        if (empty($leadCountry)) {
+            $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
+            $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
+        } elseif (2 !== strlen($leadCountry)) {
+            $leadCountry = $this->countryNameToISO3166($leadCountry);
+        }
+
+        // Get standardized zip without +4
+        $leadZipCode = $lead->getZipcode();
+        $dash        = strpos((string) $leadZipCode, '-');
+        $leadZipCode = $dash ? substr((string) $leadZipCode, 0, $dash) : $leadZipCode;
+
         if (
-            (empty($lead->getCity()) || empty($lead->getState()))
-            && !empty($lead->getZipcode())
+            (empty($leadCity) || empty($leadState) || empty($leadCounty))
+            && !empty($leadCountry)
+            && !empty($leadZipCode)
         ) {
-            $country = $lead->getCountry();
-
-            if (empty($country)) {
-                $ipDetails = $this->factory->getIpAddress()->getIpDetails();
-                $country   = isset($ipDetails['country']) ? $ipDetails['country'] : 'US';
-            }
-            //Mautic uses proper names, everything else use abbreviations
-            if ('United States' === $country) {
-                $country = 'US';
-            }
-
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
                 [
-                    'postalCode' => $lead->getZipcode(),
-                    'country'    => $country,
+                    'postalCode' => $leadZipCode,
+                    'country'    => $leadCountry,
                 ]
             );
 
             if (null !== $cityStatePostalCode) {
-                if (empty($lead->getCity()) && !empty($cityStatePostalCode->getCity())) {
+                if (empty($leadCity) && !empty($cityStatePostalCode->getCity())) {
                     $this->logger->debug('CityStateFromPostalCode: Found city for lead '.$lead->getId());
-                    $lead->addUpdatedField('city', $cityStatePostalCode->getCity());
+                    $lead->addUpdatedField('city', $cityStatePostalCode->getCity(), $leadCity);
                     $persist = true;
                 }
 
-                if (empty($lead->getState()) && !empty($cityStatePostalCode->getStateProvince())) {
+                if (empty($leadState) && !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
-                    $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince());
+                    $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince(), $leadState);
                     $persist = true;
                 }
 
-                if (empty($lead->getFieldValue('county')) && !empty($cityStatePostalCode->getCounty())) {
+                if (empty($leadCounty) && !empty($cityStatePostalCode->getCounty())) {
                     $this->logger->debug('CityStateFromPostalCode: Found county for lead '.$lead->getId());
-                    $lead->addUpdatedField('county', $cityStatePostalCode->getCounty());
+                    $lead->addUpdatedField('county', $cityStatePostalCode->getCounty(), $leadCounty);
                     $persist = true;
                 }
             }
         }
 
         return $persist;
+    }
+
+    /**
+     * @param $countryName
+     *
+     * @return string
+     */
+    private function countryNameToISO3166($countryName)
+    {
+        foreach (explode(',', self::COUNTRIES) as $countryCode) {
+            $generatedCountryName = \Locale::getDisplayRegion('-'.$countryCode, 'EN');
+            if (0 === strcasecmp($countryName, $generatedCountryName)) {
+                return $countryCode;
+                break;
+            }
+        }
+
+        return '';
     }
 
     /**
