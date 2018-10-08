@@ -95,7 +95,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         $leadCounty = $lead->getFieldValue('county');
 
         // Get country in standard ISO3166 format.
-        $leadCountry = $lead->getCounty();
+        $leadCountry = $lead->getCountry();
         if (empty($leadCountry)) {
             $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
             $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
