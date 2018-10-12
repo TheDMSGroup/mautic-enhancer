@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Helper;
 
+use Mautic\PluginBundle\Entity\IntegrationEntity;
 use Mautic\PluginBundle\Helper\IntegrationHelper;
 
 /**
@@ -55,12 +56,18 @@ class EnhancerHelper
     public function getEnhancerIntegrations()
     {
         //order by integration names array
+        /** @var IntegrationEntity $enhancerIntegrations */
         $enhancerIntegrations = $this->integrationHelper->getIntegrationObjects(self::IntegrationNames());
         $orderedEnhancers     = [];
         foreach (self::IntegrationNames() as $ordered) {
-            $orderedEnhancers[$ordered] = $enhancerIntegrations[$ordered];
+            foreach ($enhancerIntegrations as $index => $integration) {
+                if ($integration->getName() == $ordered) {
+                    $orderedEnhancers[] = $integration;
+                    unset($enhancerIntegrations[$index]);
+                    continue 2;
+                }
+            }
         }
-        unset($enhancerIntegrations);
 
         return $orderedEnhancers;
     }
