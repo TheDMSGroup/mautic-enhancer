@@ -142,7 +142,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             }
         } elseif (
             (empty($leadZipCode) && empty($lead->getAddress1()))
-            && !(empty($leadCity) || empty($leadState))
+            && !(empty($leadCity) || empty($leadState) || empty($leadCountry))
         ) {
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
@@ -153,6 +153,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 ]
             );
             if (null !== $cityStatePostalCode) {
+                $this->logger->debug('CityStateFromPostalCode: Found zipcode for lead '.$lead->getId());
                 $lead->setZipcode($cityStatePostalCode->getPostalCode());
                 $persist = true;
             }
