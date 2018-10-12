@@ -96,6 +96,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
         // Get country in standard ISO3166 format.
         $leadCountry = $lead->getCountry();
+
         if (empty($leadCountry)) {
             $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
             $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
@@ -110,8 +111,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
         if (
             (empty($leadCity) || empty($leadState) || empty($leadCounty))
-            && !empty($leadCountry)
-            && !empty($leadZipCode)
+            && !(empty($leadCountry) || empty($leadZipCode))
         ) {
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
@@ -124,13 +124,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             if (null !== $cityStatePostalCode) {
                 if (empty($leadCity) && !empty($cityStatePostalCode->getCity())) {
                     $this->logger->debug('CityStateFromPostalCode: Found city for lead '.$lead->getId());
-                    $lead->addUpdatedField('city', $cityStatePostalCode->getCity(), $leadCity);
+                    $lead->setCity($cityStatePostalCode->getCity());
                     $persist = true;
                 }
 
                 if (empty($leadState) && !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
-                    $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince(), $leadState);
+                    $lead->setState($cityStatePostalCode->getStateProvince());
                     $persist = true;
                 }
 
@@ -139,6 +139,22 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                     $lead->addUpdatedField('county', $cityStatePostalCode->getCounty(), $leadCounty);
                     $persist = true;
                 }
+            }
+        } elseif (
+            (empty($leadZipCode) && empty($lead->getAddress1()))
+            && !(empty($leadCity) || empty($leadState))
+        ) {
+            /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
+            $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
+                [
+                    'city'          => $leadCity,
+                    'stateProvince' => $leadState,
+                    'country'       => $leadCountry,
+                ]
+            );
+            if (null !== $cityStatePostalCode) {
+                $lead->setZipcode($cityStatePostalCode->getPostalCode());
+                $persist = true;
             }
         }
 

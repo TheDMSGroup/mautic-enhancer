@@ -54,7 +54,15 @@ class EnhancerHelper
      */
     public function getEnhancerIntegrations()
     {
-        return $this->integrationHelper->getIntegrationObjects(self::IntegrationNames());
+        //order by integration names array
+        $enhancerIntegrations = $this->integrationHelper->getIntegrationObjects(self::IntegrationNames());
+        $orderedEnhancers     = [];
+        foreach (self::IntegrationNames() as $ordered) {
+            $orderedEnhancers[$ordered] = $enhancerIntegrations[$ordered];
+        }
+        unset($enhancerIntegrations);
+
+        return $orderedEnhancers;
     }
 
     /**
