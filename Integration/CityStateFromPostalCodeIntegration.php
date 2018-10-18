@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
 
@@ -19,8 +20,38 @@ use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
  */
 class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 {
+    const MAX_LEV_DIST = 4;
+
     /** @var string */
     const COUNTRIES = 'AF,AX,AL,DZ,AS,AD,AO,AI,AQ,AG,AR,AM,AW,AU,AT,AZ,BS,BH,BD,BB,BY,BE,BZ,BJ,BM,BT,BO,BQ,BA,BW,BV,BR,IO,BN,BG,BF,BI,KH,CM,CA,CV,KY,CF,TD,CL,CN,CX,CC,CO,KM,CG,CD,CK,CR,CI,HR,CU,CW,CY,CZ,DK,DJ,DM,DO,EC,EG,SV,GQ,ER,EE,ET,FK,FO,FJ,FI,FR,GF,PF,TF,GA,GM,GE,DE,GH,GI,GR,GL,GD,GP,GU,GT,GG,GN,GW,GY,HT,HM,VA,HN,HK,HU,IS,IN,ID,IR,IQ,IE,IM,IL,IT,JM,JP,JE,JO,KZ,KE,KI,KP,KR,KW,KG,LA,LV,LB,LS,LR,LY,LI,LT,LU,MO,MK,MG,MW,MY,MV,ML,MT,MH,MQ,MR,MU,YT,MX,FM,MD,MC,MN,ME,MS,MA,MZ,MM,NA,NR,NP,NL,NC,NZ,NI,NE,NG,NU,NF,MP,NO,OM,PK,PW,PS,PA,PG,PY,PE,PH,PN,PL,PT,PR,QA,RE,RO,RU,RW,BL,SH,KN,LC,MF,PM,VC,WS,SM,ST,SA,SN,RS,SC,SL,SG,SX,SK,SI,SB,SO,ZA,GS,SS,ES,LK,SD,SR,SJ,SZ,SE,CH,SY,TW,TJ,TZ,TH,TL,TG,TK,TO,TT,TN,TR,TM,TC,TV,UG,UA,AE,GB,US,UM,UY,UZ,VU,VE,VN,VG,VI,WF,EH,YE,ZM,ZW';
+
+    public static $US_STATES = [
+        'AL' => 'Alabama',          'AK' => 'Alaska',
+        'AZ' => 'Arizona',          'AR' => 'Arkansas',
+        'CA' => 'California',       'CO' => 'Colorado',
+        'CT' => 'Connecticut',      'DE' => 'Delaware',
+        'FL' => 'Florida',          'GA' => 'Georgia',
+        'HI' => 'Hawaii',           'ID' => 'Idaho',
+        'IL' => 'Illinois',         'IN' => 'Indiana',
+        'IA' => 'Iowa',             'KS' => 'Kansas',
+        'KY' => 'Kentucky',         'LA' => 'Louisiana',
+        'ME' => 'Maine',            'MD' => 'Maryland',
+        'MA' => 'Massachusetts',    'MI' => 'Michigan',
+        'MN' => 'Minnesota',        'MS' => 'Mississippi',
+        'MO' => 'Missouri',         'MT' => 'Montana',
+        'NE' => 'Nebraska',         'NV' => 'Nevada',
+        'NH' => 'New Hampshire',    'NJ' => 'New Jersey',
+        'NM' => 'New Mexico',       'NY' => 'New York',
+        'NC' => 'North Carolina',   'ND' => 'North Dakota',
+        'OH' => 'Ohio',             'OK' => 'Oklahoma',
+        'OR' => 'Oregon',           'PA' => 'Pennsylvania',
+        'RI' => 'Rhode Island',     'SC' => 'South Carolina',
+        'SD' => 'South Dakota',     'TN' => 'Tennessee',
+        'TX' => 'Texas',            'UT' => 'Utah',
+        'VT' => 'Vermont',          'VA' => 'Virginia',
+        'WA' => 'Washington',       'WV' => 'West Virginia',
+        'WI' => 'Wisconsin',        'WY' => 'Wyoming',
+        ];
 
     /**
      * @var \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel
@@ -96,6 +127,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
         // Get country in standard ISO3166 format.
         $leadCountry = $lead->getCountry();
+
         if (empty($leadCountry)) {
             $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
             $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
@@ -110,8 +142,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
         if (
             (empty($leadCity) || empty($leadState) || empty($leadCounty))
-            && !empty($leadCountry)
-            && !empty($leadZipCode)
+            && !(empty($leadCountry) || empty($leadZipCode))
         ) {
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
@@ -124,19 +155,80 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             if (null !== $cityStatePostalCode) {
                 if (empty($leadCity) && !empty($cityStatePostalCode->getCity())) {
                     $this->logger->debug('CityStateFromPostalCode: Found city for lead '.$lead->getId());
-                    $lead->addUpdatedField('city', $cityStatePostalCode->getCity(), $leadCity);
+                    $lead->setCity($cityStatePostalCode->getCity());
                     $persist = true;
                 }
 
                 if (empty($leadState) && !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
-                    $lead->addUpdatedField('state', $cityStatePostalCode->getStateProvince(), $leadState);
+                    $spLong  = $cityStatePostalCode->getStateProvince();
+                    $spShort = in_array($spLong, self::$US_STATES)
+                        ? array_search($spLong, self::$US_STATES)
+                        : $spLong;
+                    $lead->setState($spShort);
                     $persist = true;
                 }
 
                 if (empty($leadCounty) && !empty($cityStatePostalCode->getCounty())) {
                     $this->logger->debug('CityStateFromPostalCode: Found county for lead '.$lead->getId());
                     $lead->addUpdatedField('county', $cityStatePostalCode->getCounty(), $leadCounty);
+                    $persist = true;
+                }
+            }
+        }
+
+        if (
+            (empty($leadZipCode) && empty($lead->getAddress1()))
+            && !(empty($leadCity) || empty($leadState) || empty($leadCountry))
+        ) {
+            $stateProvince = in_array($leadState, array_keys(self::$US_STATES))
+                ? self::$US_STATES[$leadState]
+                : $leadState;
+            /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
+            $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
+                [
+                    'city'          => $leadCity,
+                    'stateProvince' => $stateProvince,
+                    'country'       => $leadCountry,
+                ]
+            );
+            if (null !== $cityStatePostalCode) {
+                $this->logger->debug('CityStateFromPostalCode: Found zipcode for lead '.$lead->getId());
+                $lead->setZipcode($cityStatePostalCode->getPostalCode());
+                $persist = true;
+            } else {
+                //handle non-exact city match
+                /** @var QueryBuilder $qb */
+                $qb = $this->em->getConnection()->createQueryBuilder();
+
+                $qb->select(['city', 'MIN(postal_code) AS postal_code'])
+                    ->from('plugin_enhancer_city_state_postal_code')
+                    ->where(
+                        'state_province = :state',
+                        'country = :country'
+                    )
+                    ->groupBy('city')
+                    ->setParameters([
+                        'state'   => $stateProvince,
+                        'country' => $leadCountry,
+                    ]);
+
+                $results = $qb->execute()->fetchAll();
+                $picked  = [];
+                foreach ($results as $result) {
+                    if (empty($picked)) {
+                        $picked['postal_code'] = $result['postal_code'];
+                        $picked['distance']    = levenshtein($leadCity, $result['city']);
+                    } else {
+                        $distance = levenshtein($leadCity, $result['city']);
+                        if ($distance < $picked['distance']) {
+                            $picked['postal_code'] = $result['postal_code'];
+                            $picked['distance']    = $distance;
+                        }
+                    }
+                }
+                if (isset($picked['distance']) && $picked['distance'] < self::MAX_LEV_DIST) {
+                    $lead->setZipcode($picked['postal_code']);
                     $persist = true;
                 }
             }
