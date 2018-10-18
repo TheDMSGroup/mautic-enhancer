@@ -161,11 +161,11 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
                 if (empty($leadState) && !empty($cityStatePostalCode->getStateProvince())) {
                     $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
-                    $stateProvince = $cityStatePostalCode->getStateProvince();
-                    $stateProvince = in_array($stateProvince, self::$US_STATES)
-                        ? array_search($stateProvince, self::$US_STATES)
-                        : $stateProvince;
-                    $lead->setState($stateProvince);
+                    $spLong  = $cityStatePostalCode->getStateProvince();
+                    $spShort = in_array($spLong, self::$US_STATES)
+                        ? array_search($spLong, self::$US_STATES)
+                        : $spLong;
+                    $lead->setState($spShort);
                     $persist = true;
                 }
 
