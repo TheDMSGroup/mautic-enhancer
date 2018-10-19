@@ -21,6 +21,12 @@ class PluginEnhancerAnuraRepository extends CommonRepository
      */
     public function findByIpAndUserAgent($ipAddress, $userAgent)
     {
+        /** @var PluginEnhancerAnura $found */
+        $found = $this->findOneBy(['ipAddress' => $ipAddress, 'userAgent' => $userAgent]);
+        if ($found) {
+            return $found->isSuspect();
+        }
 
+        return null;
     }
 }

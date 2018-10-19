@@ -10,7 +10,6 @@ namespace MauticPlugin\MauticEnhancerBundle\Entity;
 
 
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Mautic\CampaignBundle\Executioner\Scheduler\Mode\DateTime;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\CoreBundle\Entity\CommonEntity;
 
@@ -27,7 +26,7 @@ class PluginEnhancerAnura extends CommonEntity
     protected $id;
 
     /**
-     * @var DateTime
+     * @var \DateTime
      */
     protected $dateAdded;
 
@@ -84,7 +83,7 @@ class PluginEnhancerAnura extends CommonEntity
     }
 
     /**
-     * @return DateTime
+     * @return \DateTime
      */
     public function getDateAdded()
     {
@@ -92,11 +91,11 @@ class PluginEnhancerAnura extends CommonEntity
     }
 
     /**
-     * @param DateTime $dateAdded
+     * @param \DateTime $dateAdded
      *
      * @return PluginEnhancerAnura
      */
-    public function setDateAdded($dateAdded)
+    public function setDateAdded(\DateTime $dateAdded)
     {
         $this->dateAdded = $dateAdded;
 
