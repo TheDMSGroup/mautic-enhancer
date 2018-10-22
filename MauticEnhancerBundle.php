@@ -22,12 +22,4 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
  */
 class MauticEnhancerBundle extends PluginBundleBase
 {
-    public static function onPluginUpdate(Plugin $plugin, MauticFactory $factory, $metadata = null, Schema $installedSchema = null)
-    {
-        /** @var AbstractEnhancerIntegration $integration */
-        foreach ($plugin->getIntegrations() as $integration) {
-            $stop = 'here';
-            $integration->buildEnhancerFields();
-        }
-    }
 }
