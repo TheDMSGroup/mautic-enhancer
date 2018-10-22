@@ -11,11 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle;
 
-use Doctrine\DBAL\Schema\Schema;
-use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\PluginBundle\Bundle\PluginBundleBase;
-use Mautic\PluginBundle\Entity\Plugin;
-use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 
 /**
  * Class MauticEnhancerBundle.
