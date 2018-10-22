@@ -3,18 +3,17 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 10/18/18
- * Time: 3:22 PM
+ * Time: 3:22 PM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Entity;
-
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Mautic\CoreBundle\Doctrine\Mapping\ClassMetadataBuilder;
 use Mautic\CoreBundle\Entity\CommonEntity;
 
 /**
- * Class PluginEnhancerAnura
+ * Class PluginEnhancerAnura.
  */
 class PluginEnhancerAnura extends CommonEntity
 {
@@ -41,9 +40,9 @@ class PluginEnhancerAnura extends CommonEntity
     protected $userAgent;
 
     /**
-     * @var bool
+     * @var string
      */
-    protected $isSuspect;
+    protected $result;
 
     /**
      * @param ClassMetadata $metadata
@@ -57,21 +56,30 @@ class PluginEnhancerAnura extends CommonEntity
                 PluginEnhancerAnuraRepository::class
             );
 
-        $builder->addId()
+        $builder
+            ->addId()
 
             ->addDateAdded()
 
-            ->addIpAddress()
-
-            ->addField(
-                'userAgent',
-                'string'
+            ->addNamedField(
+                'ipAddress',
+                'string',
+                'ip_address'
             )
 
-            ->addField(
-                'isSuspect',
-                'bool'
+            ->addNamedField(
+                'userAgent',
+                'string',
+                'user_agent'
+            )
+
+            ->addNamedField(
+                'result',
+                'string',
+                'result'
             );
+        $builder->addUniqueConstraint(['ip_address', 'user_agent'], 'ip_user_agent');
+        $builder->addIndex(['date_added'], 'idx_date_added');
     }
 
     /**
@@ -143,21 +151,21 @@ class PluginEnhancerAnura extends CommonEntity
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function isSuspect()
+    public function getResult()
     {
-        return $this->isSuspect;
+        return $this->result;
     }
 
     /**
-     * @param bool $isSuspect
+     * @param string $result
      *
      * @return PluginEnhancerAnura
      */
-    public function setIsSuspect($isSuspect)
+    public function setResult($result)
     {
-        $this->isSuspect = $isSuspect;
+        $this->result = $result;
 
         return $this;
     }

@@ -11,6 +11,7 @@
   "require": {
     "ext-curl": "*",
     "ext-dom": "*",
+    "ext-json": "*",
     "ext-simplexml": "*",
     "mautic/composer-plugin": "^1.0",
     "league/flysystem": "^1.0",

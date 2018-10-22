@@ -28,6 +28,9 @@ return [
             ],
         ],
         'models'       => [
+            'mautic.enhancer.model.anura' => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Model\AnuraModel::class,
+            ],
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
             ],
@@ -38,6 +41,9 @@ return [
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate'        => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
+            ],
+            'mautic.enhancer.integration.anura'                 => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AnuraIntegration::class,
             ],
             'mautic.enhancer.integration.alcazar'                 => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,

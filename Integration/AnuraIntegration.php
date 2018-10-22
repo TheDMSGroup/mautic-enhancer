@@ -11,18 +11,17 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 use Mautic\LeadBundle\Entity\Lead;
-use Mautic\LeadBundle\Entity\UtmTag;
-use MauticEnhancerBundle\Model\AnuraModel;
+use MauticPlugin\MauticEnhancerBundle\Model\AnuraModel;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 /**
  * Class AlcazarIntegration.
  */
 class AnuraIntegration extends AbstractEnhancerIntegration
-{    /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
+{
+    /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
     use NonFreeEnhancerTrait {
         appendToForm as appendNonFreeFields;
     }
@@ -40,6 +39,9 @@ class AnuraIntegration extends AbstractEnhancerIntegration
         return 'Anura';
     }
 
+    /**
+     * @return string
+     */
     public function getDisplayName()
     {
         return 'Anura Suspicious Check';
@@ -59,7 +61,7 @@ class AnuraIntegration extends AbstractEnhancerIntegration
     public function getModel()
     {
         if (!isset($this->integrationModel)) {
-            $this->integrationModel = $this->factory->getModel('mautic.enhancer.model.anura');
+            $this->integrationModel = $this->factory->getModel('enhancer.anura');
             $this->integrationModel->setup($this);
         }
 
@@ -92,40 +94,24 @@ class AnuraIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
-        $builder
-            ->add(
-                'dafault_user_agent',
+        if ('features' === $formArea) {
+            $builder->add(
+                'default_user_agent',
                 TextType::class,
                 [
-                    'label'       => $this->translator->trans('mautic.enhancer.integration.anura.user_agent.label'),
-                    'data'        => isset($data['dafault_user_agent']) ? $data['dafault_user_agent'] : '',
-                    'required'    => true,
-                    'empty_value' => false,
-                    'label_attr'  => ['class' => 'control-label'],
-                    'attr'        => [
+                    'label'      => $this->translator->trans('mautic.enhancer.integration.anura.user_agent.label'),
+                    'data'       => isset($data['default_user_agent']) ? $data['default_user_agent'] : '',
+                    'required'   => true,
+                    'label_attr' => ['class' => 'control-label'],
+                    'attr'       => [
                         'class'   => 'form-control',
                         'tooltip' => $this->translator->trans('mautic.enhancer.integration.anura.user_agent.tooltip'),
-                    ],
-
-                ]
-            )
-            ->add(
-                'autorun_enabled',
-                YesNoButtonGroupType::class,
-                [
-                    'label'       => $this->translator->trans('mautic.enhancer.autorun.label'),
-                    'data'        => !isset($data['autorun_enabled']) ? false : $data['autorun_enabled'],
-                    'required'    => false,
-                    'empty_value' => false,
-                    'label_attr'  => ['class' => 'control-label'],
-                    'attr'        => [
-                        'class'   => 'form-control',
-                        'tooltip' => $this->translator->trans('mautic.enhancer.autorun.tooltip'),
                     ],
                 ]
             );
 
-        $this->appendNonFreeFields($builder, $data, $formArea);
+            $this->appendNonFreeFields($builder, $data, $formArea, true);
+        }
     }
 
     /**
@@ -134,8 +120,9 @@ class AnuraIntegration extends AbstractEnhancerIntegration
     protected function getEnhancerFieldArray()
     {
         return [
-            'anura_is_suspicious' => [
-                'label' => $this->translator->trans('mautic.enhancer.integration.anura.is_suspicious.label'),
+            'anura_result' => [
+                'label' => $this->translator->trans('mautic.enhancer.integration.anura.anura_result.label'),
+                'group' => 'enhancement',
             ],
         ];
     }
@@ -148,24 +135,18 @@ class AnuraIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead &$lead)
     {
         if (!empty($lead)) {
-            $ipAddress = null;
-            $userAgent = 'default';
+            $ipAddress = $this->request->server->get('REMOTE_ADDR');
+            $userAgent = $this->request->server->get('HTTP_USER_AGENT');
 
-            $ipAddresses = $lead->getIpAddresses();
-            if (is_array($ipAddresses)) {
-                $ipAddress = array_pop($ipAddresses);
+            if (!($userAgent)) {
+                $settings  = $this->getIntegrationSettings()->getFeatureSettings();
+                $userAgent = $settings['default_user_agent'];
             }
 
-            $utmTags = $lead->getUtmTags();
-            if (is_array($utmTags)) {
-                /** @var UtmTag $lastTags */
-                $lastTags = array_pop($utmTags);
-                if ($lastTags->getUserAgent()) {
-                    $userAgent = $lastTags->getUserAgent();
-                }
-            }
+            $model  = $this->getModel();
+            $result = $model->getResult($ipAddress, $userAgent);
 
-            $lead->addUpdatedField('anuraIsSuspicious', $this->getModel()->isSuspect($ipAddresses, $userAgent));
+            $lead->addUpdatedField('anura_result', $result);
         }
 
         return true;

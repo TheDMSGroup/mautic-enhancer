@@ -3,11 +3,10 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 10/18/18
- * Time: 4:26 PM
+ * Time: 4:26 PM.
  */
 
-namespace MauticEnhancerBundle\Model;
-
+namespace MauticPlugin\MauticEnhancerBundle\Model;
 
 use Doctrine\ORM\EntityRepository;
 use GuzzleHttp\Client;
@@ -18,66 +17,82 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AnuraIntegration;
 
 class AnuraModel extends AbstractCommonModel
 {
+    /**
+     * @var string
+     */
     protected $endpoint;
 
+    /**
+     * @var string
+     */
     protected $instance;
+
+    /**
+     * @param AnuraIntegration $integration
+     */
+    public function setup(AnuraIntegration $integration)
+    {
+        $keys           = $integration->getKeys();
+        $this->endpoint = $keys['endpoint'];
+        $this->instance = $keys['instance'];
+    }
 
     /**
      * @return PluginEnhancerAnuraRepository|EntityRepository
      */
-    public function getRepository() {
-        return $this->em->getRepository(PluginEnhancerAnura::class);
+    public function getRepository()
+    {
+        return $this->em->getRepository($this->getEntityName());
     }
 
     /**
-     * @param AnuraIntegration $integration
-     *
-     * @return bool
+     * @return string
      */
-    public function setup(AnuraIntegration $integration)
+    public function getEntityName()
     {
-        try {
-            $keys = $integration->getKeys();
-            $this->endpoint = $keys['endpoint'];
-            $this->instance = $keys['instance'];
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
-
+        return PluginEnhancerAnura::class;
     }
 
     /**
-     * @param string $ipAddress
-     * @param string $userAgent
+     * @param $ipAddress
+     * @param $userAgent
      *
-     * @return bool
+     * @return string
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function isSuspect($ipAddress, $userAgent)
+    public function getResult($ipAddress, $userAgent)
     {
-        $check = $this->getRepository()->findByIpAndUserAgent($ipAddress, $userAgent);
+        /** @var PluginEnhancerAnura $record */
+        $record = $this->getRepository()->findByIpAndUserAgent($ipAddress, $userAgent);
 
-        if (null === $check) {
+        if (null === $record || 'failed' === $record->getResult()) {
             //perform lookup, save result
-            $httpClient = new Client([
-                'base_uri' => $endpoint,
-                'timeout'  => 2.0,
-            ]);
+            $httpClient = new Client();
 
-            $response = $httpClient->request('POST', '');
-            $check = $response[''];
+            $payload = [
+                'instance' => $this->instance,
+                'ip'       => $ipAddress,
+                'ua'       => $userAgent,
+            ];
+
+            try {
+                $response = $httpClient->request('GET', $this->endpoint, ['query' => $payload]);
+                $result   = json_decode($response->getBody()->getContents(), true);
+            } catch (\Exception $e) {
+                $this->logger->error($e->getMessage());
+                $result = ['result' => 'failed'];
+            }
 
             $record = new PluginEnhancerAnura();
             $record
-                ->setDateAdded(new \DateTime())
+               ->setDateAdded(new \DateTime())
                 ->setIpAddress($ipAddress)
                 ->setUserAgent($userAgent)
-                ->setIsSuspect($check);
+                ->setResult($result['result']);
             $this->getRepository()->saveEntity($record);
         }
 
-        return $check;
+        return $record->getResult();
     }
-
-
 }
