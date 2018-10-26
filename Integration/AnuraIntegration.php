@@ -132,6 +132,8 @@ class AnuraIntegration extends AbstractEnhancerIntegration
      * @param Lead $lead
      *
      * @return bool
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function doEnhancement(Lead &$lead)
     {
@@ -152,8 +154,7 @@ class AnuraIntegration extends AbstractEnhancerIntegration
                     $userAgent = $settings['default_user_agent'];
                 }
 
-                $model  = $this->getModel();
-                $result = $model->getResult($ipAddress, $userAgent);
+                $result = $this->getModel()->getResult($ipAddress, $userAgent);
 
                 $lead->addUpdatedField('anura_result', $result);
                 $didEnhnacement = true;
