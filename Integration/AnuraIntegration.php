@@ -13,6 +13,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Entity\UtmTag;
 use MauticPlugin\MauticEnhancerBundle\Model\AnuraModel;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
@@ -134,21 +135,31 @@ class AnuraIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead &$lead)
     {
+        $didEnhnacement = false;
+
         if (!empty($lead)) {
-            $ipAddress = $this->request->server->get('REMOTE_ADDR');
-            $userAgent = $this->request->server->get('HTTP_USER_AGENT');
+            $ipAddresses = $lead->getIpAddresses()->getKeys();
+            if (count($ipAddresses)) {
+                $ipAddress = array_pop($ipAddresses);
 
-            if (!($userAgent)) {
-                $settings  = $this->getIntegrationSettings()->getFeatureSettings();
-                $userAgent = $settings['default_user_agent'];
+                $utmTags = $lead->getUtmTags();
+                if (count($utmTags)) {
+                    /** @var UtmTag $utmTag */
+                    $utmTag    = array_pop($utmTags);
+                    $userAgent = $utmTag->getUserAgent();
+                } else {
+                    $settings  = $this->getIntegrationSettings()->getFeatureSettings();
+                    $userAgent = $settings['default_user_agent'];
+                }
+
+                $model  = $this->getModel();
+                $result = $model->getResult($ipAddress, $userAgent);
+
+                $lead->addUpdatedField('anura_result', $result);
+                $didEnhnacement = true;
             }
-
-            $model  = $this->getModel();
-            $result = $model->getResult($ipAddress, $userAgent);
-
-            $lead->addUpdatedField('anura_result', $result);
         }
 
-        return true;
+        return $didEnhnacement;
     }
 }
