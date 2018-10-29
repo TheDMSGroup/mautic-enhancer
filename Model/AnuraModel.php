@@ -84,12 +84,16 @@ class AnuraModel extends AbstractCommonModel
                 $result = ['result' => 'failed'];
             }
 
-            $record = new PluginEnhancerAnura();
+            if (null === $record) {
+                $record = new PluginEnhancerAnura();
+                $record
+                    ->setIpAddress($ipAddress)
+                    ->setUserAgent($userAgent);
+            }
             $record
-               ->setDateAdded(new \DateTime())
-                ->setIpAddress($ipAddress)
-                ->setUserAgent($userAgent)
+                ->setDateAdded(new \DateTime())
                 ->setResult($result['result']);
+
             $this->getRepository()->saveEntity($record);
         }
 
