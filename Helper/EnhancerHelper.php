@@ -88,6 +88,7 @@ class EnhancerHelper
             'PhoneToParts',
             'CorrectAddress',
             'NeustarMpic',
+            'Anura',
         ];
     }
 }
