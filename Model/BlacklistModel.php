@@ -31,7 +31,7 @@ class BlacklistModel extends AbstractCommonModel
      */
     public function setup(BlacklistIntegration $integration)
     {
-        $settings       = $integration->getIntegrationSettings();
+        $settings       = $integration->getIntegrationSettings()->getFeatureSettings();
         $keys           = $integration->getKeys();
         $this->endpoint = $settings['endpoint'];
         $this->key      = $keys['key'];
@@ -55,15 +55,17 @@ class BlacklistModel extends AbstractCommonModel
         /** @var PluginEnhancerBlacklist $record */
         $record = $this->getRepository()->findByPhone($phone);
 
-        if (null === $record || $record->getDateAdded() < (time() - ($ageMinutes * 60))) {
+        if (null === $record || $record->getDateAdded()->getTimestamp() > (time() - ($ageMinutes * 60))) {
 
             // Do not make the API request if cacheOnly.
-            if (!$cacheOnly) {
+            if ($cacheOnly) {
                 return false;
             }
 
             // Blacklist service does not support E164 standard.
-            $uri = rtrim($this->endpoint, '/').'/'.trim($this->key).'/response/json/phone/'.ltrim('+', $phone);
+            $uri = rtrim($this->endpoint, '/').
+                '/Lookup/key/'.trim($this->key).'/response/json/phone/'.
+                ltrim($phone, '+');
             try {
                 $httpClient = new Client();
                 $response   = $httpClient->request('GET', $uri);
@@ -73,6 +75,7 @@ class BlacklistModel extends AbstractCommonModel
 
                 return false;
             }
+
             if (null === $record) {
                 $record = new PluginEnhancerBlacklist();
                 $record->setPhone($phone);
@@ -83,8 +86,8 @@ class BlacklistModel extends AbstractCommonModel
             if ($result['code']) {
                 $record->setCode($result['code']);
             }
-            if ($result['blacklisted']) {
-                $record->setBlacklisted($result['blacklisted']);
+            if ($result['results']) {
+                $record->setResult($result['results']);
             }
             if ($result['wireless']) {
                 $record->setWireless($result['wireless']);

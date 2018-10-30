@@ -34,11 +34,11 @@ class PluginEnhancerBlacklist extends CommonEntity
     /** @var integer The FederalDNC code provided by the Blacklist API */
     protected $code;
 
-    /** @var boolean Set to true/false by the Blacklist API based on weather or not the number is in their aggregated blacklists. */
-    protected $blacklisted;
+    /** @var boolean Set to true by the Blacklist API if the number is in their aggregated blacklists. */
+    protected $result = false;
 
     /** @var boolean The wireless status provided by the Blacklist API */
-    protected $wireless;
+    protected $wireless = false;
 
     /** @var \DateTime The date this record was last received/updated from the API */
     protected $dateAdded;
@@ -60,9 +60,9 @@ class PluginEnhancerBlacklist extends CommonEntity
 
         $builder->addNamedField('sid', 'string', 'sid', true);
 
-        $builder->addNamedField('code', 'integer', 'code', true);
+        $builder->addNamedField('code', 'string', 'code', true);
 
-        $builder->addField('blacklisted', 'boolean');
+        $builder->addField('result', 'boolean');
 
         $builder->addField('wireless', 'boolean');
 
@@ -155,7 +155,7 @@ class PluginEnhancerBlacklist extends CommonEntity
      */
     public function setCode($code)
     {
-        $this->code = (int) $code;
+        $this->code = $code;
 
         return $this;
     }
@@ -163,20 +163,20 @@ class PluginEnhancerBlacklist extends CommonEntity
     /**
      * @return bool
      */
-    public function getBlacklisted()
+    public function getResult()
     {
-        return $this->blacklisted;
+        return $this->result;
 
     }
 
     /**
-     * @param $blacklisted
+     * @param $result
      *
      * @return $this
      */
-    public function setBlacklisted($blacklisted)
+    public function setResult($result)
     {
-        $this->blacklisted = (bool) $blacklisted;
+        $this->result = (bool) $result;
 
         return $this;
     }

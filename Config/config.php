@@ -11,8 +11,8 @@
 
 return [
     'name'        => 'Enhancers',
-    'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, and xVerify.',
-    'version'     => '1.10.1',
+    'description' => 'Adds Integrations for validating or manipulating Lead Data. Includes Alcazar, Random, xVerify, Blacklist, Anura.',
+    'version'     => '1.10.2',
     'author'      => 'Nicholai Bush',
 
     'services' => [
@@ -28,8 +28,11 @@ return [
             ],
         ],
         'models'       => [
-            'mautic.enhancer.model.anura' => [
+            'mautic.enhancer.model.anura'               => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\AnuraModel::class,
+            ],
+            'mautic.enhancer.model.blacklist'           => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Model\BlacklistModel::class,
             ],
             'mautic.enhancer.model.citystatepostalcode' => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\CityStatePostalCodeModel::class,
@@ -42,11 +45,14 @@ return [
             'mautic.enhancer.integration.agefrombirthdate'        => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration::class,
             ],
-            'mautic.enhancer.integration.anura'                 => [
+            'mautic.enhancer.integration.anura'                   => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AnuraIntegration::class,
             ],
             'mautic.enhancer.integration.alcazar'                 => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\AlcazarIntegration::class,
+            ],
+            'mautic.enhancer.integration.blacklist'               => [
+                'class' => \MauticPlugin\MauticEnhancerBundle\Integration\BlacklistIntegration::class,
             ],
             'mautic.enhancer.integration.random'                  => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Integration\RandomIntegration::class,

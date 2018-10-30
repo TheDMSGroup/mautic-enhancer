@@ -131,8 +131,18 @@ class BlacklistIntegration extends AbstractEnhancerIntegration
     protected function getEnhancerFieldArray()
     {
         return [
-            'blacklist_phone' => [
-                'label' => $this->translator->trans('mautic.enhancer.integration.blacklist.blacklist_phone.label'),
+            'blacklist_result'   => [
+                'label' => $this->translator->trans('mautic.enhancer.integration.blacklist.blacklist_result.label'),
+                'type'  => 'boolean',
+                'group' => 'enhancement',
+            ],
+            'blacklist_code'     => [
+                'label' => $this->translator->trans('mautic.enhancer.integration.blacklist.blacklist_code.label'),
+                'group' => 'enhancement',
+            ],
+            'blacklist_wireless' => [
+                'label' => $this->translator->trans('mautic.enhancer.integration.blacklist.blacklist_wireless.label'),
+                'type'  => 'boolean',
                 'group' => 'enhancement',
             ],
         ];
@@ -157,17 +167,16 @@ class BlacklistIntegration extends AbstractEnhancerIntegration
                 $phone = $this->phoneValidate($lead->getMobile());
             }
             if ($phone) {
+
                 $settings   = $this->getIntegrationSettings()->getFeatureSettings();
-                $ageMinutes = $settings['age'];
+                $ageMinutes = isset($settings['age']) ? intval($settings['age']) : self::AGE_DEFAULT;
 
                 /** @var PluginEnhancerBlacklist $record */
                 $record = $this->getModel()->getRecord($phone, $ageMinutes);
                 if ($record) {
-                    $blacklisted = $record->getBlacklisted();
-
-                    // Note, SID, FederalDNC Code, wireless are also available but not currently mapped.
-
-                    $lead->addUpdatedField('blacklist_phone', $blacklisted);
+                    $lead->addUpdatedField('blacklist_result', $record->getResult());
+                    $lead->addUpdatedField('blacklist_code', $record->getCode());
+                    $lead->addUpdatedField('blacklist_wireless', $record->getWireless());
                     $save = true;
                 }
             }
