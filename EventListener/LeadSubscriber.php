@@ -22,13 +22,16 @@ use MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper;
  */
 class LeadSubscriber extends CommonSubscriber
 {
-    /**
-     * @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper
-     */
+    /** @var \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper */
     protected $enhancerHelper;
 
+    /** @var array Leads that have already ran the auto-enhancers in this session by ID. */
+    protected $leadsEnhanced = [];
+
     /**
-     * @param \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper $helper
+     * LeadSubscriber constructor.
+     *
+     * @param EnhancerHelper $helper
      */
     public function __construct(EnhancerHelper $helper)
     {
@@ -56,9 +59,29 @@ class LeadSubscriber extends CommonSubscriber
     {
         $lead = $event->getLead();
         if ($lead && (null !== $lead->getDateIdentified() || !$lead->isAnonymous())) {
-            /**
-             * @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration[]
-             */
+
+            // Ensure we do not duplicate this work within the same session.
+            $leadKey = strtolower(
+                implode(
+                    '|',
+                    [
+                        $lead->getFirstname(),
+                        $lead->getLastActive(),
+                        $lead->getEmail(),
+                        $lead->getPhone(),
+                        $lead->getMobile(),
+                    ]
+                )
+            );
+            if (strlen($leadKey) > 3) {
+                if (isset($this->leadsEnhanced[$leadKey])) {
+                    return;
+                } else {
+                    $this->leadsEnhanced[$leadKey] = true;
+                }
+            }
+
+            /** @var \MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration */
             $integrations = $this->enhancerHelper->getEnhancerIntegrations();
             foreach ($integrations as $integration) {
                 $settings = $integration->getIntegrationSettings();
