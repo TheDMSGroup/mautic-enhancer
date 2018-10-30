@@ -1,9 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 10/18/18
- * Time: 3:22 PM.
+
+/*
+ * @copyright   2018 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Entity;
