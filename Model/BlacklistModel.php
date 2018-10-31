@@ -39,15 +39,15 @@ class BlacklistModel extends AbstractCommonModel
 
     /**
      * Gets from local cache and/or calls the Blacklist serivice.
-     * See documentation at http://developer.theblacklist.click
+     * See documentation at http://developer.theblacklist.click.
      *
-     * @param string  $phone
-     * @param integer $ageMinutes
-     * @param bool    $cacheOnly Only pull cache records.
+     * @param string $phone
+     * @param int    $ageMinutes
+     * @param bool   $cacheOnly  only pull cache records
      *
      * @return string
-     *
      * @return PluginEnhancerBlacklist
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getRecord($phone, $ageMinutes, $cacheOnly = false)
@@ -56,7 +56,6 @@ class BlacklistModel extends AbstractCommonModel
         $record = $this->getRepository()->findByPhone($phone);
 
         if (null === $record || $record->getDateAdded()->getTimestamp() > (time() - ($ageMinutes * 60))) {
-
             // Do not make the API request if cacheOnly.
             if ($cacheOnly) {
                 return false;

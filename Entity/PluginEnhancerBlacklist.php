@@ -31,13 +31,13 @@ class PluginEnhancerBlacklist extends CommonEntity
     /** @var string The SID returned from the Blacklist API */
     protected $sid;
 
-    /** @var integer The FederalDNC code provided by the Blacklist API */
+    /** @var int The FederalDNC code provided by the Blacklist API */
     protected $code;
 
-    /** @var boolean Set to true by the Blacklist API if the number is in their aggregated blacklists. */
+    /** @var bool Set to true by the Blacklist API if the number is in their aggregated blacklists. */
     protected $result = false;
 
-    /** @var boolean The wireless status provided by the Blacklist API */
+    /** @var bool The wireless status provided by the Blacklist API */
     protected $wireless = false;
 
     /** @var \DateTime The date this record was last received/updated from the API */
@@ -125,7 +125,6 @@ class PluginEnhancerBlacklist extends CommonEntity
     public function getSid()
     {
         return $this->sid;
-
     }
 
     /**
@@ -166,7 +165,6 @@ class PluginEnhancerBlacklist extends CommonEntity
     public function getResult()
     {
         return $this->result;
-
     }
 
     /**
@@ -187,7 +185,6 @@ class PluginEnhancerBlacklist extends CommonEntity
     public function getWireless()
     {
         return $this->wireless;
-
     }
 
     /**

@@ -59,7 +59,6 @@ class LeadSubscriber extends CommonSubscriber
     {
         $lead = $event->getLead();
         if ($lead && (null !== $lead->getDateIdentified() || !$lead->isAnonymous())) {
-
             // Ensure we do not duplicate this work within the same session.
             $leadKey = strtolower(
                 implode(

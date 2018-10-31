@@ -167,7 +167,6 @@ class BlacklistIntegration extends AbstractEnhancerIntegration
                 $phone = $this->phoneValidate($lead->getMobile());
             }
             if ($phone) {
-
                 $settings   = $this->getIntegrationSettings()->getFeatureSettings();
                 $ageMinutes = isset($settings['age']) ? intval($settings['age']) : self::AGE_DEFAULT;
 
