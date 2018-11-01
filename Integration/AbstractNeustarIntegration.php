@@ -176,7 +176,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
 
         $neustarClient = new Client();
         /** @var Response $neustarResponse */
-        $neustarResponse = $neustarClient->request('GET', $settings['endpoint'], ['query' => $query]);
+        $neustarResponse = $neustarClient->request('GET', $settings['endpoint'], ['query' => $query, 'timeout' => 3, 'connect_timeout' => 2]);
 
         return $this->processResponse($lead, $neustarResponse);
     }

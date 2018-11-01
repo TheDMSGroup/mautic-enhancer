@@ -219,7 +219,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         // @todo - Update to use Guzzle.
 
         // set a timeout default to 20 seconds
-        $settings = ['curl_options' => [CURLOPT_CONNECTTIMEOUT => 20, CURLOPT_TIMEOUT => 20]];
+        $settings = ['curl_options' => [CURLOPT_CONNECTTIMEOUT => 2, CURLOPT_TIMEOUT => 3]];
 
         $url      = "http://www.xverify.com/services/$service/verify/?$fieldKey=$fieldValue"; // valid entries for service: "emails", "phone", "address"
         $response = $this->makeRequest(

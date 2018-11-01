@@ -89,6 +89,7 @@ class EnhancerHelper
             'CorrectAddress',
             'NeustarMpic',
             'Anura',
+            'Blacklist',
         ];
     }
 }

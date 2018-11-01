@@ -13,16 +13,16 @@ namespace MauticPlugin\MauticEnhancerBundle\Entity;
 
 use Mautic\CoreBundle\Entity\CommonRepository;
 
-class PluginEnhancerAnuraRepository extends CommonRepository
+class PluginEnhancerBlacklistRepository extends CommonRepository
 {
     /**
-     * @param $ipAddress
-     * @param $userAgent
+     * @param $phone
+     * @param $ageMinutes
      *
      * @return null|object
      */
-    public function findByIpAndUserAgent($ipAddress, $userAgent)
+    public function findByPhone($phone)
     {
-        return $this->findOneBy(['ipAddress' => $ipAddress, 'userAgent' => $userAgent]);
+        return $this->findOneBy(['phone' => $phone]);
     }
 }
