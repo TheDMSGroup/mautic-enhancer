@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Mautic\CoreBundle\Form\Type\YesNoButtonGroupType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 /**
  * Trait NonFreeEnhancerTrait.
@@ -45,7 +46,7 @@ trait NonFreeEnhancerTrait
         if ('features' === $formArea) {
             $builder->add(
                 'cost_per_enhancement',
-                'number',
+                NumberType::class,
                 [
                     'label'      => $this->translator->trans('mautic.enhancer.cpe.label'),
                     'data'       => isset($data['cost_per_enhancement']) ? $data['cost_per_enhancement'] : '0.0',
@@ -55,6 +56,7 @@ trait NonFreeEnhancerTrait
                         'class'   => 'form-control',
                         'tooltip' => $this->translator->trans('mautic.enhancer.cpe.tooltip'),
                     ],
+                    'scale'     => 5,
                 ]
             );
 
