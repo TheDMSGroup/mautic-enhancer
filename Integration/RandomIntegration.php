@@ -93,7 +93,7 @@ class RandomIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         if (!empty($lead)) {
             $settings = $this->getIntegrationSettings()->getFeatureSettings();

@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 /**
  * Class CityStateFromPostalCodeIntegration.
@@ -117,7 +118,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $persist = false;
 
@@ -271,7 +272,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
+                HiddenType::class,
                 [
                     'data' => true,
                 ]

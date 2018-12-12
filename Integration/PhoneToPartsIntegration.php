@@ -57,7 +57,7 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $phone = preg_replace('/\D+/', '', $lead->getPhone());
 

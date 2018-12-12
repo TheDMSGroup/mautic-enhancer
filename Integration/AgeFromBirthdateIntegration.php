@@ -86,7 +86,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $save = false;
         $this->logger->info('AgeFromBirthdate:doEnhancemet');

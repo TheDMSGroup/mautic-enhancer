@@ -135,7 +135,7 @@ class AnuraIntegration extends AbstractEnhancerIntegration
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $didEnhnacement = false;
 
