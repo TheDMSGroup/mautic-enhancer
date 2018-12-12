@@ -130,7 +130,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
 
         if (empty($leadCountry)) {
             /** @var mixed $ipDetails */
-            $ipDetails = $this->factory->getIpAddress()->getIpDetails();
+            $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
             $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
         } elseif (2 !== strlen($leadCountry)) {
             $leadCountry = $this->countryNameToISO3166($leadCountry);
@@ -174,8 +174,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                     $persist = true;
                 }
             }
-        }
-        elseif (
+        } elseif (
             !(empty($leadCity) || empty($leadState) || empty($leadCountry)) &&
             empty($leadZipCode) &&
             empty($lead->getAddress1())
