@@ -126,7 +126,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $persist = false;
         if (!empty($lead)) {

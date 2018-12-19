@@ -14,6 +14,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 /**
  * Class CityStateFromPostalCodeIntegration.
@@ -117,7 +118,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $persist = false;
 
@@ -129,6 +130,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         $leadCountry = $lead->getCountry();
 
         if (empty($leadCountry)) {
+            /** @var mixed $ipDetails */
             $ipDetails   = $this->factory->getIpAddress()->getIpDetails();
             $leadCountry = isset($ipDetails['country']) ? strtoupper($ipDetails['country']) : 'US';
         } elseif (2 !== strlen($leadCountry)) {
@@ -140,10 +142,8 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         $dash        = strpos((string) $leadZipCode, '-');
         $leadZipCode = $dash ? substr((string) $leadZipCode, 0, $dash) : $leadZipCode;
 
-        if (
-            (empty($leadCity) || empty($leadState) || empty($leadCounty))
-            && !(empty($leadCountry) || empty($leadZipCode))
-        ) {
+        // Override User city, state if zip code given
+        if (!(empty($leadCountry) || empty($leadZipCode))) {
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
             $cityStatePostalCode = $this->getIntegrationModel()->getRepository()->findOneBy(
                 [
@@ -153,13 +153,13 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
             );
 
             if (null !== $cityStatePostalCode) {
-                if (empty($leadCity) && !empty($cityStatePostalCode->getCity())) {
+                if (/*empty($leadCity) &&*/ !empty($cityStatePostalCode->getCity() && $leadCity !== $cityStatePostalCode->getCity())) {
                     $this->logger->debug('CityStateFromPostalCode: Found city for lead '.$lead->getId());
                     $lead->setCity($cityStatePostalCode->getCity());
                     $persist = true;
                 }
 
-                if (empty($leadState) && !empty($cityStatePostalCode->getStateProvince())) {
+                if (/*empty($leadState) &&*/ !empty($cityStatePostalCode->getStateProvince()) && $leadState !== $cityStatePostalCode->getStateProvince()) {
                     $this->logger->debug('CityStateFromPostalCode: Found state/province for lead '.$lead->getId());
                     $spLong  = $cityStatePostalCode->getStateProvince();
                     $spShort = in_array($spLong, self::$US_STATES)
@@ -169,19 +169,18 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                     $persist = true;
                 }
 
-                if (empty($leadCounty) && !empty($cityStatePostalCode->getCounty())) {
+                if (/*empty($leadCounty) &&*/ !empty($cityStatePostalCode->getCounty()) && $leadCounty !== $cityStatePostalCode->getCounty()) {
                     $this->logger->debug('CityStateFromPostalCode: Found county for lead '.$lead->getId());
                     $lead->addUpdatedField('county', $cityStatePostalCode->getCounty(), $leadCounty);
                     $persist = true;
                 }
             }
-        }
-
-        if (
-            (empty($leadZipCode) && empty($lead->getAddress1()))
-            && !(empty($leadCity) || empty($leadState) || empty($leadCountry))
+        } elseif (
+            !(empty($leadCity) || empty($leadState) || empty($leadCountry)) &&
+            empty($leadZipCode) &&
+            empty($lead->getAddress1())
         ) {
-            $stateProvince = in_array($leadState, array_keys(self::$US_STATES))
+            $stateProvince = array_key_exists($leadState, self::$US_STATES)
                 ? self::$US_STATES[$leadState]
                 : $leadState;
             /** @var PluginEnhancerCityStatePostalCode $cityStatePostalCode */
@@ -273,7 +272,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'autorun_enabled',
-                \Symfony\Component\Form\Extension\Core\Type\HiddenType::class,
+                HiddenType::class,
                 [
                     'data' => true,
                 ]

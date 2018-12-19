@@ -199,7 +199,7 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         if (!empty($lead)) {
             if ($lead->getFieldValue('alcazar_lrn') || !$lead->getPhone()) {

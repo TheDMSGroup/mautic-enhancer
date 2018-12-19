@@ -64,7 +64,7 @@ class GenderFromNameIntegration extends AbstractEnhancerIntegration
      *
      * @return bool
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $gender = $lead->getFieldValue('gender');
         if (!$gender or $this->isPush) {

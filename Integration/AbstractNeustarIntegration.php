@@ -155,7 +155,7 @@ abstract class AbstractNeustarIntegration extends AbstractEnhancerIntegration
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function doEnhancement(Lead &$lead)
+    public function doEnhancement(Lead $lead)
     {
         $keys = $this->getKeys();
 
