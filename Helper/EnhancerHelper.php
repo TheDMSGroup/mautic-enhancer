@@ -90,6 +90,7 @@ class EnhancerHelper
             'NeustarMpic',
             'Anura',
             'Blacklist',
+            'UrlStripper',
         ];
     }
 }
