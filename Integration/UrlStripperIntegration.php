@@ -80,17 +80,21 @@ class UrlStripperIntegration extends AbstractEnhancerIntegration
         if (!empty($lead)) {
             $settings                = $this->getIntegrationSettings()->getFeatureSettings();
             $originalConsentUrlField = $settings['original_consent_url'];
+            $existingCleanValue      = $lead->getFieldValue('consent_url_clean');
 
             try {
                 $fieldValue = $lead->getFieldValue($originalConsentUrlField);
                 if (!empty($fieldValue)) {
                     // remove superfilious params
                     $cleanFieldValue = strtok($fieldValue, '?');
-                    $lead->addUpdatedField('consent_url_clean', $cleanFieldValue);
-                    $this->logger->addDebug(
-                        'CONSENT URL NORMALIZER: verification values to update: '.$fieldValue.' => '.$cleanFieldValue
-                    );
-                    $persist = true;
+
+                    if ($existingCleanValue != $cleanFieldValue) {
+                        $lead->addUpdatedField('consent_url_clean', $cleanFieldValue);
+                        $this->logger->addDebug(
+                            'CONSENT URL NORMALIZER: verification values to update: '.$fieldValue.' => '.$cleanFieldValue
+                        );
+                        $persist = true;
+                    }
                 }
             } catch (\Exception $e) {
                 $this->logIntegrationError($e);
