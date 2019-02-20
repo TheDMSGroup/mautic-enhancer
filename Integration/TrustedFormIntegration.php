@@ -3,12 +3,12 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 2/11/19
- * Time: 11:56 AM
+ * Time: 11:56 AM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-
+use Doctrine\Common\Collections\ArrayCollection;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\UtmTag;
 
@@ -43,21 +43,21 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     {
         return [
             self::CERT_URL_FIELD => [
-                'type' => 'url',
+                'type'  => 'url',
                 'label' => 'Trusted Form Cert',
             ],
             'created_at' => [
-                'type' => 'datetime',
+                'type'  => 'datetime',
                 'label' => 'Created At',
             ],
             'expires_at' => [
-                'type' => 'datetime',
+                'type'  => 'datetime',
                 'label' => 'Expires At',
             ],
             'share_url' => [
-                'type' => 'url',
+                'type'  => 'url',
                 'label' => 'Shareable Cert',
-            ]
+            ],
         ];
     }
 
@@ -69,66 +69,77 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead $lead)
     {
         if ($lead->getFieldValue(self::CERT_URL_FIELD) && !$lead->getFieldValue('share_url')) {
-
             $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
 
             $parts = parse_url($trustedFormClaim);
 
             if ('https' !== $parts['scheme'] || self::CERT_REAL_HOST !== $parts['host']) {
-                $this->logger->warning('Not Processing Suspicious TrustedForm URL: ' . $trustedFormClaim);
+                $this->logger->warning('Not Processing Suspicious TrustedForm URL: '.$trustedFormClaim);
+
                 return false;
             }
 
-            $parameters = [
-                'fingerprint' => $this->getFingerprints($lead),
-            ];
+            $parameters = $this->getFingers($lead);
 
             if ($lead->getId()) {
-                $parameters['reference'] = $lead->getId();
+                $parameters['reference'] = ''.$lead->getId();
             }
 
+            /** @var ArrayCollection $utmData */
             $utmData = $lead->getUtmTags();
-            /** @var UtmTag $lastTag */
-            $lastTag = array_pop($utmData);
-
-            if ($lastTag->getUtmSource()) {
-                $parameters['vendor'] = $lastTag->getUtmSource();
+            if (!$utmData->isEmpty()) {
+                /** @var UtmTag $utmTag */
+                $utmTag = $utmData->last();
+                if ($utmTag->getUtmSource()) {
+                    $parameters['vendor'] = $utmTag->getUtmSource();
+                }
             }
 
+            $authKeys = $this->getKeys();
             $settings = [
                 'authorize_session' => true,
-                'content_type' => 'application/json',
+                'content_type'      => 'application/json',
                 'encode_parameters' => 'json',
-                'headers' => ['Accept: application/json'],
-                'return_raw' => true,
+                'headers'           => ['Accept: application/json'],
+                'return_raw'        => true,
+                'curl_options'      => [
+                    CURLOPT_USERPWD => "$authKeys[username]:$authKeys[password]",
+                ],
             ];
 
             $message = 'Number of request types exceeded';
-            for ($try = 0; $try < 5; $try++) {
+            for ($try = 0; $try < 5; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
-                $data = json_decode($response->body);
+                $data     = json_decode($response->body);
                 switch ($response->code) {
                     case 201:
-                        foreach (array_keys($this->getEnhancerFieldArray()) as $field) {
-                            $lead->addUpdatedField($field, $data[$field]);
+                        $fieldsToSet = array_keys($this->getEnhancerFieldArray());
+                        foreach ($fieldsToSet as $field) {
+                            $lead->addUpdatedField($field, $data->$field);
                         }
-                        foreach ($data['warnings'] as $warning) {
-                            $this->logger->warning($warning);
+
+                        $prefix = 'TrustedForm['.$lead->getId().'] ';
+                        foreach ($data->warnings as $warning) {
+                            $this->logger->warning($prefix.$warning);
                         }
+                        if (isset($data->message)) {
+                            $this->logger->info($prefix.$data->message);
+                        }
+
                         return true;
                     case 404:
-                        $message = 'Invalid Certificate: ' . $data['message'];
+                        $message = 'Invalid Certificate: '.$data->message;
                         break 2;
                     case 401:
                     case 403:
-                        $message = 'Authentication Failure: ' . $data['message'];
+                        $message = 'Authentication Failure: '.$data->message;
                         break 2;
                     case 502:
                     case 503:
                         usleep(100);
                         break;
                     default:
-                        $message = "Unrecognized response code: $response->code $data[message]";
+                        $message = "Unrecognized response code: $response->code $data->message";
                         break 2;
                 }
             }
@@ -150,33 +161,28 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     }
 
     /**
+     * Creates an array of fingerprintable fields.
+     *
      * @param Lead $lead
      *
      * @return array
      */
-    protected function getFingerprints(Lead $lead)
+    protected function getFingers(Lead $lead)
     {
-        $fingerprints = $fingers = [];
-
+        $fingers = [];
+        //Trusted form "should" convert these...
         if ($lead->getEmail()) {
-            $fingers[] = strtolower($lead->getEmail());
+            $fingers['email'] = strtolower($lead->getEmail());
         }
 
         if ($lead->getPhone()) {
-            $fingers[] = preg_replace('/\D/', '', $lead->getPhone());
+            $fingers['phone'] = preg_replace('/\D/', '', $lead->getPhone());
         }
 
         if ($lead->getMobile()) {
-            $fingers[] = preg_replace('/\D/', '', $lead->getMobile());
+            $fingers['mobile'] = preg_replace('/\D/', '', $lead->getMobile());
         }
 
-        foreach ($fingers as $finger) {
-            $finger = trim($finger);
-            if (!empty($finger)) {
-                $fingerprints[] = sha1(trim($finger));
-            }
-        }
-
-        return $fingerprints;
+        return $fingers;
     }
 }
