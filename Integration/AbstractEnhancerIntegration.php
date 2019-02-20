@@ -45,13 +45,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     {
         $integration = $this->getIntegrationSettings();
 
-        /**
-         *  TODO:
-         *  eventually I would like to add field_group = 'enhancement'
-         *  to all enhancer fields and make this call without false
-         *  and change
-         *      in_array($alias, $exists) => in_array($alias, array_keys($exists['enhancement'])).
-         */
         $exists = array_keys(
             $this->fieldModel->getFieldList(false)
         );
@@ -108,10 +101,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                 }
 
                 foreach ($attributes as $attribute => $value) {
-                    // Now that i know better, I can not do it this way...
-                    // A lot of refactoring though and dynamic methods still
-                    // required
-
                     //convert snake case to camel case
                     $method = 'set'.implode('', array_map('ucfirst', explode('_', $attribute)));
 
