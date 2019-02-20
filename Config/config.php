@@ -78,6 +78,9 @@ return [
             'mautic.enhancer.integration.neustarmpic'             => [
                 'class' => MauticPlugin\MauticEnhancerBundle\Integration\NeustarMpicIntegration::class,
             ],
+            'mautic.enhancer.integration.trustedform'             => [
+                'class' => MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration::class,
+            ],
         ],
         'other'        => [
             'mautic.enhancer.helper.enhancer' => [

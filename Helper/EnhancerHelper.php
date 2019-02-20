@@ -91,6 +91,7 @@ class EnhancerHelper
             'Anura',
             'Blacklist',
             'UrlStripper',
+            'TrustedForm',
         ];
     }
 }
