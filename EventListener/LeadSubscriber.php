@@ -65,7 +65,7 @@ class LeadSubscriber extends CommonSubscriber
                     '|',
                     [
                         $lead->getFirstname(),
-                        $lead->getLastActive(),
+                        $lead->getLastActive()->format('Y-m-d H:i:s'),
                         $lead->getEmail(),
                         $lead->getPhone(),
                         $lead->getMobile(),
