@@ -108,7 +108,7 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 && $today->format('Y-m-d') != $dobStr
             ) {
                 // DOB field to date/month/day fields.
-                $dob   = new \DateTime($dobStr);
+                $dob   = new \DateTime(is_numeric($dobStr) ? '@'.$dobStr : $dobStr);
                 $day   = (int) $dob->format('d');
                 $month = (int) $dob->format('m');
                 $year  = (int) $dob->format('Y');
