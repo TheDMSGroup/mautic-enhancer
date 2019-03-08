@@ -108,8 +108,13 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
             $root->appendChild($addresses);
         }
 
-        if ($lead->getPhone()) {
-            $phone = $xmlDoc->createElement('Phone', $lead->getPhone());
+        $phone = preg_replace('/\D+/', '', $lead->getPhone());
+        if (empty($phone)) {
+            $phone = preg_replace('/\D+/', '', $lead->getMobile());
+        }
+        $phone = substr($phone, -10);
+        if (10 === strlen($phone)) {
+            $phone = $xmlDoc->createElement('Phone', $phone);
             $phone->setAttribute('score', '1');
             $phone->setAttribute('appends', 'validation,mobile,active');
 

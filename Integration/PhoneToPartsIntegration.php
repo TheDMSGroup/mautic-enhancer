@@ -60,10 +60,10 @@ class PhoneToPartsIntegration extends AbstractEnhancerIntegration
     public function doEnhancement(Lead $lead)
     {
         $phone = preg_replace('/\D+/', '', $lead->getPhone());
-
-        if ((11 === strlen($phone)) && (0 === strpos($phone, '1'))) {
-            $phone = substr($phone, 1);
+        if (empty($phone)) {
+            $phone = preg_replace('/\D+/', '', $lead->getMobile());
         }
+        $phone = substr($phone, -10);
 
         if (10 === strlen($phone)) {
             $lead->addUpdatedField('ptp_area_code', substr($phone, 0, 3));
