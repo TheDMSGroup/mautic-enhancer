@@ -21,7 +21,7 @@ class AgeFromBirthdareIntegrationTest extends TestCase
 
         $today     = getdate();
         $expected  = $today['year'] - 1970;
-        $mock = $this->createMock(AgeFromBirthdateIntegration::class);
+        $mock      = $this->createMock(AgeFromBirthdateIntegration::class);
 
         $this->assertTrue($mock->doEnhancement($lead), 'Unexpected enhancement result');
         $this->assertEquals($expected, $lead->getFieldValue('afb_age'), 'Unexpected age');
@@ -40,7 +40,7 @@ class AgeFromBirthdareIntegrationTest extends TestCase
         $today       = getdate();
         $expectedAge = $today['year'] - 1970;
         $expectedDOB = new \DateTime('1970-01-01');
-        $mock = $this->createMock(AgeFromBirthdateIntegration::class);
+        $mock        = $this->createMock(AgeFromBirthdateIntegration::class);
 
         $this->assertTrue($mock->doEnhancement($lead), 'Unexpected enhancement result');
         $this->assertEquals($expectedAge, $lead->getFieldValue('afb_age'), 'Unexpected age');
