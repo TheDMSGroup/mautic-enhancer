@@ -313,7 +313,7 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
      *
      * @return bool
      */
-    public abstract function doEnhancement(Lead $lead);
+    abstract public function doEnhancement(Lead $lead);
 
     /**
      * @param $lead

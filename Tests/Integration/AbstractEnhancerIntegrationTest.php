@@ -8,15 +8,13 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Mautic\CampaignBundle\Entity\Campaign;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\PluginBundle\Entity\Integration;
-use Mautic\PluginBundle\Integration\AbstractIntegration;
 use MauticPlugin\MauticEnhancerBundle\Integration\AbstractEnhancerIntegration;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
-use Symfony\Component\Stopwatch\Stopwatch;
 
 class AbstractEnhancerIntegrationTest extends TestCase
 {
@@ -26,7 +24,6 @@ class AbstractEnhancerIntegrationTest extends TestCase
         $lead->attribution = 1.00;
 
         $mock = $this->getMockForAbstractClass(AbstractEnhancerIntegration::class);
-
 
         $expected = 1.0;
         $mock->applyCost($lead);
@@ -56,28 +53,75 @@ class AbstractEnhancerIntegrationTest extends TestCase
 
     public function testPushLead()
     {
-        $this->markTestSkipped('Trouble setting up underlying objects');
+        $mockEnhancer = $this->getMockBuilder(AbstractEnhancerIntegration::class)
+            ->setMethods(['getEnhancerFieldArray', 'getName', 'getAuthenticationType', 'doEnhancement', 'saveLead', 'getCampaign', 'getIntegrationSettings'])
+            ->getMock();
 
-        $lead = new Lead();
-        $mock = $this->getMockForAbstractClass(AbstractEnhancerIntegration::class);
-        $mock->expects($this->any())
+        $mockLogger = $this->getMockBuilder(Logger::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
+            ->getMock();
+
+        $mockLogger->expects($this->any())
+            ->method('debug')
+            ->will($this->returnArgument(null));
+
+        $mockEnhancer->setLogger($mockLogger);
+
+        $mockDispatcher = $this->getMockBuilder(EventDispatcher::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
+            ->getMock();
+
+        $mockDispatcher->expects($this->any())
+            ->method('dispatch')
+            ->will($this->returnValue(null));
+
+        $mockEnhancer->setDispatcher($mockDispatcher);
+
+        $mockSettings = $this->getMockBuilder(Integration::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
+            ->getMock();
+
+        $mockSettings->expects($this->any())
+            ->method('getIsPublished')
+            ->will($this->returnValue(true));
+
+        $mockCampaign = $this->getMockBuilder(Campaign::class)
+            ->disableOriginalConstructor()
+            ->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
+            ->getMock();
+
+        $mockEnhancer->expects($this->any())
             ->method('doEnhancement')
-            ->will($this->returnValue(false))
-            ->method('getKeys')
-            ->will($this->returnValue([]));
-        $logger = $this->getMockBuilder(Logger::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $mock->setLogger($logger);
-        $dispatcher = $this->getMockBuilder(EventDispatcher::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $mock->setDispatcher($dispatcher);
-        $settings = new Integration();
-        $settings->setIsPublished(true);
-        $mock->setIntegrationSettings($settings);
+            ->will($this->returnValue(true));
 
-        $this->assertTrue($mock->pushLead($lead), 'Unexpected push result');
+        $mockEnhancer->expects($this->any())
+            ->method('saveLead')
+            ->will($this->returnValue(null));
+
+        $mockEnhancer->expects($this->any())
+            ->method('getCampaign')
+            ->will($this->returnValue($mockCampaign));
+
+        $mockEnhancer->expects($this->any())
+            ->method('getIntegrationSettings')
+            ->will($this->returnValue($mockSettings));
+
+        //->method('getKeys')
+        //->will($this->returnValue([]));
+
+        $dummyLead = new Lead();
+        $this->assertTrue($mockEnhancer->pushLead($dummyLead), 'Unexpected push result');
     }
 
     public function testGetCostPerEnhancement()
