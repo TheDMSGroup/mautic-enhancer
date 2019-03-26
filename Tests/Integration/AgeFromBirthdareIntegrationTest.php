@@ -91,10 +91,14 @@ class AgeFromBirthdareIntegrationTest extends TestCase
 
     public function testDoEnhancementWithout()
     {
-        $this->markTestSkipped('get the real tests working first');
-        $lead = new Lead();
-        $mock = $this->createMock(AgeFromBirthdateIntegration::class);
+        $leadObserver = $this->createMock(Lead::class);
+        $mockIntegration = $this->getMockBuilder(AgeFromBirthdateIntegration::class)
+            ->setMethodsExcept(['doEnhancement', 'setLogger'])
+            ->getMock();
 
-        $this->assertFalse($mock->doEnhancement($lead), 'Unexpected enhancement result');
+        $mockLogger = $this->createMock(Logger::class);
+        $mockIntegration->setLogger($mockLogger);
+
+        $this->assertFalse($mockIntegration->doEnhancement($leadObserver), 'Unexpected enhancement result');
     }
 }
