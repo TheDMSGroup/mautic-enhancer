@@ -17,21 +17,59 @@ class RandomIntegrationTest extends TestCase
 {
     public function testDoEnhancementNew()
     {
-        $lead     = new Lead();
-        $mock     = $this->createMock(RandomIntegration::class);
-        $settings = new Integration();
-        $settings->setFeatureSettings(['random_field_name' => 'random']);
-        $mock->expects($this->any())
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['addUpdatedField'])
+            ->getMock();
+
+        $leadObserver->expects($this->once())
+            ->method('addUpdatedField')
+            ->with('random', $this->greaterThan(0) && $this->lessThan(101), null);
+
+        $mockIntegration = $this->getMockBuilder(RandomIntegration::class)
+            ->setMethodsExcept(['doEnhancement'])
+            ->getMock();
+
+        $mockSettings = $this->getMockBuilder(Integration::class)
+            ->setMethods(['getFeatureSettings'])
+            ->getMock();
+
+        $mockSettings->expects($this->any())
+            ->method('getFeatureSettings')
+            ->willReturn(['random_field_name' => 'random']);
+
+        $mockIntegration->expects($this->any())
             ->method('getIntegrationSettings')
-            ->will($this->returnValue($settings));
+            ->will($this->returnValue($mockSettings));
 
-        $this->assertTrue($mock->doEnhancement($lead), 'Unexpected result');
-        $actual = $lead->getFieldValue('random');
-        $this->assertGreaterThan(0, $actual, 'Unexpected random value');
-        $this->assertLessThanOrEqual(100, $actual, 'Unexpected random value');
+        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result');
+    }
 
-        //random should not overwrite existing value
-        $this->assertFalse($mock->doEnhancement($lead), 'Unexpected result');
-        $this->assertEquals($actual, $lead->getFieldValue('random'));
+    public function testDoEnhancementExisting()
+    {
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['getFieldValue'])
+            ->getMock();
+
+        $leadObserver->expects($this->once())
+            ->method('getFieldValue')
+            ->willReturn(49);
+
+        $mockIntegration = $this->getMockBuilder(RandomIntegration::class)
+            ->setMethodsExcept(['doEnhancement'])
+            ->getMock();
+
+        $mockSettings = $this->getMockBuilder(Integration::class)
+            ->setMethods(['getFeatureSettings'])
+            ->getMock();
+
+        $mockSettings->expects($this->any())
+            ->method('getFeatureSettings')
+            ->willReturn(['random_field_name' => 'random']);
+
+        $mockIntegration->expects($this->any())
+            ->method('getIntegrationSettings')
+            ->will($this->returnValue($mockSettings));
+
+        $this->assertFalse($mockIntegration->doEnhancement($leadObserver), 'Unexpected result');
     }
 }

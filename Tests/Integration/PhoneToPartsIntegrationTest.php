@@ -14,33 +14,53 @@ use PHPUnit\Framework\TestCase;
 
 class PhoneToPartsIntegrationTest extends TestCase
 {
-    public function testDoEnhancement()
+    public function testDoEnhancementWithPhone()
     {
-        $lead = new Lead();
-        $lead->setPhone('9876543210');
-        $mock   = $this->createMock(PhoneToPartsIntegration::class);
-        $fields = [
-            'ptp_area_code'   => '987',
-            'ptp_prefix'      => '654',
-            'ptp_line_number' => '3210',
-        ];
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['getPhone', 'addUpdatedField'])
+            ->getMock();
 
-        $this->assertTrue($mock->doEnhancement($lead));
-        foreach ($fields as $field => $expected) {
-            $this->assertEquals($expected, $lead->getFieldValue($field), 'Unexpected phone part');
-        }
+        $leadObserver->expects($this->once())
+            ->method('getPhone')
+            ->willReturn('9876543210');
 
-        $lead->setPhone(null);
-        $lead->setMobile(('1234567890'));
-        $fields = [
-            'ptp_area_code'   => '987',
-            'ptp_prefix'      => '654',
-            'ptp_line_number' => '3210',
-        ];
+        $leadObserver->expects($this->exactly(3))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                ['ptp_area_code', '987', null],
+                ['ptp_prefix', '654', null],
+                ['ptp_line_number', '3210', null]
+            );
 
-        $this->assertTrue($mock->doEnhancement($lead));
-        foreach ($fields as $field => $expected) {
-            $this->assertEquals($expected, $lead->getFieldValue($field), 'Unexpected phone part');
-        }
+        $mockIntegration = $this->getMockBuilder(PhoneToPartsIntegration::class)
+            ->setMethodsExcept(['doEnhancement'])
+            ->getMock();
+
+        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Failed to split phone');
+    }
+
+    public function testDoEnhancementWithMobile()
+    {
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['getMobile', 'addUpdatedField'])
+            ->getMock();
+
+        $leadObserver->expects($this->once())
+            ->method('getMobile')
+            ->willReturn('1234567890');
+
+        $leadObserver->expects($this->exactly(3))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                ['ptp_area_code', '123', null],
+                ['ptp_prefix', '456', null],
+                ['ptp_line_number', '7890', null]
+            );
+
+        $mockIntegration   = $this->getMockBuilder(PhoneToPartsIntegration::class)
+            ->setMethodsExcept(['doEnhancement'])
+            ->getMock();
+
+        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Failed to split mobile number');
     }
 }

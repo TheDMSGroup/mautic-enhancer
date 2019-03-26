@@ -91,7 +91,7 @@ class AgeFromBirthdareIntegrationTest extends TestCase
 
     public function testDoEnhancementWithout()
     {
-        $leadObserver = $this->createMock(Lead::class);
+        $leadObserver    = $this->createMock(Lead::class);
         $mockIntegration = $this->getMockBuilder(AgeFromBirthdateIntegration::class)
             ->setMethodsExcept(['doEnhancement', 'setLogger'])
             ->getMock();
