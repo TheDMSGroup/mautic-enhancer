@@ -17,9 +17,18 @@ class UrlStripperIntegrationTest extends TestCase
 {
     public function testDoEnhancement()
     {
-        $settings = new Integration();
-        $settings->setFeatureSettings(['original_consent_url' => 'consent_url_dirty']);
-        $lead                    = new Lead();
+        $mockSettings = $this->getMockBuilder(Integration::class)
+            ->setMethods(['getFeatureSettings'])
+            ->getMock();
+
+        $mockSettings->expects($this->any())
+            ->method('getFeatureSettings')
+            ->willReturn(['original_consent_url' => 'consent_url_dirty']);
+
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods([])
+            ->getMock();
+
         $expectedUrl             = 'https://www.example.com';
         $dirtyUrl                = $expectedUrl.'?querystring=';
         $lead->consent_url_dirty = $dirtyUrl;
