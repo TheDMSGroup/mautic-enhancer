@@ -12,4 +12,16 @@ use PHPUnit\Framework\TestCase;
 
 class XverifyIntegrationTest extends TestCase
 {
+    public function testDoEnhancement()
+    {
+        $leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['addUpdatedField', 'getFieldValue'])
+            ->getMock();
+
+        $mockIntegration = $this->getMockBuilder(CityStateFromPostalCodeIntegration::class)
+            ->setMethods([])
+            ->getMock();
+
+        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
+    }
 }
