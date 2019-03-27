@@ -13,7 +13,7 @@ use MauticPlugin\MauticEnhancerBundle\Integration\AgeFromBirthdateIntegration;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
-class AgeFromBirthdareIntegrationTest extends TestCase
+class AgeFromBirthdateIntegrationTest extends TestCase
 {
     public function testDoEnhancementWithDOB()
     {
