@@ -12,4 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 class CorrectAddressIntegrationTest extends TestCase
 {
+    public function testDoEnhancement()
+    {
+        $this->markTestSkipped('Unable to mock a command execution');
+    }
 }

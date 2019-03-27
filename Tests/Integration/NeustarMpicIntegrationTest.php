@@ -8,6 +8,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Integration\NeustarMpicIntegration;
 use PHPUnit\Framework\TestCase;
 
 class NeustarMpicIntegrationTest extends TestCase
@@ -18,7 +20,7 @@ class NeustarMpicIntegrationTest extends TestCase
             ->setMethods(['addUpdatedField', 'getFieldValue'])
             ->getMock();
 
-        $mockIntegration = $this->getMockBuilder(CityStateFromPostalCodeIntegration::class)
+        $mockIntegration = $this->getMockBuilder(NeustarMpicIntegration::class)
             ->setMethods([])
             ->getMock();
 

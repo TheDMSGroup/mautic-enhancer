@@ -8,6 +8,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
 use PHPUnit\Framework\TestCase;
 
 class TrustedFormIntegrationTest extends TestCase
@@ -18,7 +20,7 @@ class TrustedFormIntegrationTest extends TestCase
             ->setMethods(['addUpdatedField', 'getFieldValue'])
             ->getMock();
 
-        $mockIntegration = $this->getMockBuilder(CityStateFromPostalCodeIntegration::class)
+        $mockIntegration = $this->getMockBuilder(TrustedFormIntegration::class)
             ->setMethods([])
             ->getMock();
 

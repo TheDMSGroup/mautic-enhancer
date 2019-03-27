@@ -8,6 +8,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Integration\GenderFromNameIntegration;
 use PHPUnit\Framework\TestCase;
 
 class GenderFromNameIntegrationTest extends TestCase
@@ -18,7 +20,7 @@ class GenderFromNameIntegrationTest extends TestCase
             ->setMethods(['addUpdatedField', 'getFieldValue'])
             ->getMock();
 
-        $mockIntegration = $this->getMockBuilder(CityStateFromPostalCodeIntegration::class)
+        $mockIntegration = $this->getMockBuilder(GenderFromNameIntegration::class)
             ->setMethods([])
             ->getMock();
 

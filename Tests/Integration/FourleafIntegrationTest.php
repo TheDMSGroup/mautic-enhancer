@@ -8,6 +8,8 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Mautic\LeadBundle\Entity\Lead;
+use MauticPlugin\MauticEnhancerBundle\Integration\FourleafIntegration;
 use PHPUnit\Framework\TestCase;
 
 class FourleafIntegrationTest extends TestCase
@@ -18,7 +20,7 @@ class FourleafIntegrationTest extends TestCase
             ->setMethods(['addUpdatedField', 'getFieldValue'])
             ->getMock();
 
-        $mockIntegration = $this->getMockBuilder(CityStateFromPostalCodeIntegration::class)
+        $mockIntegration = $this->getMockBuilder(FourleafIntegration::class)
             ->setMethods([])
             ->getMock();
 
