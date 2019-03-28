@@ -177,7 +177,7 @@ class CityStateFromPostalCodeIntegrationTest extends TestCase
 
         $mockEntityMgr = $this->createMock(EntityManager::class);
         $mockIntegration->setEntityManager($mockEntityMgr);
-        
+
         $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
     }
 }

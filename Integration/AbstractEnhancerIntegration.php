@@ -27,7 +27,7 @@ use Symfony\Component\Form\Extension\Core\DataTransformer\NumberToLocalizedStrin
 /**
  * Class AbstractEnhancerIntegration.
  *
- * @method string getAuthorizationType()+
+ * @method string getAuthenticationType()
  * @method string getName()
  */
 abstract class AbstractEnhancerIntegration extends AbstractIntegration
