@@ -3,25 +3,26 @@
  * Created by PhpStorm.
  * User: nbush
  * Date: 3/21/19
- * Time: 8:09 AM.
+ * Time: 8:08 AM.
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
-use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
+use MauticPlugin\MauticEnhancerBundle\Integration\AbstractNeustarIntegration;
 use PHPUnit\Framework\TestCase;
 
-class TrustedFormIntegrationTest extends TestCase
+class AbstractNeustarIntegrationTest extends TestCase
 {
     public function testDoEnhancement()
     {
         $this->markTestSkipped('WIP');
+
         $leadObserver = $this->getMockBuilder(Lead::class)
             ->setMethods(['addUpdatedField', 'getFieldValue'])
             ->getMock();
 
-        $mockIntegration = $this->getMockBuilder(TrustedFormIntegration::class)
+        $mockIntegration = $this->getMockBuilder(AbstractNeustarIntegration::class)
             ->setMethods([])
             ->getMock();
 
