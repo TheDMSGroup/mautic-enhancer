@@ -8,6 +8,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
+use Doctrine\ORM\EntityManager;
 use Mautic\LeadBundle\Entity\Lead;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCode;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerCityStatePostalCodeRepository;
@@ -101,6 +102,9 @@ class CityStateFromPostalCodeIntegrationTest extends TestCase
         $mockLogger = $this->createMock(Logger::class);
         $mockIntegration->setLogger($mockLogger);
 
+        $mockEntityMgr = $this->createMock(EntityManager::class);
+        $mockIntegration->setEntityManager($mockEntityMgr);
+
         $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
     }
 
@@ -171,6 +175,9 @@ class CityStateFromPostalCodeIntegrationTest extends TestCase
         $mockLogger = $this->createMock(Logger::class);
         $mockIntegration->setLogger($mockLogger);
 
+        $mockEntityMgr = $this->createMock(EntityManager::class);
+        $mockIntegration->setEntityManager($mockEntityMgr);
+        
         $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
     }
 }
