@@ -232,6 +232,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
                 }
             }
         }
+        $this->em->clear('PluginEnhancerCityStatePostalCode');
 
         return $persist;
     }
