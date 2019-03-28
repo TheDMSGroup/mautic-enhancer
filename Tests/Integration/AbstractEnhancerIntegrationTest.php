@@ -95,7 +95,8 @@ class AbstractEnhancerIntegrationTest extends TestCase
         $mockDispatcher = $this->createMock(EventDispatcher::class);
         $mockIntegration->setDispatcher($mockDispatcher);
 
-        $this->assertTrue($mockIntegration->pushLead($leadObserver), 'Unexpected push result');
+        $config = ['campaignId' => 1];
+        $this->assertTrue($mockIntegration->pushLead($leadObserver, $config), 'Unexpected push result');
     }
 
     public function testGetCostPerEnhancement()
