@@ -86,7 +86,7 @@ class AbstractEnhancerIntegrationTest extends TestCase
             ->method('saveLead')
             ->will($this->returnValue(null));
 
-        $mockLogger = $this->createmock(Logger::class);
+        $mockLogger = $this->createMock(Logger::class);
         $mockIntegration->setLogger($mockLogger);
 
         $mockEntityMgr = $this->createMock(EntityManager::class);
