@@ -14,11 +14,16 @@ use Mautic\LeadBundle\Entity\UtmTag;
 
 class TrustedFormIntegration extends AbstractEnhancerIntegration
 {
-    use NonFreeEnhancerTrait;
+    /* @var \MauticPlugin\MauticEnhancerBundle\Integration\NonFreeEnhancerTrait */
+    use NonFreeEnhancerTrait {
+        appendToForm as appendNonFreeFields;
+    }
 
-    const CERT_URL_FIELD = 'xx_trusted_form_cert_url';
-
+    /** @var string */
     const CERT_REAL_HOST = 'cert.trustedform.com';
+
+    /** @var string */
+    const CERT_URL_FIELD = 'xx_trusted_form_cert_url';
 
     /**
      * @return string
@@ -37,42 +42,16 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @returns array[]
-     */
-    protected function getEnhancerFieldArray()
-    {
-        return [
-            self::CERT_URL_FIELD => [
-                'type'  => 'url',
-                'label' => 'Trusted Form Cert',
-            ],
-            'created_at' => [
-                'type'  => 'datetime',
-                'label' => 'Created At',
-            ],
-            'expires_at' => [
-                'type'  => 'datetime',
-                'label' => 'Expires At',
-            ],
-            'share_url' => [
-                'type'  => 'url',
-                'label' => 'Shareable Cert',
-            ],
-        ];
-    }
-
-    /**
      * @param Lead $lead
      *
      * @return bool
      */
     public function doEnhancement(Lead $lead)
     {
-        if ($lead->getFieldValue(self::CERT_URL_FIELD) && !$lead->getFieldValue('share_url')) {
+        $persist = false;
+        if ($lead->getFieldValue(self::CERT_URL_FIELD) && !$lead->getFieldValue('trusted_form_created_at')) {
             $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
-
-            $parts = parse_url($trustedFormClaim);
-
+            $parts            = parse_url($trustedFormClaim);
             if ('https' !== $parts['scheme'] || self::CERT_REAL_HOST !== $parts['host']) {
                 $this->logger->warning('Not Processing Suspicious TrustedForm URL: '.$trustedFormClaim);
 
@@ -80,7 +59,6 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             }
 
             $parameters = $this->getFingers($lead);
-
             if ($lead->getId()) {
                 $parameters['reference'] = ''.$lead->getId();
             }
@@ -103,7 +81,9 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 'headers'           => ['Accept: application/json'],
                 'return_raw'        => true,
                 'curl_options'      => [
-                    CURLOPT_USERPWD => "$authKeys[username]:$authKeys[password]",
+                    CURLOPT_USERPWD        => "$authKeys[username]:$authKeys[password]",
+                    CURLOPT_CONNECTTIMEOUT => 1,
+                    CURLOPT_TIMEOUT        => 10,
                 ],
             ];
 
@@ -112,32 +92,71 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
                 $data     = json_decode($response->body);
                 switch ($response->code) {
+                    case 200:
                     case 201:
-                        $fieldsToSet = array_keys($this->getEnhancerFieldArray());
-                        foreach ($fieldsToSet as $field) {
-                            $lead->addUpdatedField($field, $data->$field);
+
+                        // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
+                        if (
+                            !empty($data->{self::CERT_URL_FIELD})
+                            && $data->{self::CERT_URL_FIELD} !== $lead->getFieldValue(self::CERT_URL_FIELD)
+                        ) {
+                            $lead->addUpdatedField(self::CERT_URL_FIELD, $data->{self::CERT_URL_FIELD});
+                            $persist = true;
                         }
 
-                        $prefix = 'TrustedForm['.$lead->getId().'] ';
-                        foreach ($data->warnings as $warning) {
-                            $this->logger->warning($prefix.$warning);
-                        }
-                        if (isset($data->message)) {
-                            $this->logger->info($prefix.$data->message);
+                        // Set new value for trusted_form_created_at from created_at
+                        if (
+                            !empty($data->created_at)
+                            && $data->created_at !== $lead->getFieldValue('trusted_form_created_at')
+                        ) {
+                            $lead->addUpdatedField('trusted_form_created_at', $data->created_at);
+                            $persist = true;
                         }
 
-                        return true;
+                        // Set new value for trusted_form_expires_at from expires_at
+                        if (
+                            !empty($data->expires_at)
+                            && $data->expires_at !== $lead->getFieldValue('trusted_form_expires_at')
+                        ) {
+                            $lead->addUpdatedField('trusted_form_expires_at', $data->expires_at);
+                            $persist = true;
+                        }
+
+                        // Set new value for trusted_form_share_url from share_url
+                        if (
+                            !empty($data->share_url)
+                            && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
+                        ) {
+                            $lead->addUpdatedField('trusted_form_share_url', $data->expires_at);
+                            $persist = true;
+                        }
+                        $message = 'Lead '.(!$persist ? 'NOT ' : '').'updated';
+
+                        if (!empty($data->warnings)) {
+                            foreach ($data->warnings as $warning) {
+                                $this->logger->error('TrustedForm error with contact '.$lead->getId().' '.$warning);
+                            }
+                        }
+                        if (!empty($data->message)) {
+                            $this->logger->info('TrustedForm message with contact '.$lead->getId().' '.$data->message);
+                        }
+                        break 2;
+
                     case 404:
                         $message = 'Invalid Certificate: '.$data->message;
                         break 2;
+
                     case 401:
                     case 403:
                         $message = 'Authentication Failure: '.$data->message;
                         break 2;
+
                     case 502:
                     case 503:
-                        usleep(100);
+                        // 100ms delay before retrying.
+                        usleep(100000);
                         break;
+
                     default:
                         $message = "Unrecognized response code: $response->code $data->message";
                         break 2;
@@ -146,18 +165,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             $this->logger->info($message);
         }
 
-        return false;
-    }
-
-    /**
-     * Get the type of authentication required for this API.  Values can be none, key, oauth2 or callback
-     * (will call $this->authenticationTypeCallback).
-     *
-     * @return string
-     */
-    public function getAuthenticationType()
-    {
-        return 'basic';
+        return $persist;
     }
 
     /**
@@ -184,5 +192,51 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
         }
 
         return $fingers;
+    }
+
+    /**
+     * Get the type of authentication required for this API.  Values can be none, key, oauth2 or callback
+     * (will call $this->authenticationTypeCallback).
+     *
+     * @return string
+     */
+    public function getAuthenticationType()
+    {
+        return 'basic';
+    }
+
+    /**
+     * @param \Symfony\Component\Form\FormBuilderInterface $builder
+     * @param array                                        $data
+     * @param string                                       $formArea
+     */
+    public function appendToForm(&$builder, $data, $formArea)
+    {
+        $this->appendNonFreeFields($builder, $data, $formArea, true);
+    }
+
+    /**
+     * @returns array[]
+     */
+    protected function getEnhancerFieldArray()
+    {
+        return [
+            self::CERT_URL_FIELD      => [
+                'type'  => 'url',
+                'label' => 'Trusted Form Cert',
+            ],
+            'trusted_form_created_at' => [
+                'type'  => 'datetime',
+                'label' => 'Trusted Form Cert Claimed',
+            ],
+            'trusted_form_expires_at' => [
+                'type'  => 'datetime',
+                'label' => 'Trusted Form Cert Expires',
+            ],
+            'trusted_form_share_url'  => [
+                'type'  => 'url',
+                'label' => 'Trusted Form Shareable Cert',
+            ],
+        ];
     }
 }
