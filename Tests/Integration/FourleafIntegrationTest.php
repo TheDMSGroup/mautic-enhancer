@@ -16,17 +16,7 @@ class FourleafIntegrationTest extends TestCase
 {
     public function testDoEnhancementNew()
     {
-        $this->markTestSkipped('Unable to test with cURL functions - refactoring required');
-
-        $leadObserver = $this->getMockBuilder(Lead::class)
-            ->setMethods(['addUpdatedField', 'getFieldValue', 'getEmail'])
-            ->getMock();
-
-        $mockIntegration = $this->getMockBuilder(FourleafIntegration::class)
-            ->setMethods([])
-            ->getMock();
-
-        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
+        $this->markTestSkipped('Unable to test cURL functions - refactoring required');
     }
 
     public function testDoEnhancementExisting()
