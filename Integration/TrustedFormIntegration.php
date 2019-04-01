@@ -136,7 +136,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                             !empty($data->share_url)
                             && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
                         ) {
-                            $lead->addUpdatedField('trusted_form_share_url', $data->expires_at);
+                            $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
                             $persist = true;
                         }
                         $message = 'Lead '.(!$persist ? 'NOT ' : '').'updated';
