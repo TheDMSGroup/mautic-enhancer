@@ -97,7 +97,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             ];
 
             $message = 'Number of request types exceeded';
-            for ($try = 0; $try < 5; ++$try) {
+            for ($try = 0; $try < 3; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
                 $data     = json_decode($response->body);
                 switch ($response->code) {
