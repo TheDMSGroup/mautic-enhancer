@@ -63,14 +63,23 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 $parameters['reference'] = ''.$lead->getId();
             }
 
-            /** @var ArrayCollection $utmData */
+            /** @var ArrayCollection|array $utmData */
             $utmData = $lead->getUtmTags();
-            if (!$utmData->isEmpty()) {
+            // Get the UTM Tags as an array of entities.
+            if ($utmData instanceof ArrayCollection) {
+                $utmData = $utmData->toArray();
+            }
+            if (is_array($utmData) && !empty($utmData)) {
+                // Get the last UTM Source.
+                $utmSources = [];
                 /** @var UtmTag $utmTag */
-                $utmTag = $utmData->last();
-                if ($utmTag->getUtmSource()) {
-                    $parameters['vendor'] = $utmTag->getUtmSource();
+                foreach ($utmData as $utmTag) {
+                    if (!empty(trim($utmTag->getUtmSource()))) {
+                        $utmSources[$utmTag->getDateAdded()->getTimestamp()] = $utmTag->getUtmSource();
+                    }
                 }
+                ksort($utmSources);
+                $parameters['vendor'] = array_pop($utmSources);
             }
 
             $authKeys = $this->getKeys();
