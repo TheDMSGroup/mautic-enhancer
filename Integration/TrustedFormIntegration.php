@@ -166,7 +166,8 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                         case 401:
                         case 403:
                             $this->logger->error(
-                                'TrustedForm: Authentication Failure: '.(!empty($data->message) ? $data->message : '');
+                                'TrustedForm: Authentication Failure: '.(!empty($data->message) ? $data->message : '')
+                            );
                             break 2;
 
                         case 502:
