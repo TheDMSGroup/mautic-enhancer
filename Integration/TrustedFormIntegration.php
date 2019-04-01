@@ -63,14 +63,23 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 $parameters['reference'] = ''.$lead->getId();
             }
 
-            /** @var ArrayCollection $utmData */
+            /** @var ArrayCollection|array $utmData */
             $utmData = $lead->getUtmTags();
-            if (!$utmData->isEmpty()) {
+            // Get the UTM Tags as an array of entities.
+            if ($utmData instanceof ArrayCollection) {
+                $utmData = $utmData->toArray();
+            }
+            if (is_array($utmData) && !empty($utmData)) {
+                // Get the last UTM Source.
+                $utmSources = [];
                 /** @var UtmTag $utmTag */
-                $utmTag = $utmData->last();
-                if ($utmTag->getUtmSource()) {
-                    $parameters['vendor'] = $utmTag->getUtmSource();
+                foreach ($utmData as $utmTag) {
+                    if (!empty(trim($utmTag->getUtmSource()))) {
+                        $utmSources[$utmTag->getDateAdded()->getTimestamp()] = $utmTag->getUtmSource();
+                    }
                 }
+                ksort($utmSources);
+                $parameters['vendor'] = array_pop($utmSources);
             }
 
             $authKeys = $this->getKeys();
@@ -88,7 +97,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             ];
 
             $message = 'Number of request types exceeded';
-            for ($try = 0; $try < 5; ++$try) {
+            for ($try = 0; $try < 3; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
                 $data     = json_decode($response->body);
                 switch ($response->code) {
@@ -127,10 +136,10 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                             !empty($data->share_url)
                             && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
                         ) {
-                            $lead->addUpdatedField('trusted_form_share_url', $data->expires_at);
+                            $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
                             $persist = true;
                         }
-                        $message = 'Lead '.(!$persist ? 'NOT ' : '').'updated';
+                        $message = 'Lead '.$lead->getId().' '.(!$persist ? 'NOT ' : '').'updated';
 
                         if (!empty($data->warnings)) {
                             foreach ($data->warnings as $warning) {
