@@ -9,22 +9,170 @@
 namespace MauticPlugin\MauticEnhancerBundle\Tests\Integration;
 
 use Mautic\LeadBundle\Entity\Lead;
+use Mautic\LeadBundle\Entity\UtmTag;
 use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
+use Monolog\Logger;
+use PHPUnit\Framework\MockObject\Stub\ReturnStub;
 use PHPUnit\Framework\TestCase;
 
 class TrustedFormIntegrationTest extends TestCase
 {
-    public function testDoEnhancement()
+    /** @var ReturnStub */
+    private $leadObserver;
+
+    /** @var ReturnStub */
+    private $mockIntegration;
+
+    protected function setUp()
+    {
+        $this->leadObserver = $this->getMockBuilder(Lead::class)
+            ->setMethods(['addUpdatedField', 'getFieldValue', 'getId', 'getUtmTags'])
+            ->getMock();
+
+        $this->leadObserver->expects($this->any())
+            ->method('getId')
+            ->willReturn(1);
+
+        $mockUtmTag = $this->getMockBuilder(UtmTag::class)
+            ->setMethods(['getUtmSource', 'getDateAdded'])
+            ->getMock();
+
+        $mockUtmTag->expects($this->any())
+            ->method('getUtmSource')
+            ->willReturn('a_source_tag');
+
+        $mockUtmTag->expects($this->any())
+            ->method('getDateAdded')
+            ->willReturn(new \DateTime());
+
+        $this->leadObserver->expects($this->any())
+            ->method('getUtmTags')
+            ->willReturn([$mockUtmTag]);
+
+        $this->mockIntegration = $this->getMockBuilder(TrustedFormIntegration::class)
+            ->setMethods(['getFingers', 'getKeys', 'makeRequest'])
+            ->getMock();
+
+        $this->mockIntegration->expects($this->any())
+            ->method('getFingers')
+            ->willReturn([]);
+
+        $this->mockIntegration->expects($this->any())
+            ->method('getKeys')
+            ->willReturn(['username' => 'username', 'password' => 'password']);
+
+        $mockLogger = $this->createMock(Logger::class);
+        $this->mockIntegration->setLogger($mockLogger);
+    }
+
+    public function testDoEnhancement20XResponse()
+    {
+        $created_at = '2019-04-01 00:00:00';
+        $expires_at = '2024-04-01 00:00:00';
+        $this->leadObserver->expects($this->any())
+            ->method('getFieldValue')
+            ->willReturnMap([
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['trusted_form_created_at', null, null],
+            ]);
+
+        $this->leadObserver->expects($this->exactly(3))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                ['trusted_form_created_at', $created_at, null],
+                ['trusted_form_expires_at', $expires_at, null],
+                ['trusted_form_share_url', 'https://share.trustedform.com', null]
+            );
+
+        $this->mockIntegration->expects($this->once())
+            ->method('getFingers')
+            ->willReturn(['email' => 'dummy@example.com', 'phone' => '9876543210']);
+
+        $response       = new \stdClass();
+        $response->code = 200;
+        $response->body = '{"created_at":"'.$created_at.'","xx_trusted_form_cert_url":"https://cert.trustedform.com","expires_at":"'.$expires_at.'","share_url":"https://share.trustedform.com"}';
+        $this->mockIntegration->expects($this->any())
+            ->method('makeRequest')
+            ->willReturn($response);
+
+        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+    }
+
+    public function testDoEnhancement404Response()
     {
         $this->markTestSkipped('WIP');
-        $leadObserver = $this->getMockBuilder(Lead::class)
-            ->setMethods(['addUpdatedField', 'getFieldValue'])
-            ->getMock();
+        $this->leadObserver->expects($this->any())
+            ->method('getFieldValue')
+            ->willReturnMap([
+                [],
+                [],
+            ]);
 
-        $mockIntegration = $this->getMockBuilder(TrustedFormIntegration::class)
-            ->setMethods([])
-            ->getMock();
+        $this->leadObserver->expects($this->exactly(4))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                [],
+                [],
+                [],
+                []
+            );
 
-        $this->assertTrue($mockIntegration->doEnhancement($leadObserver), 'Unexpected result.');
+        $this->mockIntegration->expects($this->any())
+            ->method('makeRequest')
+            ->willReturn();
+
+        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+    }
+
+    public function testDoEnhancement40XResponse()
+    {
+        $this->markTestSkipped('WIP');
+        $this->leadObserver->expects($this->any())
+            ->method('getFieldValue')
+            ->willReturnMap([
+                [],
+                [],
+            ]);
+
+        $this->leadObserver->expects($this->exactly(4))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                [],
+                [],
+                [],
+                []
+            );
+
+        $this->mockIntegration->expects($this->any())
+            ->method('makeRequest')
+            ->willReturn();
+
+        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+    }
+
+    public function testDoEnhancement50XResponse()
+    {
+        $this->markTestSkipped('WIP');
+        $this->leadObserver->expects($this->any())
+            ->method('getFieldValue')
+            ->willReturnMap([
+                [],
+                [],
+            ]);
+
+        $this->leadObserver->expects($this->exactly(4))
+            ->method('addUpdatedField')
+            ->withConsecutive(
+                [],
+                [],
+                [],
+                []
+            );
+
+        $this->mockIntegration->expects($this->any())
+            ->method('makeRequest')
+            ->willReturn();
+
+        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
     }
 }
