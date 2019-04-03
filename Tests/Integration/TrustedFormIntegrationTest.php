@@ -110,7 +110,8 @@ class TrustedFormIntegrationTest extends TestCase
 
         $response       = new \stdClass();
         $response->code = 404;
-        $this->mockIntegration->expects($this->any())
+        $response->body = '{"message":"Contact not found"}';
+        $this->mockIntegration->expects($this->once())
             ->method('makeRequest')
             ->willReturn($response);
 
@@ -119,53 +120,39 @@ class TrustedFormIntegrationTest extends TestCase
 
     public function testDoEnhancement40XResponse()
     {
-        $this->markTestSkipped('WIP');
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                [],
-                [],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['trusted_form_created_at', null, null],
             ]);
 
-        $this->leadObserver->expects($this->exactly(4))
-            ->method('addUpdatedField')
-            ->withConsecutive(
-                [],
-                [],
-                [],
-                []
-            );
-
-        $this->mockIntegration->expects($this->any())
+        $response       = new \stdClass();
+        $response->code = 401;
+        $response->body = '{"message":"Failed to authenticate"}';
+        $this->mockIntegration->expects($this->once())
             ->method('makeRequest')
-            ->willReturn();
+            ->willReturn($response);
 
-        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+        $this->assertFalse($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
     }
 
     public function testDoEnhancement50XResponse()
     {
-        $this->markTestSkipped('WIP');
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                [],
-                [],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['trusted_form_created_at', null, null],
             ]);
 
-        $this->leadObserver->expects($this->exactly(4))
-            ->method('addUpdatedField')
-            ->withConsecutive(
-                [],
-                [],
-                [],
-                []
-            );
-
-        $this->mockIntegration->expects($this->any())
+        $response       = new \stdClass();
+        $response->code = 503;
+        $response->body = '{"message":"Please try again"}';
+        $this->mockIntegration->expects($this->exactly(3))
             ->method('makeRequest')
-            ->willReturn();
+            ->willReturn($response);
 
-        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+        $this->assertFalse($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
     }
 }
