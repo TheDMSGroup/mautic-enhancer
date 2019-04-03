@@ -132,7 +132,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
         if (!empty($lead)) {
             $settings            = $this->getIntegrationSettings()->getFeatureSettings();
             $contactFieldMapping = $settings['leadFields'];
-            $keys                = $this->getDecryptedApiKeys();
+            $keys                = $this->getKeys();
 
             $params = [
                 'apikey' => $keys['apikey'],
@@ -181,7 +181,7 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                                     $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
                                         $lead->addUpdatedField($fieldToUpdate, $status, null);
-                                        $persist = true;
+                                        //$persist = true;
                                         $this->logger->addDebug(
                                             'XVERIFY: verification values to update: '.$fieldToUpdate.' => '.$status
                                         );
