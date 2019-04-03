@@ -36,7 +36,7 @@ class XverifyIntegrationTest extends TestCase
                 ['companyphone', null, null],
                 ['email_valid', null, null],
                 ['homephone_valid', null, null],
-                ['cellphone_valid', null, null]
+                ['cellphone_valid', null, null],
             ]);
 
         $leadObserver->expects($this->exactly(3))
@@ -56,10 +56,10 @@ class XverifyIntegrationTest extends TestCase
             ->getMock();
 
         $featureSettings = [
-            'leadFields' => ['email' => 'email', 'cellphone' => 'mobile', 'homephone' => 'phone', 'workphone' => 'companyphone'],
-            'update_mautic' => ['email' => 1, 'phone' => 1, 'companyphone' => 1, 'mobile' => 1],
+            'leadFields'           => ['email' => 'email', 'cellphone' => 'mobile', 'homephone' => 'phone', 'workphone' => 'companyphone'],
+            'update_mautic'        => ['email' => 1, 'phone' => 1, 'companyphone' => 1, 'mobile' => 1],
             'cost_per_enhancement' => 0,
-            'installed' => ['email_valid', 'workphone_valid', 'cellphone_valid', 'homephone_valid']
+            'installed'            => ['email_valid', 'workphone_valid', 'cellphone_valid', 'homephone_valid'],
         ];
         $mockSettings->expects($this->any())
             ->method('getFeatureSettings')
@@ -74,7 +74,7 @@ class XverifyIntegrationTest extends TestCase
             ->method('getKeys')
             ->willReturn($keys);
 
-        $params = $keys;
+        $params         = $keys;
         $params['type'] = 'json';
         $mockIntegration->expects($this->any())
             ->method('makeCall')
@@ -89,7 +89,7 @@ class XverifyIntegrationTest extends TestCase
             ->willReturnMap([
                 ['{"email":{"status":"valid"}}', 'email', 1],
                 ['{"phone":{"status":"valid"}}', 'phone', 1],
-                ['{"phone":{"status":"invalid"}}', 'phone', 0]
+                ['{"phone":{"status":"invalid"}}', 'phone', 0],
             ]);
 
         $mockIntegration->expects($this->any())
