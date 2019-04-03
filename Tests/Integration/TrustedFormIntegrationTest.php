@@ -69,6 +69,7 @@ class TrustedFormIntegrationTest extends TestCase
     {
         $created_at = '2019-04-01 00:00:00';
         $expires_at = '2024-04-01 00:00:00';
+
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
@@ -100,28 +101,20 @@ class TrustedFormIntegrationTest extends TestCase
 
     public function testDoEnhancement404Response()
     {
-        $this->markTestSkipped('WIP');
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                [],
-                [],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['trusted_form_created_at', null, null],
             ]);
 
-        $this->leadObserver->expects($this->exactly(4))
-            ->method('addUpdatedField')
-            ->withConsecutive(
-                [],
-                [],
-                [],
-                []
-            );
-
+        $response       = new \stdClass();
+        $response->code = 404;
         $this->mockIntegration->expects($this->any())
             ->method('makeRequest')
-            ->willReturn();
+            ->willReturn($response);
 
-        $this->assertTrue($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
+        $this->assertFalse($this->mockIntegration->doEnhancement($this->leadObserver), 'Unexpected result.');
     }
 
     public function testDoEnhancement40XResponse()
