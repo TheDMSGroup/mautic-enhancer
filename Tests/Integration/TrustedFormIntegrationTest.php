@@ -12,15 +12,12 @@ use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\UtmTag;
 use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
 use Monolog\Logger;
-use PHPUnit\Framework\MockObject\Stub\ReturnStub;
 use PHPUnit\Framework\TestCase;
 
 class TrustedFormIntegrationTest extends TestCase
 {
-    /** @var ReturnStub */
     private $leadObserver;
 
-    /** @var ReturnStub */
     private $mockIntegration;
 
     protected function setUp()
