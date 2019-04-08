@@ -181,7 +181,6 @@ class XverifyIntegration extends AbstractEnhancerIntegration
                                     $status  = $this->getResponseStatus($response, $fieldKey);
                                     if (!is_null($status)) {
                                         $lead->addUpdatedField($fieldToUpdate, $status, null);
-                                        //$persist = true;
                                         $this->logger->addDebug(
                                             'XVERIFY: verification values to update: '.$fieldToUpdate.' => '.$status
                                         );
