@@ -197,15 +197,19 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
      */
     public function doEnhancement(Lead $lead)
     {
-        $result       = false;
-        $leadAddress1 = $lead->getAddress1();
-        $leadAddress2 = $lead->getAddress2();
-        $leadZipCode  = $lead->getZipcode();
-        $combined     = trim($leadAddress1).'|'.trim($leadAddress2).'|'.trim($leadZipCode);
+        $result        = false;
+        $leadAddress1  = $lead->getAddress1();
+        $leadAddress2  = $lead->getAddress2();
+        $leadZipCode   = $lead->getZipcode();
+        $combined      = trim($leadAddress1).'|'.trim($leadAddress2).'|'.trim($leadZipCode);
+        $leadCorrected = $lead->getFieldValue('address_valid');
+
         if (strlen($combined) < 6) {
             $this->getLogger()->debug(
                 'Correct Address: Not enough address data to enhance contact '.$lead->getId()
             );
+            // ENG-871 always update the field, even with false
+            $lead->addUpdatedField('address_valid', $result, $leadCorrected);
 
             return $result;
         }
@@ -216,20 +220,9 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             return $result;
         }
 
-        $leadCorrected = $lead->getFieldValue('address_valid');
-        if (true === $leadCorrected) {
-            $this->getLogger()->debug('Correct Address: Already validated contact '.$lead->getId());
-
-            return $result;
-        }
-
-        if (
-            $leadAddress1 == strtoupper($leadAddress1)
-            && $leadAddress2 == strtoupper($leadAddress2)
-            && strlen($leadAddress1) > 2
-            && ' ' == substr($leadAddress1, -1)
-        ) {
-            $this->getLogger()->debug('Correct Address: Likely already processed contact '.$lead->getId());
+        // ENG-871 only try if we havent already
+        if (!is_null($leadCorrected)) {
+            $this->getLogger()->debug('Correct Address: Already processed or validated contact '.$lead->getId());
 
             return $result;
         }
@@ -249,6 +242,8 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
         if (!$corrected) {
             // Complete failure to parse address.
             $this->getLogger()->debug('Correct Address: Failure to parse address on contact '.$lead->getId());
+            // ENG-871 always update the field, even with false
+            $lead->addUpdatedField('address_valid', $result, $leadCorrected);
 
             return $result;
         }
@@ -304,12 +299,11 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
                 );
                 $result = true;
             }
-            if ($result) {
-                $lead->addUpdatedField('address_valid', true, $leadCorrected);
-            }
         } else {
             $this->getLogger()->debug('Correct Address: Could not discern accurate address, returned code '.$code);
         }
+        // ENG-871 always update the field, even with false
+        $lead->addUpdatedField('address_valid', true, $leadCorrected);
 
         return $result;
     }
