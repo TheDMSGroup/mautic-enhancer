@@ -172,7 +172,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
                         case 502:
                         case 503:
-                            $this->logger->error('TrustedForm: Exceeded rate limit (try '.($try+1).'/3).');
+                            $this->logger->error('TrustedForm: Exceeded rate limit (try '.($try + 1).'/3).');
                             // 100ms delay before retrying.
                             usleep(100000);
                             break;
