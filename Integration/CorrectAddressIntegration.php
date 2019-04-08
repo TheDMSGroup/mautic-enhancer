@@ -303,7 +303,7 @@ class CorrectAddressIntegration extends AbstractEnhancerIntegration
             $this->getLogger()->debug('Correct Address: Could not discern accurate address, returned code '.$code);
         }
         // ENG-871 always update the field, even with false
-        $lead->addUpdatedField('address_valid', true, $leadCorrected);
+        $lead->addUpdatedField('address_valid', $result, $leadCorrected);
 
         return $result;
     }
