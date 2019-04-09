@@ -222,8 +222,8 @@ class AlcazarIntegration extends AbstractEnhancerIntegration
                 'tn'  => $phone,
             ];
 
-            $settings = $this->getIntegrationSettings()->getFeatureSettings();
-            foreach ($settings as $param => $value) {
+            $features = $this->getIntegrationSettings()->getFeatureSettings();
+            foreach ($features as $param => $value) {
                 if ('ani' === $param) {
                     //the value of ani should be a phone number
                     //but this service is currently unused
