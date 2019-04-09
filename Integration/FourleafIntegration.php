@@ -104,7 +104,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                 return false;
             }
 
-            $keys = $this->getDecryptedApiKeys();
+            $keys = $this->getKeys();
 
             // @todo - Update to use Guzzle.
             $options = [
