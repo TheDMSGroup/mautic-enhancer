@@ -61,6 +61,9 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             $parameters = $this->getFingers($lead);
             if ($lead->getId()) {
                 $parameters['reference'] = ''.$lead->getId();
+                $identifier              = $lead->getId();
+            } else {
+                $identifier = $lead->getEmail();
             }
 
             /** @var ArrayCollection|array $utmData */
@@ -96,82 +99,92 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 ],
             ];
 
-            $message = 'Number of request types exceeded';
             for ($try = 0; $try < 3; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
-                $data     = json_decode($response->body);
-                switch ($response->code) {
-                    case 200:
-                    case 201:
+                if (!$response || !isset($response->body)) {
+                    $this->logger->error(
+                        'TrustedForm: Failed to respond with lead '.$identifier.'. Body: '.(!empty($response->body) ? $response->body : 'null')
+                    );
+                } else {
+                    $data = json_decode($response->body);
+                    switch ($response->code) {
+                        case 200:
+                        case 201:
 
-                        // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
-                        if (
-                            !empty($data->{self::CERT_URL_FIELD})
-                            && $data->{self::CERT_URL_FIELD} !== $lead->getFieldValue(self::CERT_URL_FIELD)
-                        ) {
-                            $lead->addUpdatedField(self::CERT_URL_FIELD, $data->{self::CERT_URL_FIELD});
-                            $persist = true;
-                        }
-
-                        // Set new value for trusted_form_created_at from created_at
-                        if (
-                            !empty($data->created_at)
-                            && $data->created_at !== $lead->getFieldValue('trusted_form_created_at')
-                        ) {
-                            $lead->addUpdatedField('trusted_form_created_at', $data->created_at);
-                            $persist = true;
-                        }
-
-                        // Set new value for trusted_form_expires_at from expires_at
-                        if (
-                            !empty($data->expires_at)
-                            && $data->expires_at !== $lead->getFieldValue('trusted_form_expires_at')
-                        ) {
-                            $lead->addUpdatedField('trusted_form_expires_at', $data->expires_at);
-                            $persist = true;
-                        }
-
-                        // Set new value for trusted_form_share_url from share_url
-                        if (
-                            !empty($data->share_url)
-                            && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
-                        ) {
-                            $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
-                            $persist = true;
-                        }
-                        $message = 'Lead '.$lead->getId().' '.(!$persist ? 'NOT ' : '').'updated';
-
-                        if (!empty($data->warnings)) {
-                            foreach ($data->warnings as $warning) {
-                                $this->logger->error('TrustedForm error with contact '.$lead->getId().' '.$warning);
+                            // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
+                            if (
+                                !empty($data->{self::CERT_URL_FIELD})
+                                && $data->{self::CERT_URL_FIELD} !== $lead->getFieldValue(self::CERT_URL_FIELD)
+                            ) {
+                                $lead->addUpdatedField(self::CERT_URL_FIELD, $data->{self::CERT_URL_FIELD});
+                                $persist = true;
                             }
-                        }
-                        if (!empty($data->message)) {
-                            $this->logger->info('TrustedForm message with contact '.$lead->getId().' '.$data->message);
-                        }
-                        break 2;
 
-                    case 404:
-                        $message = 'Invalid Certificate: '.$data->message;
-                        break 2;
+                            // Set new value for trusted_form_created_at from created_at
+                            if (
+                                !empty($data->created_at)
+                                && $data->created_at !== $lead->getFieldValue('trusted_form_created_at')
+                            ) {
+                                $lead->addUpdatedField('trusted_form_created_at', $data->created_at);
+                                $persist = true;
+                            }
 
-                    case 401:
-                    case 403:
-                        $message = 'Authentication Failure: '.$data->message;
-                        break 2;
+                            // Set new value for trusted_form_expires_at from expires_at
+                            if (
+                                !empty($data->expires_at)
+                                && $data->expires_at !== $lead->getFieldValue('trusted_form_expires_at')
+                            ) {
+                                $lead->addUpdatedField('trusted_form_expires_at', $data->expires_at);
+                                $persist = true;
+                            }
 
-                    case 502:
-                    case 503:
-                        // 100ms delay before retrying.
-                        usleep(100000);
-                        break;
+                            // Set new value for trusted_form_share_url from share_url
+                            if (
+                                !empty($data->share_url)
+                                && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
+                            ) {
+                                $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
+                                $persist = true;
+                            }
+                            $this->logger->info(
+                                'TrustedForm: Contact '.$identifier.' '.(!$persist ? 'NOT ' : '').'updated. '.(!empty($data->message) ? $data->message : '')
+                            );
 
-                    default:
-                        $message = "Unrecognized response code: $response->code $data->message";
-                        break 2;
+                            if (!empty($data->warnings)) {
+                                foreach ($data->warnings as $warning) {
+                                    $this->logger->error('TrustedForm warning with contact '.$identifier.' '.$warning);
+                                }
+                            }
+                            break 2;
+
+                        case 404:
+                            $this->logger->error(
+                                'TrustedForm: Invalid Certificate: '.(!empty($data->message) ? $data->message : '')
+                            );
+                            break 2;
+
+                        case 401:
+                        case 403:
+                            $this->logger->error(
+                                'TrustedForm: Authentication Failure: '.(!empty($data->message) ? $data->message : '')
+                            );
+                            break 2;
+
+                        case 502:
+                        case 503:
+                            $this->logger->error('TrustedForm: Exceeded rate limit (try '.($try + 1).'/3).');
+                            // 100ms delay before retrying.
+                            usleep(100000);
+                            break;
+
+                        default:
+                            $this->logger->error(
+                                'TrustedForm: Unrecognized response code: '.(!empty($data->code) ? $data->code : '').' '.(!empty($data->message) ? $data->message : '')
+                            );
+                            break 2;
+                    }
                 }
             }
-            $this->logger->info($message);
         }
 
         return $persist;
