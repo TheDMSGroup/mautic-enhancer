@@ -90,7 +90,6 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
                             $attributes['properties'] = [];
                         }
                 }
-                //$attributes['properties'] = \serialize($attributes['properties']);
 
                 $result = FormFieldHelper::validateProperties($attributes['type'], $attributes['properties']);
                 if (!$result[0]) {
