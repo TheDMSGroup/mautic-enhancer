@@ -52,6 +52,7 @@ class CityStateFromPostalCodeIntegration extends AbstractEnhancerIntegration
         'VT' => 'Vermont',          'VA' => 'Virginia',
         'WA' => 'Washington',       'WV' => 'West Virginia',
         'WI' => 'Wisconsin',        'WY' => 'Wyoming',
+        'DC' => 'District of Columbia',
         ];
 
     /**
