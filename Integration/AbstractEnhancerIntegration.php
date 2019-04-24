@@ -13,6 +13,7 @@ namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Joomla\Http\HttpFactory;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadField;
 use Mautic\LeadBundle\Event\LeadFieldEvent;
