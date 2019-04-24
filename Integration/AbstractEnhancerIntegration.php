@@ -12,13 +12,16 @@
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
 use Doctrine\ORM\OptimisticLockException;
+use Exception;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadField;
 use Mautic\LeadBundle\Event\LeadFieldEvent;
 use Mautic\LeadBundle\Helper\FormFieldHelper;
 use Mautic\LeadBundle\LeadEvents;
+use Mautic\PluginBundle\Event\PluginIntegrationRequestEvent;
 use Mautic\PluginBundle\Exception\ApiErrorException;
 use Mautic\PluginBundle\Integration\AbstractIntegration;
+use Mautic\PluginBundle\PluginEvents;
 use MauticPlugin\MauticEnhancerBundle\Event\ContactLedgerContextEvent;
 use MauticPlugin\MauticEnhancerBundle\Event\MauticEnhancerEvent;
 use MauticPlugin\MauticEnhancerBundle\MauticEnhancerEvents;
@@ -400,5 +403,194 @@ abstract class AbstractEnhancerIntegration extends AbstractIntegration
     public function getId()
     {
         return $this->getIntegrationSettings()->getId();
+    }
+
+    /**
+     * Make a basic call using cURL to get the data.
+     * TODO migrate to Guzzle instead.
+     *
+     * @param        $url
+     * @param array  $parameters
+     * @param string $method
+     * @param array  $settings
+     *
+     * @return mixed|string
+     */
+    public function makeRequest($url, $parameters = [], $method = 'GET', $settings = [])
+    {
+        // If not authorizing the session itself, check isAuthorized which will refresh tokens if applicable
+        if (empty($settings['authorize_session'])) {
+            $this->isAuthorized();
+        }
+
+        $method   = strtoupper($method);
+        $authType = (empty($settings['auth_type'])) ? $this->getAuthenticationType() : $settings['auth_type'];
+
+        list($parameters, $headers) = $this->prepareRequest($url, $parameters, $method, $settings, $authType);
+
+        if (empty($settings['ignore_event_dispatch'])) {
+            $event = $this->dispatcher->dispatch(
+                PluginEvents::PLUGIN_ON_INTEGRATION_REQUEST,
+                new PluginIntegrationRequestEvent($this, $url, $parameters, $headers, $method, $settings, $authType)
+            );
+
+            $headers    = $event->getHeaders();
+            $parameters = $event->getParameters();
+        }
+
+        if (!isset($settings['query'])) {
+            $settings['query'] = [];
+        }
+
+        if (isset($parameters['append_to_query'])) {
+            $settings['query'] = array_merge(
+                $settings['query'],
+                $parameters['append_to_query']
+            );
+
+            unset($parameters['append_to_query']);
+        }
+
+        if (isset($parameters['post_append_to_query'])) {
+            $postAppend = $parameters['post_append_to_query'];
+            unset($parameters['post_append_to_query']);
+        }
+
+        if (!$this->isConfigured()) {
+            return [
+                'error' => [
+                    'message' => $this->translator->trans(
+                        'mautic.integration.missingkeys'
+                    ),
+                ],
+            ];
+        }
+
+        if ('GET' == $method && !empty($parameters)) {
+            $parameters = array_merge($settings['query'], $parameters);
+            $query      = http_build_query($parameters);
+            $url .= (false === strpos($url, '?')) ? '?'.$query : '&'.$query;
+        } elseif (!empty($settings['query'])) {
+            $query = http_build_query($settings['query']);
+            $url .= (false === strpos($url, '?')) ? '?'.$query : '&'.$query;
+        }
+
+        if (isset($postAppend)) {
+            $url .= $postAppend;
+        }
+
+        // Check for custom content-type header
+        if (!empty($settings['content_type'])) {
+            $settings['encoding_headers_set'] = true;
+            $headers[]                        = "Content-Type: {$settings['content_type']}";
+        }
+
+        if ('GET' !== $method) {
+            if (!empty($parameters)) {
+                if ('oauth1a' == $authType) {
+                    $parameters = http_build_query($parameters);
+                }
+                if (!empty($settings['encode_parameters'])) {
+                    if ('json' == $settings['encode_parameters']) {
+                        //encode the arguments as JSON
+                        $parameters = json_encode($parameters);
+                        if (empty($settings['encoding_headers_set'])) {
+                            $headers[] = 'Content-Type: application/json';
+                        }
+                    }
+                }
+            } elseif (isset($settings['post_data'])) {
+                $parameters = $settings['post_data'];
+            }
+        }
+
+        $options = [
+            CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
+            CURLOPT_HEADER         => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FOLLOWLOCATION => 0,
+            CURLOPT_REFERER        => $this->getRefererUrl(),
+            CURLOPT_USERAGENT      => $this->getUserAgent(),
+        ];
+
+        if (isset($settings['curl_options']) && is_array($settings['curl_options'])) {
+            $options = $settings['curl_options'] + $options;
+        }
+
+        if (isset($settings['ssl_verifypeer'])) {
+            $options[CURLOPT_SSL_VERIFYPEER] = $settings['ssl_verifypeer'];
+        }
+
+        $connector = HttpFactory::getHttp(
+            [
+                'transport.curl' => $options,
+            ]
+        );
+
+        $parseHeaders = (isset($settings['headers'])) ? array_merge($headers, $settings['headers']) : $headers;
+        // HTTP library requires that headers are in key => value pairs
+        $headers = [];
+        if (is_array($parseHeaders)) {
+            foreach ($parseHeaders as $key => $value) {
+                if (false !== strpos($value, ':')) {
+                    list($key, $value) = explode(':', $value);
+                    $key               = trim($key);
+                    $value             = trim($value);
+                }
+
+                $headers[$key] = $value;
+            }
+        }
+
+        try {
+            $timeout = (isset($settings['request_timeout'])) ? (int) $settings['request_timeout'] : 10;
+            switch ($method) {
+                case 'GET':
+                    $result = $connector->get($url, $headers, $timeout);
+                    break;
+                case 'POST':
+                case 'PUT':
+                case 'PATCH':
+                    $connectorMethod = strtolower($method);
+                    $result          = $connector->$connectorMethod($url, $parameters, $headers, $timeout);
+                    break;
+                case 'DELETE':
+                    $result = $connector->delete($url, $headers, $timeout);
+                    break;
+            }
+        } catch (Exception $exception) {
+            $this->handleEnchancerException($this->settings->getName(), $exception);
+
+            return ['error' => ['message' => $exception->getMessage(), 'code' => $exception->getCode()]];
+        }
+        if (empty($settings['ignore_event_dispatch'])) {
+            $event->setResponse($result);
+            $this->dispatcher->dispatch(
+                PluginEvents::PLUGIN_ON_INTEGRATION_RESPONSE,
+                $event
+            );
+        }
+        if (!empty($settings['return_raw'])) {
+            return $result;
+        } else {
+            $response = $this->parseCallbackResponse($result->body, !empty($settings['authorize_session']));
+
+            return $response;
+        }
+    }
+
+    /**
+     * @param string    $className
+     * @param Exception $exception
+     */
+    public function handleEnchancerException($className, $exception)
+    {
+        if (function_exists('newrelic_notice_error')) {
+            call_user_func(
+                'newrelic_notice_error',
+                'Enhancer Connection Error: '.$className,
+                $exception
+            );
+        }
     }
 }

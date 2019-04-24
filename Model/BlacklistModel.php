@@ -70,6 +70,8 @@ class BlacklistModel extends AbstractCommonModel
                 $response   = $httpClient->request('GET', $uri, ['timeout' => 3, 'connect_timeout' => 2]);
                 $result     = json_decode($response->getBody()->getContents(), true);
             } catch (\Exception $e) {
+                $this->handleEnchancerException('Blacklist', $e);
+
                 $this->logger->error('Blacklist Enhancer: '.$e->getMessage());
 
                 return false;

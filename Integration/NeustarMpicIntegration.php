@@ -202,6 +202,7 @@ class NeustarMpicIntegration extends AbstractNeustarIntegration
                 }
             }
         } catch (\Exception $e) {
+            $this->handleEnchancerException('NeustarMpic', $e);
             $this->logger->error(sprintf('%s (%s): %s', __FILE__, __LINE__, $e->getMessage()));
 
             return false;
