@@ -65,17 +65,9 @@ class BlacklistModel extends AbstractCommonModel
             $uri = rtrim($this->endpoint, '/').
                 '/Lookup/key/'.trim($this->key).'/response/json/phone/'.
                 ltrim($phone, '+');
-            try {
-                $httpClient = new Client();
-                $response   = $httpClient->request('GET', $uri, ['timeout' => 3, 'connect_timeout' => 2]);
-                $result     = json_decode($response->getBody()->getContents(), true);
-            } catch (\Exception $e) {
-                $this->handleEnchancerException('Blacklist', $e);
-
-                $this->logger->error('Blacklist Enhancer: '.$e->getMessage());
-
-                return false;
-            }
+            $httpClient = new Client();
+            $response   = $httpClient->request('GET', $uri, ['timeout' => 3, 'connect_timeout' => 2]);
+            $result     = json_decode($response->getBody()->getContents(), true);
 
             if (null === $record) {
                 $record = new PluginEnhancerBlacklist();

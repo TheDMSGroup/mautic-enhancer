@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Exception;
 use Mautic\CoreBundle\Helper\PhoneNumberHelper;
 use Mautic\CoreBundle\Model\AbstractCommonModel;
 use Mautic\LeadBundle\Entity\Lead;
@@ -18,7 +19,7 @@ use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerBlacklist;
 use MauticPlugin\MauticEnhancerBundle\Model\BlacklistModel;
 
 /**
- * Class AlcazarIntegration.
+ * Class BlacklistIntegration.
  */
 class BlacklistIntegration extends AbstractEnhancerIntegration
 {
@@ -170,8 +171,13 @@ class BlacklistIntegration extends AbstractEnhancerIntegration
                 $settings   = $this->getIntegrationSettings()->getFeatureSettings();
                 $ageMinutes = isset($settings['age']) ? intval($settings['age']) : self::AGE_DEFAULT;
 
-                /** @var PluginEnhancerBlacklist $record */
-                $record = $this->getModel()->getRecord($phone, $ageMinutes);
+                try {
+                    /** @var PluginEnhancerBlacklist $record */
+                    $record = $this->getModel()->getRecord($phone, $ageMinutes);
+                } catch (Exception $exception) {
+                    $this->handleEnchancerException('Blacklist', $exception);
+                    $this->logger->error('Blacklist Enhancer: '.$exception->getMessage());
+                }
                 if ($record) {
                     $lead->addUpdatedField('blacklist_result', $record->getResult());
                     $lead->addUpdatedField('blacklist_code', $record->getCode());
