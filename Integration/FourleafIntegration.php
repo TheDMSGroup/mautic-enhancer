@@ -123,6 +123,7 @@ class FourleafIntegration extends AbstractEnhancerIntegration
                 $response = curl_exec($ch);
                 curl_close($ch);
             } catch (\Exception $e) {
+                $this->handleEnchancerException('FourLeaf', $e);
                 $this->logger->error($e->getMessage());
 
                 return false;
