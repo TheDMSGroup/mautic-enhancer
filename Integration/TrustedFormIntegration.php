@@ -191,9 +191,10 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
                         default:
                             $this->logger->error(
-                                'TrustedForm: Unrecognized response code: '.(!empty($data->code) ? $data->code : '').' '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Unrecognized response code '.(!empty($response->code) ? '('.$response->code.')' : '').' (try '.$try.'/'.$tryLimit.') with contact '.$identifier.': '.(!empty($response->body) ? $response->body : '')
                             );
                             break 2;
+                            break;
                     }
                 }
             }
