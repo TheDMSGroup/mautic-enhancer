@@ -69,7 +69,7 @@ class LeadSubscriber extends CommonSubscriber
                         $lead->getEmail(),
                         $lead->getPhone(),
                         $lead->getMobile(),
-                        $lead->getFieldValue('xx_trusted_form_cert_url')
+                        $lead->getFieldValue('xx_trusted_form_cert_url'),
                     ]
                 )
             );
