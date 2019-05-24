@@ -103,6 +103,8 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                     CURLOPT_USERPWD        => "$authKeys[username]:$authKeys[password]",
                     CURLOPT_CONNECTTIMEOUT => 5,
                     CURLOPT_TIMEOUT        => 20,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
                 ],
             ];
 
