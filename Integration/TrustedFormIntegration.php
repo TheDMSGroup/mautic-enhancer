@@ -50,20 +50,27 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     {
         $persist = false;
         if ($lead->getFieldValue(self::CERT_URL_FIELD) && !$lead->getFieldValue('trusted_form_created_at')) {
-            $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
-            $parts            = parse_url($trustedFormClaim);
-            if ('https' !== $parts['scheme'] || self::CERT_REAL_HOST !== $parts['host']) {
-                $this->logger->warning('Not Processing Suspicious TrustedForm URL: '.$trustedFormClaim);
-
-                return false;
-            }
-
             $parameters = $this->getFingers($lead);
             if ($lead->getId()) {
                 $parameters['reference'] = ''.$lead->getId();
                 $identifier              = $lead->getId();
             } else {
                 $identifier = $lead->getEmail();
+            }
+
+            $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
+            $parts            = parse_url($trustedFormClaim);
+            if (
+                !isset($parts['scheme'])
+                || 'https' !== $parts['scheme']
+                || !isset($parts['host'])
+                || self::CERT_REAL_HOST !== $parts['host']
+            ) {
+                $this->logger->error(
+                    'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
+                );
+
+                return false;
             }
 
             /** @var ArrayCollection|array $utmData */
