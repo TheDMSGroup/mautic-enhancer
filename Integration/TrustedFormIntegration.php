@@ -162,29 +162,31 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
                             if (!empty($data->warnings)) {
                                 foreach ($data->warnings as $warning) {
-                                    $this->logger->error('TrustedForm warning with contact '.$identifier.' '.$warning);
+                                    $this->logger->error('TrustedForm: Warning with contact '.$identifier.': '.$warning);
                                 }
                             }
                             break 2;
 
                         case 404:
                             $this->logger->error(
-                                'TrustedForm: Invalid Certificate: '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Invalid certificate ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
                             );
                             break 2;
 
                         case 401:
                         case 403:
                             $this->logger->error(
-                                'TrustedForm: Authentication Failure: '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Authentication Failure with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
                             );
                             break 2;
 
                         case 502:
                         case 503:
-                            $this->logger->error('TrustedForm: Exceeded rate limit (try '.($try + 1).'/3).');
-                            // 100ms delay before retrying.
                             usleep(100000);
+                            $this->logger->error(
+                                'TrustedForm: Exceeded rate limit (try '.$try.'/'.$tryLimit.') with contact '.$identifier.'.'
+                            );
+                            // 500ms delay before retrying.
                             break;
 
                         default:
