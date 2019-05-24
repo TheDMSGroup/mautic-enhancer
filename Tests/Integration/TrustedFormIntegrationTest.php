@@ -74,7 +74,7 @@ class TrustedFormIntegrationTest extends TestCase
                 ['trusted_form_created_at', null, null],
             ]);
 
-        $this->leadObserver->expects($this->exactly(5))
+        $this->leadObserver->expects($this->exactly(3))
             ->method('addUpdatedField')
             ->withConsecutive(
                 ['trusted_form_created_at', $created_at, null],

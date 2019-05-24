@@ -109,7 +109,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
             ];
 
             $tryLimit = 5;
-            for ($try = 1; $try < $tryLimit; ++$try) {
+            for ($try = 1; $try <= $tryLimit; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
                 if (!$response || !isset($response->body)) {
                     $this->logger->error(
