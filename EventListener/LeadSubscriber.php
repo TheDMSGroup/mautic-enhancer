@@ -58,7 +58,7 @@ class LeadSubscriber extends CommonSubscriber
     public function doAutoRunEnhancements(LeadEvent $event)
     {
         $lead = $event->getLead();
-        if ($lead && (null !== $lead->getDateIdentified() || !$lead->isAnonymous())) {
+        if ($lead && (null !== $lead->getDateIdentified() || !$lead->isAnonymous() || !empty($lead->getFieldValue('xx_trusted_form_cert_url')))) {
             // Ensure we do not duplicate this work within the same session.
             $leadKey = strtolower(
                 implode(
@@ -69,6 +69,7 @@ class LeadSubscriber extends CommonSubscriber
                         $lead->getEmail(),
                         $lead->getPhone(),
                         $lead->getMobile(),
+                        $lead->getFieldValue('xx_trusted_form_cert_url')
                     ]
                 )
             );
