@@ -101,8 +101,8 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 'return_raw'        => true,
                 'curl_options'      => [
                     CURLOPT_USERPWD        => "$authKeys[username]:$authKeys[password]",
-                    CURLOPT_CONNECTTIMEOUT => 1,
-                    CURLOPT_TIMEOUT        => 10,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_TIMEOUT        => 20,
                 ],
             ];
 
