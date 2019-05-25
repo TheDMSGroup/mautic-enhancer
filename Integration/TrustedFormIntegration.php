@@ -50,20 +50,27 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     {
         $persist = false;
         if ($lead->getFieldValue(self::CERT_URL_FIELD) && !$lead->getFieldValue('trusted_form_created_at')) {
-            $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
-            $parts            = parse_url($trustedFormClaim);
-            if ('https' !== $parts['scheme'] || self::CERT_REAL_HOST !== $parts['host']) {
-                $this->logger->warning('Not Processing Suspicious TrustedForm URL: '.$trustedFormClaim);
-
-                return false;
-            }
-
             $parameters = $this->getFingers($lead);
             if ($lead->getId()) {
                 $parameters['reference'] = ''.$lead->getId();
                 $identifier              = $lead->getId();
             } else {
                 $identifier = $lead->getEmail();
+            }
+
+            $trustedFormClaim = $lead->getFieldValue(self::CERT_URL_FIELD);
+            $parts            = parse_url($trustedFormClaim);
+            if (
+                !isset($parts['scheme'])
+                || 'https' !== $parts['scheme']
+                || !isset($parts['host'])
+                || self::CERT_REAL_HOST !== $parts['host']
+            ) {
+                $this->logger->error(
+                    'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
+                );
+
+                return false;
             }
 
             /** @var ArrayCollection|array $utmData */
@@ -94,12 +101,15 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 'return_raw'        => true,
                 'curl_options'      => [
                     CURLOPT_USERPWD        => "$authKeys[username]:$authKeys[password]",
-                    CURLOPT_CONNECTTIMEOUT => 1,
-                    CURLOPT_TIMEOUT        => 10,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_TIMEOUT        => 20,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
                 ],
             ];
 
-            for ($try = 0; $try < 3; ++$try) {
+            $tryLimit = 5;
+            for ($try = 1; $try <= $tryLimit; ++$try) {
                 $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
                 if (!$response || !isset($response->body)) {
                     $this->logger->error(
@@ -152,36 +162,40 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
                             if (!empty($data->warnings)) {
                                 foreach ($data->warnings as $warning) {
-                                    $this->logger->error('TrustedForm warning with contact '.$identifier.' '.$warning);
+                                    $this->logger->error('TrustedForm: Warning with contact '.$identifier.': '.$warning);
                                 }
                             }
                             break 2;
 
                         case 404:
                             $this->logger->error(
-                                'TrustedForm: Invalid Certificate: '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Invalid certificate ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
                             );
                             break 2;
 
                         case 401:
                         case 403:
                             $this->logger->error(
-                                'TrustedForm: Authentication Failure: '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Authentication Failure with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
                             );
                             break 2;
 
                         case 502:
                         case 503:
-                            $this->logger->error('TrustedForm: Exceeded rate limit (try '.($try + 1).'/3).');
-                            // 100ms delay before retrying.
-                            usleep(100000);
+                            $this->logger->error(
+                                'TrustedForm: Exceeded rate limit (try '.$try.'/'.$tryLimit.') with contact '.$identifier.'.'
+                            );
+                            // 500ms delay before retrying.
+                            usleep(250000);
                             break;
 
                         default:
                             $this->logger->error(
-                                'TrustedForm: Unrecognized response code: '.(!empty($data->code) ? $data->code : '').' '.(!empty($data->message) ? $data->message : '')
+                                'TrustedForm: Unrecognized response code '.(!empty($response->code) ? '('.$response->code.')' : '').' (try '.$try.'/'.$tryLimit.') with contact '.$identifier.': '.(!empty($response->body) ? $response->body : '')
                             );
-                            break 2;
+                            // 500ms delay before retrying.
+                            usleep(250000);
+                            break;
                     }
                 }
             }

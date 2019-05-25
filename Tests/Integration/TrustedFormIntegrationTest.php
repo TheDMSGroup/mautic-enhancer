@@ -146,7 +146,7 @@ class TrustedFormIntegrationTest extends TestCase
         $response       = new \stdClass();
         $response->code = 503;
         $response->body = '{"message":"Please try again"}';
-        $this->mockIntegration->expects($this->exactly(3))
+        $this->mockIntegration->expects($this->exactly(5))
             ->method('makeRequest')
             ->willReturn($response);
 
