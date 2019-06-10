@@ -65,6 +65,8 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 || 'https' !== $parts['scheme']
                 || !isset($parts['host'])
                 || self::CERT_REAL_HOST !== $parts['host']
+                // Should end with an SHA1 hash
+                || !preg_match('/^\/[0-9a-f]{40}$/i', $parts['path'])
             ) {
                 $this->logger->error(
                     'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
