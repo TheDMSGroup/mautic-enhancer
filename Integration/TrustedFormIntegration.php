@@ -122,7 +122,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                     switch ($response->code) {
                         case 200:
                         case 201:
-
+                        case 410:
                             // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
                             if (
                                 !empty($data->{self::CERT_URL_FIELD})
