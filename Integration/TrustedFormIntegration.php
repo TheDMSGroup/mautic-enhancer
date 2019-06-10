@@ -122,7 +122,6 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                     switch ($response->code) {
                         case 200:
                         case 201:
-                        case 410:
                             // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
                             if (
                                 !empty($data->{self::CERT_URL_FIELD})
@@ -167,6 +166,12 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                     $this->logger->error('TrustedForm: Warning with contact '.$identifier.': '.$warning);
                                 }
                             }
+                            break 2;
+
+                        case 410:
+                            $this->logger->error(
+                                'TrustedForm: Certificate expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
+                            );
                             break 2;
 
                         case 404:
