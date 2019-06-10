@@ -85,12 +85,12 @@ EOSQL;
             $em->persist($record);
             ++$count;
             if (0 === ($count % $batchSize)) {
-                $em->flush();
-                $em->clear();
+                $em->flush(PluginEnhancerGenderName::class);
+                $em->clear(PluginEnhancerGenderName::class);
             }
         }
-        $em->flush();
-        $em->clear();
+        $em->flush(PluginEnhancerGenderName::class);
+        $em->clear(PluginEnhancerGenderName::class);
     }
 
     public function emptyReferenceTable()
