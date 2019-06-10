@@ -120,6 +120,12 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 } else {
                     $data = json_decode($response->body);
                     switch ($response->code) {
+                        case 410:
+                            $this->logger->error(
+                                'TrustedForm: Certificate already expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
+                            );
+
+                            // no break
                         case 200:
                         case 201:
                             // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
@@ -157,21 +163,18 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                 $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
                                 $persist = true;
                             }
-                            $this->logger->info(
-                                'TrustedForm: Contact '.$identifier.' '.(!$persist ? 'NOT ' : '').'updated. '.(!empty($data->message) ? $data->message : '')
-                            );
+
+                            if ($persist) {
+                                $this->logger->info(
+                                    'TrustedForm: Contact '.$identifier.' '.(!$persist ? 'NOT ' : '').'updated. '.(!empty($data->message) ? $data->message : '')
+                                );
+                            }
 
                             if (!empty($data->warnings)) {
                                 foreach ($data->warnings as $warning) {
                                     $this->logger->error('TrustedForm: Warning with contact '.$identifier.': '.$warning);
                                 }
                             }
-                            break 2;
-
-                        case 410:
-                            $this->logger->error(
-                                'TrustedForm: Certificate expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
-                            );
                             break 2;
 
                         case 404:
