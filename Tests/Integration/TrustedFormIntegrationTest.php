@@ -70,7 +70,7 @@ class TrustedFormIntegrationTest extends TestCase
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com/a94a8fe5ccb19ba61c4c0873d391e987982fbbd3'],
                 ['trusted_form_created_at', null, null],
             ]);
 
@@ -88,7 +88,7 @@ class TrustedFormIntegrationTest extends TestCase
 
         $response       = new \stdClass();
         $response->code = 200;
-        $response->body = '{"created_at":"'.$created_at.'","xx_trusted_form_cert_url":"https://cert.trustedform.com","expires_at":"'.$expires_at.'","share_url":"https://share.trustedform.com"}';
+        $response->body = '{"created_at":"'.$created_at.'","xx_trusted_form_cert_url":"https://cert.trustedform.com/a94a8fe5ccb19ba61c4c0873d391e987982fbbd3","expires_at":"'.$expires_at.'","share_url":"https://share.trustedform.com"}';
         $this->mockIntegration->expects($this->any())
             ->method('makeRequest')
             ->willReturn($response);
@@ -101,7 +101,7 @@ class TrustedFormIntegrationTest extends TestCase
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com/a94a8fe5ccb19ba61c4c0873d391e987982fbbd3'],
                 ['trusted_form_created_at', null, null],
             ]);
 
@@ -120,7 +120,7 @@ class TrustedFormIntegrationTest extends TestCase
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com/a94a8fe5ccb19ba61c4c0873d391e987982fbbd3'],
                 ['trusted_form_created_at', null, null],
             ]);
 
@@ -139,7 +139,7 @@ class TrustedFormIntegrationTest extends TestCase
         $this->leadObserver->expects($this->any())
             ->method('getFieldValue')
             ->willReturnMap([
-                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com'],
+                ['xx_trusted_form_cert_url', null, 'https://cert.trustedform.com/a94a8fe5ccb19ba61c4c0873d391e987982fbbd3'],
                 ['trusted_form_created_at', null, null],
             ]);
 

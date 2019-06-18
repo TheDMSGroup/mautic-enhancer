@@ -65,6 +65,8 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 || 'https' !== $parts['scheme']
                 || !isset($parts['host'])
                 || self::CERT_REAL_HOST !== $parts['host']
+                || !isset($parts['path'])
+                || !preg_match('/^\/[0-9a-f]{40}$/i', $parts['path'])
             ) {
                 $this->logger->error(
                     'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
@@ -118,9 +120,14 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                 } else {
                     $data = json_decode($response->body);
                     switch ($response->code) {
+                        case 410:
+                            $this->logger->error(
+                                'TrustedForm: Certificate already expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
+                            );
+
+                            // no break
                         case 200:
                         case 201:
-
                             // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
                             if (
                                 !empty($data->{self::CERT_URL_FIELD})
@@ -156,9 +163,12 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                 $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
                                 $persist = true;
                             }
-                            $this->logger->info(
-                                'TrustedForm: Contact '.$identifier.' '.(!$persist ? 'NOT ' : '').'updated. '.(!empty($data->message) ? $data->message : '')
-                            );
+
+                            if ($persist) {
+                                $this->logger->info(
+                                    'TrustedForm: Contact '.$identifier.' '.(!$persist ? 'NOT ' : '').'updated. '.(!empty($data->message) ? $data->message : '')
+                                );
+                            }
 
                             if (!empty($data->warnings)) {
                                 foreach ($data->warnings as $warning) {
