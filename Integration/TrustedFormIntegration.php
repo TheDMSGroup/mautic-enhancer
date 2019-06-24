@@ -76,7 +76,6 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                         'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
                     );
                 } else {
-
                     // Get the UTM source for use as vendor.
                     if (!isset($parameters['vendor'])) {
                         $parameters['vendor'] = '';
