@@ -131,6 +131,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                     $this->logger->error(
                                         'TrustedForm: Certificate already expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
                                     );
+                                    break 2;
 
                                 // no break
                                 case 200:
@@ -212,7 +213,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                         'TrustedForm: Unrecognized response code '.(!empty($response->code) ? '('.$response->code.')' : '').' (try '.$try.'/'.$tryLimit.') with contact '.$identifier.': '.(!empty($response->body) ? $response->body : '')
                                     );
                                     usleep(250000);
-                                    break;
+                                    break 2;
                             }
                         }
                     }
