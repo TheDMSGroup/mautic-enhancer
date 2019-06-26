@@ -205,14 +205,13 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                                     $this->logger->error(
                                         'TrustedForm: Exceeded rate limit (try '.$try.'/'.$tryLimit.') with contact '.$identifier.'.'
                                     );
-                                    usleep(250000);
-                                    break;
+                                sleep(.5);
+                                break;
 
                                 default:
                                     $this->logger->error(
                                         'TrustedForm: Unrecognized response code '.(!empty($response->code) ? '('.$response->code.')' : '').' (try '.$try.'/'.$tryLimit.') with contact '.$identifier.': '.(!empty($response->body) ? $response->body : '')
                                     );
-                                    usleep(250000);
                                     break 2;
                             }
                         }
