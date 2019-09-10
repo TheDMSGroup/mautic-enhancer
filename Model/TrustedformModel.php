@@ -40,6 +40,9 @@ class TrustedformModel extends AbstractCommonModel
     /** @var ContactModel */
     protected $contactModel;
 
+    /** @var TrustedformIntegration */
+    protected $integration;
+
     /**
      * TrustedformModel constructor.
      *
@@ -56,9 +59,10 @@ class TrustedformModel extends AbstractCommonModel
      */
     public function setup(TrustedformIntegration $integration)
     {
-        $settings       = $integration->getIntegrationSettings()->getFeatureSettings();
-        $this->keys     = $integration->getKeys();
-        $this->realtime = (bool) $settings['realtime'];
+        $this->integration = $integration;
+        $settings          = $integration->getIntegrationSettings()->getFeatureSettings();
+        $this->keys        = $integration->getKeys();
+        $this->realtime    = (bool) $settings['realtime'];
     }
 
     /**
@@ -159,7 +163,7 @@ class TrustedformModel extends AbstractCommonModel
         for ($attempt = 1; $attempt <= $attemptLimit; ++$attempt) {
             $entity->setAttempts($entity->getAttempts() + 1);
             try {
-                $response = $this->makeRequest($certificateUrl, $parameters, 'post', $settings);
+                $response = $this->integration->makeRequest($certificateUrl, $parameters, 'post', $settings);
                 $entity->setStatus((int) $response->code);
 
                 if (!$response || !isset($response->body)) {

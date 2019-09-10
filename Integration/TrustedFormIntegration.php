@@ -30,7 +30,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     /** @var string */
     const CERT_URL_FIELD = 'xx_trusted_form_cert_url';
 
-    /** @var TrustedFormModel */
+    /** @var TrustedformModel */
     protected $integrationModel;
 
     /**
@@ -75,7 +75,7 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @return TrustedFormModel
+     * @return \Mautic\CoreBundle\Model\AbstractCommonModel|TrustedformModel
      */
     public function getModel()
     {
@@ -115,7 +115,9 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
                     'label_attr' => ['class' => 'control-label'],
                     'attr'       => [
                         'class'   => 'form-control',
-                        'tooltip' => $this->translator->trans('mautic.enhancer.integration.trustedform.realtime.tooltip'),
+                        'tooltip' => $this->translator->trans(
+                            'mautic.enhancer.integration.trustedform.realtime.tooltip'
+                        ),
                     ],
                 ]
             );
