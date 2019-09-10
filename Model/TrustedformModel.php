@@ -157,10 +157,19 @@ class TrustedformModel extends AbstractCommonModel
             ],
         ];
 
+        // Already attempted and hit limit.
+        if ($entity->getAttempts() >= $attemptLimit) {
+            return false;
+        }
+
+        // Already attempted and failed.
+        if (!in_array($entity->getStatus(), $this->statusesToAttempt)) {
+            return false;
+        }
+
         $parameters = $this->getParameters($contact);
 
-        $attemptLimit = $attemptLimit - (int) $entity->getAttempts();
-        for ($attempt = 1; $attempt <= $attemptLimit; ++$attempt) {
+        for ($attempt = $entity->getAttempts() + 1; $attempt <= $attemptLimit; ++$attempt) {
             $entity->setAttempts($entity->getAttempts() + 1);
             try {
                 $response = $this->integration->makeRequest($certificateUrl, $parameters, 'post', $settings);
@@ -373,14 +382,27 @@ class TrustedformModel extends AbstractCommonModel
                         'TrustedForm: Invalid URL with contact '.$this->getIdentifier($contact).': '.$certificateUrl
                     );
                 } else {
-                    $entity = new PluginEnhancerTrustedform();
-                    $entity->setDateAdded(new \DateTime());
-                    $entity->setContact($contact);
-                    $entity->setToken($parts['path']);
+                    $entity = null;
+                    if ($contact->getId()) {
+                        // Make sure we haven't already created this queued record before doing so now.
+                        /** @var PluginEnhancerTrustedform|null $entity */
+                        $entity = $this->getRepository()->findOneBy(
+                            [
+                                'contact_id' => $contact->getId(),
+                                'token'      => $parts['path'],
+                            ]
+                        );
+                    }
+                    if (!$entity) {
+                        $entity = new PluginEnhancerTrustedform();
+                        $entity->setDateAdded(new \DateTime());
+                        $entity->setContact($contact);
+                        $entity->setToken($parts['path']);
+                    }
                     $this->em->persist($entity);
                     if ($this->realtime && 'cli' !== php_sapi_name()) {
                         // Limit realtime attempts to 1 time per request.
-                        $persist = $this->makeRequestAndPersist($entity, 1);
+                        $this->makeRequestAndPersist($entity, 1);
                     }
                     $entities[] = $entity;
                 }
