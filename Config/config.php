@@ -40,6 +40,12 @@ return [
             'mautic.enhancer.model.gendername'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel::class,
             ],
+            'mautic.enhancer.model.trustedform'         => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel::class,
+                'arguments' => [
+                    'mautic.lead.model.lead',
+                ],
+            ],
         ],
         'integrations' => [
             'mautic.enhancer.integration.agefrombirthdate'        => [

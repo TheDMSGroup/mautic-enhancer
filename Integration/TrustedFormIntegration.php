@@ -1,16 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: nbush
- * Date: 2/11/19
- * Time: 11:56 AM.
+
+/*
+ * @copyright   2019 Mautic Contributors. All rights reserved
+ * @author      Digital Media Solutions, LLC
+ *
+ * @link        http://mautic.org
+ *
+ * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Mautic\LeadBundle\Entity\Lead;
-use Mautic\LeadBundle\Entity\UtmTag;
+use Mautic\LeadBundle\Entity\Lead as Contact;
+use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerBlacklist;
+use MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel;
+
+// use Mautic\LeadBundle\Entity\UtmTag;
 
 class TrustedFormIntegration extends AbstractEnhancerIntegration
 {
@@ -24,6 +29,9 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
     /** @var string */
     const CERT_URL_FIELD = 'xx_trusted_form_cert_url';
+
+    /** @var TrustedFormModel */
+    protected $integrationModel;
 
     /**
      * @return string
@@ -42,181 +50,24 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * @param Lead $lead
+     * @param Contact $contact
      *
      * @return bool
      */
-    public function doEnhancement(Lead $lead)
+    public function doEnhancement(Contact $contact)
     {
-        $persist               = false;
-        $trustedFormFieldValue = $lead->getFieldValue(self::CERT_URL_FIELD);
-        if ($trustedFormFieldValue && !$lead->getFieldValue('trusted_form_created_at')) {
-            $parameters = $this->getFingers($lead);
-            if ($lead->getId()) {
-                $parameters['reference'] = ''.$lead->getId();
-                $identifier              = $lead->getId();
-            } else {
-                $identifier = $lead->getEmail();
-            }
-
-            $trustedFormFieldValue  = trim(str_replace([',', ';', "\r\n", "\t", "\n"], ' ', $trustedFormFieldValue));
-            $trustedFormFieldValues = explode(' ', $trustedFormFieldValue);
-            foreach ($trustedFormFieldValues as $trustedFormClaim) {
-                $trustedFormClaim = trim($trustedFormClaim);
-                $parts            = parse_url($trustedFormClaim);
-                if (
-                    !isset($parts['scheme'])
-                    || 'https' !== $parts['scheme']
-                    || !isset($parts['host'])
-                    || self::CERT_REAL_HOST !== $parts['host']
-                    || !isset($parts['path'])
-                    || !preg_match('/^\/[0-9a-f]{40}$/i', $parts['path'])
-                ) {
-                    $this->logger->error(
-                        'TrustedForm: Invalid URL with contact '.$identifier.': '.$trustedFormClaim
-                    );
-                } else {
-                    // Get the UTM source for use as vendor.
-                    if (!isset($parameters['vendor'])) {
-                        $parameters['vendor'] = '';
-                        /** @var ArrayCollection|array $utmData */
-                        $utmData = $lead->getUtmTags();
-                        // Get the UTM Tags as an array of entities.
-                        if ($utmData instanceof ArrayCollection) {
-                            $utmData = $utmData->toArray();
-                        }
-                        if (is_array($utmData) && !empty($utmData)) {
-                            // Get the last UTM Source.
-                            $utmSources = [];
-                            /** @var UtmTag $utmTag */
-                            foreach ($utmData as $utmTag) {
-                                if (!empty(trim($utmTag->getUtmSource()))) {
-                                    $utmSources[$utmTag->getDateAdded()->getTimestamp()] = $utmTag->getUtmSource();
-                                }
-                            }
-                            ksort($utmSources);
-                            $parameters['vendor'] = array_pop($utmSources);
-                        }
-                    }
-
-                    if (!isset($authKeys)) {
-                        $authKeys = $this->getKeys();
-                    }
-                    $settings = [
-                        'authorize_session' => true,
-                        'content_type'      => 'application/json',
-                        'encode_parameters' => 'json',
-                        'headers'           => ['Accept: application/json'],
-                        'return_raw'        => true,
-                        'curl_options'      => [
-                            CURLOPT_USERPWD        => "$authKeys[username]:$authKeys[password]",
-                            CURLOPT_CONNECTTIMEOUT => 5,
-                            CURLOPT_TIMEOUT        => 10,
-                            CURLOPT_SSL_VERIFYPEER => false,
-                            CURLOPT_SSL_VERIFYHOST => false,
-                        ],
-                    ];
-
-                    $tryLimit = 3;
-                    for ($try = 1; $try <= $tryLimit; ++$try) {
-                        $response = $this->makeRequest($trustedFormClaim, $parameters, 'post', $settings);
-                        if (!$response || !isset($response->body)) {
-                            $this->logger->error(
-                                'TrustedForm: Failed to respond with lead '.$identifier.'. Body: '.(!empty($response->body) ? $response->body : 'null')
-                            );
-                        } else {
-                            $data = json_decode($response->body);
-                            switch ($response->code) {
-                                case 410:
-                                    $this->logger->error(
-                                        'TrustedForm: Certificate already expired ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
-                                    );
-                                    break 2;
-
-                                // no break
-                                case 200:
-                                case 201:
-                                    // Set new value for xx_trusted_form_cert_url from $data->xx_trusted_form_cert_url
-                                    if (
-                                        !empty($data->{self::CERT_URL_FIELD})
-                                        && $data->{self::CERT_URL_FIELD} !== $lead->getFieldValue(self::CERT_URL_FIELD)
-                                    ) {
-                                        $lead->addUpdatedField(self::CERT_URL_FIELD, $data->{self::CERT_URL_FIELD});
-                                        $persist = true;
-                                    }
-
-                                    // Set new value for trusted_form_created_at from created_at
-                                    if (
-                                        !empty($data->created_at)
-                                        && $data->created_at !== $lead->getFieldValue('trusted_form_created_at')
-                                    ) {
-                                        $lead->addUpdatedField('trusted_form_created_at', $data->created_at);
-                                        $persist = true;
-                                    }
-
-                                    // Set new value for trusted_form_expires_at from expires_at
-                                    if (
-                                        !empty($data->expires_at)
-                                        && $data->expires_at !== $lead->getFieldValue('trusted_form_expires_at')
-                                    ) {
-                                        $lead->addUpdatedField('trusted_form_expires_at', $data->expires_at);
-                                        $persist = true;
-                                    }
-
-                                    // Set new value for trusted_form_share_url from share_url
-                                    if (
-                                        !empty($data->share_url)
-                                        && $data->share_url !== $lead->getFieldValue('trusted_form_share_url')
-                                    ) {
-                                        $lead->addUpdatedField('trusted_form_share_url', $data->share_url);
-                                        $persist = true;
-                                    }
-
-                                    if ($persist) {
-                                        $this->logger->info(
-                                            'TrustedForm: Contact '.$identifier.' updated. '.(!empty($data->message) ? $data->message : '')
-                                        );
-                                    }
-
-                                    if (!empty($data->warnings)) {
-                                        foreach ($data->warnings as $warning) {
-                                            $this->logger->error(
-                                                'TrustedForm: Warning with contact '.$identifier.': '.$warning
-                                            );
-                                        }
-                                    }
-                                    break 2;
-
-                                case 404:
-                                    $this->logger->error(
-                                        'TrustedForm: Invalid certificate ('.$trustedFormClaim.') with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
-                                    );
-                                    break 2;
-
-                                case 401:
-                                case 403:
-                                    $this->logger->error(
-                                        'TrustedForm: Authentication Failure with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
-                                    );
-                                    break 2;
-
-                                case 502:
-                                case 503:
-                                    $this->logger->error(
-                                        'TrustedForm: Exceeded rate limit (try '.$try.'/'.$tryLimit.') with contact '.$identifier.'.'
-                                    );
-                                sleep(.5);
-                                break;
-
-                                default:
-                                    $this->logger->error(
-                                        'TrustedForm: Unrecognized response code '.(!empty($response->code) ? '('.$response->code.')' : '').' (try '.$try.'/'.$tryLimit.') with contact '.$identifier.': '.(!empty($response->body) ? $response->body : '')
-                                    );
-                                    break 2;
-                            }
-                        }
-                    }
+        $persist = false;
+        if ($contact) {
+            // Instead of modifying the lead in realtime, we'll queue the certificate claiming for a parallel process.
+            try {
+                /** @var PluginEnhancerBlacklist $record */
+                $records = $this->getModel()->queueContact($contact);
+                if ($records) {
+                    $persist = true;
                 }
+            } catch (\Exception $exception) {
+                $this->handleEnchancerException('Trustedform', $exception);
+                $this->logger->error('Trustedform Enhancer: '.$exception->getMessage());
             }
         }
 
@@ -224,29 +75,16 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     }
 
     /**
-     * Creates an array of fingerprintable fields.
-     *
-     * @param Lead $lead
-     *
-     * @return array
+     * @return TrustedFormModel
      */
-    protected function getFingers(Lead $lead)
+    public function getModel()
     {
-        $fingers = [];
-        //Trusted form "should" convert these...
-        if ($lead->getEmail()) {
-            $fingers['email'] = strtolower($lead->getEmail());
+        if (!isset($this->integrationModel)) {
+            $this->integrationModel = $this->factory->getModel('enhancer.trustedform');
+            $this->integrationModel->setup($this);
         }
 
-        if ($lead->getPhone()) {
-            $fingers['phone'] = preg_replace('/\D/', '', $lead->getPhone());
-        }
-
-        if ($lead->getMobile()) {
-            $fingers['mobile'] = preg_replace('/\D/', '', $lead->getMobile());
-        }
-
-        return $fingers;
+        return $this->integrationModel;
     }
 
     /**
@@ -267,6 +105,21 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
      */
     public function appendToForm(&$builder, $data, $formArea)
     {
+        if ('features' === $formArea) {
+            $builder->add(
+                'realtime',
+                'boolean',
+                [
+                    'label'      => $this->translator->trans('mautic.enhancer.integration.trustedform.realtime.label'),
+                    'data'       => !empty($data['realtime']) ? (bool) $data['realtime'] : true,
+                    'label_attr' => ['class' => 'control-label'],
+                    'attr'       => [
+                        'class'   => 'form-control',
+                        'tooltip' => $this->translator->trans('mautic.enhancer.integration.trustedform.realtime.tooltip'),
+                    ],
+                ]
+            );
+        }
         $this->appendNonFreeFields($builder, $data, $formArea, true);
     }
 
