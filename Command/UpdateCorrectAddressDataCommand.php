@@ -31,6 +31,8 @@ class UpdateCorrectAddressDataCommand extends ModeratedCommand
         $this->setHelp(
             'This command will download and replace the data files used by CorrectAddress. These are proprietary files available from Expirian'
         );
+
+        parent::configure();
     }
 
     /**

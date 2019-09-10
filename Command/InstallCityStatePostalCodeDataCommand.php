@@ -29,6 +29,8 @@ class InstallCityStatePostalCodeDataCommand extends ModeratedCommand
             ->setHelp(
                 'This command will download and rebuild the CityStateFromPostalCode reference table. It uses the file located at http://download.geonames.org/export/zip/allCountries.zip as its data source.'
             );
+
+        parent::configure();
     }
 
     /**
