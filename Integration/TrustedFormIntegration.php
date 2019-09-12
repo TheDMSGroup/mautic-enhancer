@@ -11,6 +11,7 @@
 
 namespace MauticPlugin\MauticEnhancerBundle\Integration;
 
+use Mautic\CoreBundle\Factory\MauticFactory;
 use Mautic\LeadBundle\Entity\Lead as Contact;
 use MauticPlugin\MauticEnhancerBundle\Entity\PluginEnhancerBlacklist;
 use MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel;
@@ -32,6 +33,20 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
 
     /** @var TrustedformModel */
     protected $integrationModel;
+
+    /**
+     * TrustedFormIntegration constructor.
+     *
+     * @param MauticFactory|null $factory
+     * @param TrustedformModel   $trustedformModel
+     */
+    public function __construct(
+        MauticFactory $factory = null,
+        TrustedformModel $trustedformModel
+    ) {
+        $this->integrationModel = $trustedformModel;
+        parent::__construct($factory);
+    }
 
     /**
      * @return string

@@ -93,7 +93,11 @@ return [
                 'class' => MauticPlugin\MauticEnhancerBundle\Integration\NeustarMpicIntegration::class,
             ],
             'mautic.enhancer.integration.trustedform'             => [
-                'class' => MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration::class,
+                'class'     => MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration::class,
+                'arguments' => [
+                    'mautic.factory',
+                    'mautic.enhancer.model.trustedform',
+                ],
             ],
         ],
         'other'        => [
