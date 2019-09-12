@@ -88,7 +88,7 @@ class LeadTimelineSubscriber extends CommonSubscriber
                             'eventLabel'      => [
                                 'label'  => ucwords(
                                         $stat['enhancer']
-                                    ).(isset($stat['location']) ? ' @ '.$stat['location'] : ''),
+                                    ).(isset($stat['location']) ? ' / '.$stat['location'] : ''),
                                 'href'   => (!empty($stat['share_url']) ? $stat['share_url'] : '#'),
                                 'target' => '_blank',
                             ],
@@ -97,8 +97,9 @@ class LeadTimelineSubscriber extends CommonSubscriber
                                 'mautic.enhancer.integration.'.strtolower($stat['enhancer']).'.status.'.$stat['status']
                             ),
                             'timestamp'       => $stat['timestamp'],
+                            'details'         => $stat,
                             'extra'           => [
-                                'stat' => $stat,
+                                'raw' => self::describeStat($stat),
                             ],
                             'contentTemplate' => 'MauticEnhancerBundle:Timeline:enhancer.html.php',
                             'icon'            => 'fa-plus-square-o enhancer-button',
@@ -107,5 +108,35 @@ class LeadTimelineSubscriber extends CommonSubscriber
                 }
             }
         }
+    }
+
+    /**
+     * Moved here to pass tests and still support recursive enhancer data.
+     *
+     * @param     $value
+     * @param int $depth
+     *
+     * @return string
+     */
+    private static function describeStat($value, $depth = 1)
+    {
+        $result = '<br/><dl class="dl-horizontal" style="padding-left: '.($depth * 10).'px;">';
+        foreach ($value as $key => $val) {
+            $result .= '<dt>'.$key.'</dt>';
+            $result .= '<dd>';
+            if (is_array($val) || is_object($val)) {
+                $result .= self::describeStat($val, $depth + 1);
+            } else {
+                if (filter_var($val, FILTER_VALIDATE_URL)) {
+                    $result .= '<a href='.$val.' target="_blank">'.$val.'</a>';
+                } else {
+                    $result .= $val;
+                }
+            }
+            $result .= '</dd>';
+        }
+        $result .= '</dl>';
+
+        return $result;
     }
 }

@@ -301,7 +301,7 @@ class TrustedformModel extends AbstractCommonModel
 
                         if (!empty($data->cert->geo)) {
                             try {
-                                $encoded = serialize($data->cert->geo);
+                                $encoded = serialize(json_decode(json_encode($data->cert->geo), true));
                                 $entity->setGeo($encoded);
                             } catch (\Exception $e) {
                             }
@@ -309,7 +309,7 @@ class TrustedformModel extends AbstractCommonModel
 
                         if (!empty($data->cert->claims)) {
                             try {
-                                $encoded = serialize($data->cert->claims);
+                                $encoded = serialize(json_decode(json_encode($data->cert->claims), true));
                                 $entity->setClaims($encoded);
                             } catch (\Exception $e) {
                             }

@@ -79,7 +79,7 @@ class PluginEnhancerTrustedformRepository extends CommonRepository
             $options,
             't.location',
             't.created_at',
-            ['t.geo', 't.claims'],
+            ['geo', 'claims'],
             ['t.date_added', 't.created_at', 't.expires_at']
         );
     }
