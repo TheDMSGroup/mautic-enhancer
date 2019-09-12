@@ -153,7 +153,7 @@ class TrustedformModel extends AbstractCommonModel
      */
     private function makeRequestAndPersist(
         PluginEnhancerTrustedform $entity,
-        int $attemptLimit
+        $attemptLimit = 10
     ) {
         if ($persist = $this->makeApiRequest($entity, $attemptLimit)) {
             // We should persist changes to the contact now.
@@ -171,7 +171,7 @@ class TrustedformModel extends AbstractCommonModel
      */
     protected function makeApiRequest(
         PluginEnhancerTrustedform $entity,
-        int $attemptLimit = 10
+        $attemptLimit = 10
     ) {
         if (empty($this->keys['username']) || empty($this->keys['password'])) {
             $this->logger->error(
