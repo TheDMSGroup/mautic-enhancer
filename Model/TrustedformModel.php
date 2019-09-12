@@ -104,10 +104,10 @@ class TrustedformModel extends AbstractCommonModel
      * @return bool
      */
     public function claimCertificates(
-        int $threadId = 1,
-        int $maxThreads = 1,
-        int $batchLimit = 100,
-        int $attemptLimit = 10,
+        $threadId = 1,
+        $maxThreads = 1,
+        $batchLimit = 100,
+        $attemptLimit = 10,
         OutputInterface $output = null
     ) {
         while ($entities = $this->getRepository()->findBatchToClaim(
