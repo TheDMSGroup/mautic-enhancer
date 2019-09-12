@@ -108,10 +108,10 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
         if ('features' === $formArea) {
             $builder->add(
                 'realtime',
-                'boolean',
+                \Mautic\CoreBundle\Form\Type\YesNoButtonGroupType::class,
                 [
                     'label'      => $this->translator->trans('mautic.enhancer.integration.trustedform.realtime.label'),
-                    'data'       => !empty($data['realtime']) ? (bool) $data['realtime'] : true,
+                    'data'       => isset($data['realtime']) ? (bool) $data['realtime'] : false,
                     'label_attr' => ['class' => 'control-label'],
                     'attr'       => [
                         'class'   => 'form-control',

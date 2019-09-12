@@ -44,6 +44,8 @@ return [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel::class,
                 'arguments' => [
                     'mautic.lead.model.lead',
+                    'mautic.enhancer.helper.integrationsettings',
+                    'mautic.helper.ip_lookup',
                 ],
             ],
         ],
@@ -93,6 +95,14 @@ return [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
                     '@mautic.helper.integration',
+                ],
+            ],
+        ],
+        'helpers'      => [
+            'mautic.enhancer.helper.integrationsettings' => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\IntegrationSettings::class,
+                'arguments' => [
+                    'mautic.helper.integration',
                 ],
             ],
         ],

@@ -12,6 +12,7 @@
 namespace MauticPlugin\MauticEnhancerBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
+use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
 use MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -76,10 +77,13 @@ class TrustedformCommand extends ModeratedCommand
 
             return 1;
         }
+        define('MAUTIC_PLUGIN_ENHANCER_CLI', true);
 
         try {
-            /** @var TrustedformModel $model */
-            $model = $this->getContainer()->get('mautic.enhancer.model.trustedform');
+            /** @var TrustedFormIntegration $integration */
+            $integration = $this->getContainer()->get('mautic.enhancer.integration.trustedform');
+            $model       = $integration->getModel();
+
             if ($model->claimCertificates($threadId, $maxThreads, $batchLimit, $attemptLimit, $output)) {
                 $output->writeln('Finished claiming certificates.');
 

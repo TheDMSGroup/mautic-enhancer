@@ -57,6 +57,11 @@ class LeadSubscriber extends CommonSubscriber
      */
     public function doAutoRunEnhancements(LeadEvent $event)
     {
+        // Avoid duplication of enhancers.
+        if (defined('MAUTIC_PLUGIN_ENHANCER_CLI')) {
+            return;
+        }
+
         $lead = $event->getLead();
         if ($lead && (null !== $lead->getDateIdentified() || !$lead->isAnonymous() || !empty($lead->getFieldValue('xx_trusted_form_cert_url')))) {
             // Ensure we do not duplicate this work within the same session.
