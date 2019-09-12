@@ -13,7 +13,6 @@ namespace MauticPlugin\MauticEnhancerBundle\Command;
 
 use Mautic\CoreBundle\Command\ModeratedCommand;
 use MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration;
-use MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -72,6 +71,13 @@ class TrustedformCommand extends ModeratedCommand
         $maxThreads   = max(1, (int) $input->getOption('max-threads'));
         $batchLimit   = max(1, (int) $input->getOption('batch-limit'));
         $attemptLimit = max(1, (int) $input->getOption('attempt-limit'));
+
+        if (!$this->checkRunStatus($input, $output, $this->getName().$threadId)) {
+            $this->output->writeln('Already Running.');
+
+            return 0;
+        }
+
         if ($threadId > $maxThreads) {
             $this->output->writeln('--thread-id cannot be larger than --max-thread');
 
@@ -87,12 +93,12 @@ class TrustedformCommand extends ModeratedCommand
             if ($model->claimCertificates($threadId, $maxThreads, $batchLimit, $attemptLimit, $output)) {
                 $output->writeln('Finished claiming certificates.');
 
-                return true;
+                return 0;
             }
         } catch (\Exception $e) {
             $output->writeln('Trustedform certificate claiming failure '.$e->getMessage());
         }
 
-        return false;
+        return 1;
     }
 }

@@ -100,6 +100,8 @@ class TrustedformModel extends AbstractCommonModel
      * @param int                  $batchLimit
      * @param int                  $attemptLimit
      * @param OutputInterface|null $output
+     *
+     * @return bool
      */
     public function claimCertificates(
         int $threadId = 1,
@@ -123,6 +125,8 @@ class TrustedformModel extends AbstractCommonModel
                 }
             }
         }
+
+        return true;
     }
 
     /**
