@@ -235,12 +235,6 @@ class TrustedformModel extends AbstractCommonModel
                 $data = json_decode($response->getBody()->getContents(), false);
 
                 switch ($response->getStatusCode()) {
-                    case 410:
-                        $this->logger->error(
-                            'TrustedForm: Certificate already expired ('.$certificateUrl.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
-                        );
-                        break;
-
                     case 200:
                     case 201:
 
@@ -307,7 +301,7 @@ class TrustedformModel extends AbstractCommonModel
 
                         if (!empty($data->cert->geo)) {
                             try {
-                                $encoded = json_encode($data->cert->geo);
+                                $encoded = serialize($data->cert->geo);
                                 $entity->setGeo($encoded);
                             } catch (\Exception $e) {
                             }
@@ -315,7 +309,7 @@ class TrustedformModel extends AbstractCommonModel
 
                         if (!empty($data->cert->claims)) {
                             try {
-                                $encoded = json_encode($data->cert->claims);
+                                $encoded = serialize($data->cert->claims);
                                 $entity->setClaims($encoded);
                             } catch (\Exception $e) {
                             }
@@ -392,6 +386,12 @@ class TrustedformModel extends AbstractCommonModel
                     case 406:
                         $this->logger->error(
                             'TrustedForm: Configuration Failure with contact '.$identifier.': '.(!empty($data->message) ? $data->message : '')
+                        );
+                        break;
+
+                    case 410:
+                        $this->logger->error(
+                            'TrustedForm: Certificate already expired ('.$certificateUrl.') with contact '.$identifier.': '.(!empty($data->expired_at) ? $data->expired_at : '')
                         );
                         break;
 

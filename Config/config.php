@@ -17,14 +17,20 @@ return [
 
     'services' => [
         'events'       => [
-            'mautic.enhancer.eventlistener.lead'   => [
+            'mautic.enhancer.eventlistener.lead'       => [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer',
                 ],
             ],
-            'mautic.enhancer.eventlistener.plugin' => [
+            'mautic.enhancer.eventlistener.plugin'     => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
+            ],
+            'mautic.enhancer.subscriber.lead_timeline' => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadTimelineSubscriber::class,
+                'arguments' => [
+                    'mautic.enhancer.model.trustedform',
+                ],
             ],
         ],
         'models'       => [

@@ -14,9 +14,12 @@ namespace MauticPlugin\MauticEnhancerBundle\Entity;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
 use Mautic\CoreBundle\Entity\CommonRepository;
+use Mautic\LeadBundle\Entity\TimelineTrait;
 
 class PluginEnhancerTrustedformRepository extends CommonRepository
 {
+    use TimelineTrait;
+
     /**
      * @param int   $threadId
      * @param int   $maxThreads
@@ -49,5 +52,35 @@ class PluginEnhancerTrustedformRepository extends CommonRepository
         $qb->setMaxResults($batchLimit);
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @param       $contactId
+     * @param array $options
+     *
+     * @return array
+     */
+    public function getTimelineStats($contactId, $options = [])
+    {
+        $qb = $this->getEntityManager()->getConnection()->createQueryBuilder()
+            ->select(
+                [
+                    't.*',
+                    't.contact_id AS contactId',
+                    'IF(t.created_at IS NOT NULL, t.created_at, t.date_added) AS timestamp',
+                    '"Trustedform" AS enhancer',
+                ]
+            )
+            ->from(MAUTIC_TABLE_PREFIX.$this->getTableName(), 't')
+            ->where('t.contact_id = '.(int) $contactId, \PDO::PARAM_INT);
+
+        return $this->getTimelineResults(
+            $qb,
+            $options,
+            't.location',
+            't.created_at',
+            ['t.geo', 't.claims'],
+            ['t.date_added', 't.created_at', 't.expires_at']
+        );
     }
 }
