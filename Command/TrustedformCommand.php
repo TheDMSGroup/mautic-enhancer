@@ -75,7 +75,6 @@ class TrustedformCommand extends ModeratedCommand
         if (!$this->checkRunStatus($input, $output, $this->getName().$threadId)) {
             $this->output->writeln('Already Running.');
 
-            $this->completeRun();
             return 0;
         }
 
