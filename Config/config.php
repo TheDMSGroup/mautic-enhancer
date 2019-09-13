@@ -17,14 +17,20 @@ return [
 
     'services' => [
         'events'       => [
-            'mautic.enhancer.eventlistener.lead'   => [
+            'mautic.enhancer.eventlistener.lead'       => [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadSubscriber::class,
                 'arguments' => [
                     '@mautic.enhancer.helper.enhancer',
                 ],
             ],
-            'mautic.enhancer.eventlistener.plugin' => [
+            'mautic.enhancer.eventlistener.plugin'     => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\EventListener\PluginSubscriber::class,
+            ],
+            'mautic.enhancer.subscriber.lead_timeline' => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\EventListener\LeadTimelineSubscriber::class,
+                'arguments' => [
+                    'mautic.enhancer.model.trustedform',
+                ],
             ],
         ],
         'models'       => [
@@ -39,6 +45,14 @@ return [
             ],
             'mautic.enhancer.model.gendername'          => [
                 'class' => \MauticPlugin\MauticEnhancerBundle\Model\GenderNameModel::class,
+            ],
+            'mautic.enhancer.model.trustedform'         => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\Model\TrustedformModel::class,
+                'arguments' => [
+                    'mautic.lead.model.lead',
+                    'mautic.enhancer.helper.integrationsettings',
+                    'mautic.helper.ip_lookup',
+                ],
             ],
         ],
         'integrations' => [
@@ -79,7 +93,11 @@ return [
                 'class' => MauticPlugin\MauticEnhancerBundle\Integration\NeustarMpicIntegration::class,
             ],
             'mautic.enhancer.integration.trustedform'             => [
-                'class' => MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration::class,
+                'class'     => MauticPlugin\MauticEnhancerBundle\Integration\TrustedFormIntegration::class,
+                'arguments' => [
+                    'mautic.factory',
+                    'mautic.enhancer.model.trustedform',
+                ],
             ],
         ],
         'other'        => [
@@ -87,6 +105,14 @@ return [
                 'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\EnhancerHelper::class,
                 'arguments' => [
                     '@mautic.helper.integration',
+                ],
+            ],
+        ],
+        'helpers'      => [
+            'mautic.enhancer.helper.integrationsettings' => [
+                'class'     => \MauticPlugin\MauticEnhancerBundle\Helper\IntegrationSettings::class,
+                'arguments' => [
+                    'mautic.helper.integration',
                 ],
             ],
         ],

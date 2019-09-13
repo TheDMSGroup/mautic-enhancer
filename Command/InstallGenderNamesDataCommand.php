@@ -28,6 +28,8 @@ class InstallGenderNamesDataCommand extends ModeratedCommand
             ->setHelp(
                 'This command will download and rebuild the GenderDictionary reference table. It uses the file located at https://www.ssa.gov/OACT/babynames/names.zip as its data source.'
             );
+
+        parent::configure();
     }
 
     /**
