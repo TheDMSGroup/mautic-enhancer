@@ -82,6 +82,7 @@ class TrustedformCommand extends ModeratedCommand
             $this->output->writeln('--thread-id cannot be larger than --max-thread');
 
             $this->completeRun();
+
             return 1;
         }
         define('MAUTIC_PLUGIN_ENHANCER_CLI', true);
@@ -95,6 +96,7 @@ class TrustedformCommand extends ModeratedCommand
                 $output->writeln('Finished claiming certificates.');
 
                 $this->completeRun();
+
                 return 0;
             }
         } catch (\Exception $e) {
@@ -102,6 +104,7 @@ class TrustedformCommand extends ModeratedCommand
         }
 
         $this->completeRun();
+
         return 1;
     }
 }
