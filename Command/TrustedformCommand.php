@@ -75,12 +75,14 @@ class TrustedformCommand extends ModeratedCommand
         if (!$this->checkRunStatus($input, $output, $this->getName().$threadId)) {
             $this->output->writeln('Already Running.');
 
+            $this->completeRun();
             return 0;
         }
 
         if ($threadId > $maxThreads) {
             $this->output->writeln('--thread-id cannot be larger than --max-thread');
 
+            $this->completeRun();
             return 1;
         }
         define('MAUTIC_PLUGIN_ENHANCER_CLI', true);
@@ -93,12 +95,14 @@ class TrustedformCommand extends ModeratedCommand
             if ($model->claimCertificates($threadId, $maxThreads, $batchLimit, $attemptLimit, $output)) {
                 $output->writeln('Finished claiming certificates.');
 
+                $this->completeRun();
                 return 0;
             }
         } catch (\Exception $e) {
             $output->writeln('Trustedform certificate claiming failure '.$e->getMessage());
         }
 
+        $this->completeRun();
         return 1;
     }
 }
