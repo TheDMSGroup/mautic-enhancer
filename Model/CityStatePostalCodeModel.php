@@ -19,7 +19,7 @@ class CityStatePostalCodeModel extends AbstractCommonModel
 
     const REFERENCE_NAME   = 'allCountries.zip';
 
-    const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
+    const REFERENCE_REMOTE = 'http://download.geonames.org/export/dump/';
 
     /**
      * @throws \Doctrine\DBAL\DBALException
