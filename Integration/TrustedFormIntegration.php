@@ -35,20 +35,6 @@ class TrustedFormIntegration extends AbstractEnhancerIntegration
     protected $integrationModel;
 
     /**
-     * TrustedFormIntegration constructor.
-     *
-     * @param MauticFactory|null $factory
-     * @param TrustedformModel   $trustedformModel
-     */
-    public function __construct(
-        MauticFactory $factory = null,
-        TrustedformModel $trustedformModel
-    ) {
-        $this->integrationModel = $trustedformModel;
-        parent::__construct($factory);
-    }
-
-    /**
      * @return string
      */
     public function getName()
