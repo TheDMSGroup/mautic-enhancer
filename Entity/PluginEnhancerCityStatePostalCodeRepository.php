@@ -97,12 +97,12 @@ EOSQL;
                 $em->persist($record);
                 ++$count;
                 if (0 === ($count % $batchSize)) {
-                    $em->flush(PluginEnhancerCityStatePostalCode::class);
-                    $em->clear(PluginEnhancerCityStatePostalCode::class);
+                    $em->flush();
+                    $em->clear();
                 }
             }
-            $em->flush(PluginEnhancerCityStatePostalCode::class);
-            $em->clear(PluginEnhancerCityStatePostalCode::class);
+            $em->flush();
+            $em->clear();
         }
     }
 

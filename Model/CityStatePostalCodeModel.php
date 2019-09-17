@@ -19,7 +19,7 @@ class CityStatePostalCodeModel extends AbstractCommonModel
 
     const REFERENCE_NAME   = 'allCountries.zip';
 
-    const REFERENCE_REMOTE = 'http://download.geonames.org/export/dump/';
+    const REFERENCE_REMOTE = 'http://download.geonames.org/export/zip/';
 
     /**
      * @throws \Doctrine\DBAL\DBALException
@@ -67,6 +67,7 @@ class CityStatePostalCodeModel extends AbstractCommonModel
     public function fetchAllCountriesZip()
     {
         try {
+            ini_set('memory_limit', '-1');
             file_put_contents(
                 self::REFERENCE_LOCAL.self::REFERENCE_NAME,
                 file_get_contents(self::REFERENCE_REMOTE.self::REFERENCE_NAME)
