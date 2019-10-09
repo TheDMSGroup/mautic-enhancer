@@ -55,7 +55,12 @@ class BlacklistModel extends AbstractCommonModel
         /** @var PluginEnhancerBlacklist $record */
         $record = $this->getRepository()->findByPhone($phone);
 
-        if (null === $record || $record->getDateAdded()->getTimestamp() > (time() - ($ageMinutes * 60))) {
+        if (
+            null === $record
+            || $record->getDateAdded()->getTimestamp() < (time() - ($ageMinutes * 60))
+        ) {
+            // Either this number has never been seen, or it was seen longer than $ageMinutes ago.
+
             // Do not make the API request if cacheOnly.
             if ($cacheOnly) {
                 return false;
