@@ -108,7 +108,14 @@ class AgeFromBirthdateIntegration extends AbstractEnhancerIntegration
                 && $today->format('Y-m-d') != $dobStr
             ) {
                 // DOB field to date/month/day fields.
-                $dob   = new \DateTime(is_numeric($dobStr) ? '@'.$dobStr : $dobStr);
+                if (is_numeric($dobStr)) {
+                    $dob = new \DateTime('@'.$dobStr);
+                } elseif (class_exists('westonwatson\Datescan\Datescan')) {
+                    $dob = (new \westonwatson\Datescan\Datescan($dobStr))->getRealDateTime();
+                } else {
+                    $dob = new \DateTime($dobStr);
+                }
+
                 $day   = (int) $dob->format('d');
                 $month = (int) $dob->format('m');
                 $year  = (int) $dob->format('Y');
