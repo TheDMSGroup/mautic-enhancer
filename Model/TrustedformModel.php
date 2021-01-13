@@ -192,8 +192,8 @@ class TrustedformModel extends AbstractCommonModel
             'return_raw'        => true,
             'curl_options'      => [
                 CURLOPT_USERPWD        => $this->keys['username'].':'.$this->keys['password'],
-                CURLOPT_CONNECTTIMEOUT => 5,
-                CURLOPT_TIMEOUT        => 10,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT        => 60,
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
             ],
